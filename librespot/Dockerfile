@@ -6,7 +6,7 @@ ENV LANG C.UTF-8
 
 #Install librespot
 
-RUN apk --no-cache add librespot
+RUN apk add --no-cache librespot
 
 # Copy data for add-on
 COPY run.sh /
