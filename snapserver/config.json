@@ -12,6 +12,6 @@
   "schema": {
     "snapserveropts": "str"
    },
-  "ports": {"1704/tcp": 1704, "1705/tcp": 1705},
+  "ports": {"1704/tcp": 1704, "1705/tcp": 1705}, "1780/tcp": 1780,
   "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"]
   }
