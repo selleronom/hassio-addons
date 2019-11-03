@@ -10,3 +10,4 @@ printf '{\n\t"ConfigVersion": 2,\n\t"Groups": []\n}' > /var/lib/snapserver/serve
 
 echo "Start Snapserver..."
 /usr/bin/snapserver ${SNAPSERVER_OPTS}
+echo "Started"
