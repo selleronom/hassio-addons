@@ -1,7 +1,7 @@
 {
-  "name": "librespot",
+  "name": "raspotify",
   "version": "beta",
-  "slug": "librespot",
+  "slug": "raspotify",
   "description": "spotify",
   "startup": "services",
   "boot": "auto",
