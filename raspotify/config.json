@@ -1,0 +1,40 @@
+{
+  "name": "raspotify",
+  "version": "0.13.1",
+  "slug": "raspotify",
+  "description": "Allow device to be discovered by Spotify and play music via Spotify Connect",
+  "arch":["armhf"],
+  "startup": "application",
+  "boot": "auto",
+  "map": ["share:rw"],
+  "audio": true,
+  "hassio_api": true,
+  "hassio_role": "default",
+  "options": {
+    "instances": [
+      {
+        "device_name": "Home assistant",
+        "spotify_user": "username_or_email",
+        "spotify_password": "password",
+        "librespotopts": "-v -n HomeAssistant --backend pipe --device /share/snapfifo/librespot"
+      }
+    ]
+  },
+  "schema": {
+    "instances": [
+      {
+        "device_name": "str",
+        "spotify_user": "str?",
+        "spotify_password": "str?",
+        "librespotopts": "str?",
+        "speaker": "str?",
+        "bitrate": "match(96|160|320)?",
+        "allow_guests": "bool?",
+        "initial_volume": "int(0,100)?",
+        "device_type": "match(computer|tablet|smartphone|speaker|tv|avr|stb|audiodongle)?"
+      }
+    ]
+  },
+  "host_network": true,
+  "host_dbus": true
+}
