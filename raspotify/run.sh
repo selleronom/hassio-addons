@@ -46,17 +46,17 @@ for i in `seq 0 $(($length-1))`; do
   if [ "$SPOTIFY_USER" == "null" ] || [ "$SPOTIFY_PASSWORD" == "null" ] ; then
     echo "[$(($i+1))/$length] Starting spotify connect without account"
     if [ $i == $(($length-1)) ] ; then
-      librespot -n "$DEVICE_NAME" --device "$SPEAKER" --bitrate "$BITRATE" --initial-volume	"$INITIAL_VOLUME" --device-type	"$DEVICE_TYPE" "$ALLOW_GUESTS" --backend pipe --device /share/snapfifo/librespot
+      librespot -n "$DEVICE_NAME" --backend pipe --device /share/snapfifo/librespot --bitrate "$BITRATE" --initial-volume	"$INITIAL_VOLUME" --device-type	"$DEVICE_TYPE" "$ALLOW_GUESTS"
     else
-      librespot -n "$DEVICE_NAME" --device "$SPEAKER" --bitrate "$BITRATE" --initial-volume	"$INITIAL_VOLUME" --device-type	"$DEVICE_TYPE" "$ALLOW_GUESTS" --backend pipe --device /share/snapfifo/librespot &
+      librespot -n "$DEVICE_NAME" --backend pipe --device /share/snapfifo/librespot --bitrate "$BITRATE" --initial-volume	"$INITIAL_VOLUME" --device-type	"$DEVICE_TYPE" "$ALLOW_GUESTS" &
     fi
 
   else
     echo "[$(($i+1))/$length] Starting spotify with account $SPOTIFY_USER"
     if [ $i == $(($length-1)) ] ; then
-      librespot -n "$DEVICE_NAME" -u "$SPOTIFY_USER" -p "$SPOTIFY_PASSWORD" --device "$SPEAKER" --bitrate "$BITRATE" --initial-volume	"$INITIAL_VOLUME" --device-type	"$DEVICE_TYPE"  "$ALLOW_GUESTS" --backend pipe --device /share/snapfifo/librespot
+      librespot -n "$DEVICE_NAME" -u "$SPOTIFY_USER" -p "$SPOTIFY_PASSWORD" --backend pipe --device /share/snapfifo/librespot --bitrate "$BITRATE" --initial-volume	"$INITIAL_VOLUME" --device-type	"$DEVICE_TYPE"  "$ALLOW_GUESTS" 
     else
-      librespot -n "$DEVICE_NAME" -u "$SPOTIFY_USER" -p "$SPOTIFY_PASSWORD" --device "$SPEAKER" --bitrate "$BITRATE" --initial-volume	"$INITIAL_VOLUME" --device-type	"$DEVICE_TYPE"  "$ALLOW_GUESTS" --backend pipe --device /share/snapfifo/librespot &
+      librespot -n "$DEVICE_NAME" -u "$SPOTIFY_USER" -p "$SPOTIFY_PASSWORD" --backend pipe --device /share/snapfifo/librespot --bitrate "$BITRATE" --initial-volume	"$INITIAL_VOLUME" --device-type	"$DEVICE_TYPE"  "$ALLOW_GUESTS" &
     fi
   fi
 
