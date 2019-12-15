@@ -1,6 +1,10 @@
 #!/bin/bash
 
 echo "Start Avahi-daemon..."
+/usr/bin/dbus-daemon --system
+echo "Started"
+
+echo "Start Avahi-daemon..."
 /usr/sbin/avahi-daemon -D
 echo "Started"
 
