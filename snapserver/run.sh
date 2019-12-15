@@ -1,5 +1,7 @@
 #!/bin/bash
 
+exec avahi-daemon -D
+
 CONFIG_PATH=/data/options.json
 
 SNAPSERVER_OPTS=$(jq --raw-output ".snapserveropts" $CONFIG_PATH)
