@@ -5,7 +5,11 @@ FROM $BUILD_FROM
 ENV LANG C.UTF-8
 
 #Install snapcast
-RUN apk add --no-cache snapcast jq bash avahi dbus
+RUN apk add --update --no-cache \
+snapcast \
+jq \
+bash \
+dbus
 
 # Copy data for add-on
 COPY run.sh /
