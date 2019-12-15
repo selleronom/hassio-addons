@@ -14,7 +14,7 @@ RUN mkdir -p /var/run/dbus
 VOLUME /var/run/dbus
 
 # login keys come in through a volume; we intend to log into root on this to run commands
-ENTRYPOINT avahi-daemon --no-drop-root
+#ENTRYPOINT avahi-daemon --no-drop-root
 
 # Copy data for add-on
 COPY run.sh /
