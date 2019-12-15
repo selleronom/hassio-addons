@@ -1,11 +1,11 @@
-ARG BUILD_FROM=alpine:edge
+ARG BUILD_FROM=alpine
 FROM $BUILD_FROM
 
 # Add env
 ENV LANG C.UTF-8
 
 #Install snapcast
-RUN apk add --no-cache snapcast-server jq bash
+RUN apk add --no-cache snapcast-server jq bash avahi-dev
 
 # Copy data for add-on
 COPY run.sh /
