@@ -5,7 +5,7 @@
 #echo "Started"
 
 echo "Start Avahi-daemon..."
-/usr/sbin/avahi-daemon -D
+/usr/sbin/avahi-daemon --no-drop-root
 echo "Started"
 
 CONFIG_PATH=/data/options.json
