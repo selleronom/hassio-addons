@@ -1,6 +1,8 @@
 #!/bin/bash
 
-exec avahi-daemon -D
+echo "Start Avahi-daemon..."
+/usr/sbin/avahi-daemon -D
+echo "Started"
 
 CONFIG_PATH=/data/options.json
 
