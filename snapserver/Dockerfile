@@ -1,4 +1,4 @@
-ARG BUILD_FROM
+ARG BUILD_FROM=alpine:edge
 FROM $BUILD_FROM
 
 # Add env
