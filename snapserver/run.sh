@@ -1,8 +1,8 @@
 #!/bin/bash
 
-echo "Start DBUS-daemon..."
-/usr/bin/dbus-daemon --system
-echo "Started"
+#echo "Start DBUS-daemon..."
+#/usr/bin/dbus-daemon --system
+#echo "Started"
 
 echo "Start Avahi-daemon..."
 /usr/sbin/avahi-daemon -D
