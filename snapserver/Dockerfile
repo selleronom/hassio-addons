@@ -7,10 +7,14 @@ ENV LANG C.UTF-8
 #Install snapcast
 RUN apk add --no-cache snapcast jq bash avahi avahi-dev avahi-compat-libdns_sd dbus
 
-RUN mkdir -p /var/run/dbus
+ADD avahi-daemon.conf /etc/avahi/avahi-daemon.conf
 
+# workaround to get dbus working, required for avahi to talk to dbus. This will be mounted
+RUN mkdir -p /var/run/dbus
 VOLUME /var/run/dbus
-VOLUME /etc/avahi/services
+
+# login keys come in through a volume; we intend to log into root on this to run commands
+ENTRYPOINT avahi-daemon --no-drop-root
 
 # Copy data for add-on
 COPY run.sh /
