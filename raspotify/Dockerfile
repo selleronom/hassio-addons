@@ -1,6 +1,6 @@
 ARG BUILD_FROM
 #FROM $BUILD_FROM
-FROM resin/rpi-raspbian:stretch
+FROM resin/rpi-raspbian:buster
 
 # Add env
 ENV LANG C.UTF-8
