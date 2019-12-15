@@ -12,6 +12,8 @@ jq \
 bash \
 dbus
 
+COPY asound.conf /etc/
+
 # Copy data for add-on
 COPY run.sh /
 RUN chmod a+x /run.sh
