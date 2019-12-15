@@ -5,35 +5,16 @@
   "description": "Snapcast server",
   "startup": "application",
   "boot": "auto",
-  "hassio_api": true,
-  "homeassistant_api": true,
   "host_network": true,
-  "privileged": [],
   "host_dbus": true,
   "map": ["share:rw"],
   "options": { 
     "snapserveropts": "-s pipe:///share/snapfifo/librespot?name=SpotifyConnect&sampleformat=44100:16:2",
-    "log_level": "info",
-    "avahi_interfaces": "",
-    "avahi_hostname": "",
-    "avahi_domainname": "local",
-    "enable_ipv6": true,
-    "insecure": true,
-    "packages": [],
-    "init_commands": [],
-    "plugins": []
+    "log_level": "info"
   },
   "schema": {
     "snapserveropts": "str",
-    "log_level": "match(^(trace|debug|info|notice|warning|error|fatal)$)",
-    "avahi_interfaces": "str",
-    "avahi_hostname": "str",
-    "avahi_domainname": "str",
-    "enable_ipv6": "bool",
-    "insecure": "bool",
-    "packages": ["str"],
-    "init_commands": ["str"],
-    "plugins": ["str"]
+    "log_level": "match(^(trace|debug|info|notice|warning|error|fatal)$)"
    },
   "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"]
   }

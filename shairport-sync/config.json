@@ -1,0 +1,20 @@
+{
+    "name": "shairport-sync",
+    "version": "3.3.5-r0",
+    "slug": "shairport-sync",
+    "description": "shairport-sync piped to snapserver",
+    "arch": ["armhf, armv7, aarch64, amd64, i386"],
+    "startup": "application",
+    "boot": "auto",
+    "map": ["share:rw"],
+    "options": {
+        "log_level": "info",
+        "name": "AirPlay"
+    },
+    "schema": {
+        "log_level": "match(^(trace|debug|info|notice|warning|error|fatal)$)",
+        "name": "str"
+    },
+    "host_network": true,
+    "host_dbus": true
+  }

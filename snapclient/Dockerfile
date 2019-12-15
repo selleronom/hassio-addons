@@ -7,6 +7,9 @@ ENV LANG C.UTF-8
 #Install snapcast
 RUN apk add --no-cache snapcast-client bash
 
+# Copy alsa config for piping to snapserver
+COPY asound.conf /etc/
+
 # Copy data for add-on
 COPY run.sh /
 RUN chmod a+x /run.sh
