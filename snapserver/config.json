@@ -3,7 +3,7 @@
   "version": "beta",
   "slug": "snapcastserver",
   "description": "Snapcast server",
-  "startup": "system",
+  "startup": "application",
   "boot": "auto",
   "hassio_api": true,
   "homeassistant_api": true,
@@ -17,7 +17,7 @@
     "avahi_hostname": "",
     "avahi_domainname": "local",
     "enable_ipv6": true,
-    "insecure": false,
+    "insecure": true,
     "packages": [],
     "init_commands": [],
     "plugins": []
@@ -34,6 +34,5 @@
     "init_commands": ["str"],
     "plugins": ["str"]
    },
-  "ports": {"1704/tcp": 1704, "1705/tcp": 1705, "1780/tcp": 1780},
   "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"]
   }
