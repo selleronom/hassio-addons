@@ -5,7 +5,7 @@ FROM $BUILD_FROM
 ENV LANG C.UTF-8
 
 #Install snapcast
-RUN apk add --no-cache snapcast jq bash avahi avahi-dev avahi-compat-libdns_sd dbus
+RUN apk add --no-cache snapcast jq bash avahi avahi-dev avahi-tools avahi-compat-libdns_sd dbus
 
 ADD avahi-daemon.conf /etc/avahi/avahi-daemon.conf
 
