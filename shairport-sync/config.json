@@ -3,7 +3,7 @@
     "version": "3.3.5-r0",
     "slug": "shairport-sync",
     "description": "shairport-sync piped to snapserver",
-    "arch": ["armhf, armv7, aarch64, amd64, i386"],
+    "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"],
     "startup": "application",
     "boot": "auto",
     "map": ["share:rw"],
