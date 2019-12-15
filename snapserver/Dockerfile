@@ -13,7 +13,7 @@ RUN apk add --no-cache snapcast jq bash avahi avahi-dev avahi-tools avahi-compat
 #RUN mkdir -p /var/run/dbus
 #VOLUME /run/dbus/system_bus_socket:/run/dbus/system_bus_socket
 
-RUN export DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket
+#RUN export DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket
 
 # login keys come in through a volume; we intend to log into root on this to run commands
 #ENTRYPOINT avahi-daemon --no-drop-root

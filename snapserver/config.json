@@ -9,7 +9,8 @@
   "homeassistant_api": true,
   "host_network": true,
   "privileged": [],
-  "map": ["run:rw"],
+  "host_dbus": true,
+  "map": ["share:rw"],
   "options": { 
     "snapserveropts": "-s pipe:///share/snapfifo/librespot?name=SpotifyConnect&sampleformat=44100:16:2",
     "log_level": "info",
