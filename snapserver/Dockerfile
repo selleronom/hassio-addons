@@ -6,8 +6,12 @@ ENV LANG C.UTF-8
 
 #Install snapcast
 RUN apk add --update \
---repository http://dl-cdn.alpinelinux.org/alpine/edge/community \
-build-base alsa-lib-dev rust cargo make gcc busybox libgcc musl git snapcast jq bash dbus
+build-base alsa-lib-dev libgcc musl git jq bash dbus
+
+#RUN apk add --update \
+#--repository http://dl-cdn.alpinelinux.org/alpine/edge/community \
+#cargo rust snapcast
+
 #&& git clone https://github.com/librespot-org/librespot.git \
 #&& cd librespot \
 #&& cargo build --release \
