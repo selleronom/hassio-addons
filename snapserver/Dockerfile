@@ -8,9 +8,9 @@ ENV LANG C.UTF-8
 RUN apk add --update \
 build-base alsa-lib-dev libgcc musl git jq bash dbus
 
-#RUN apk add --update \
-#--repository http://dl-cdn.alpinelinux.org/alpine/edge/community \
-#cargo rust snapcast
+RUN apk add --update \
+--repository http://dl-cdn.alpinelinux.org/alpine/edge/community \
+cargo rust snapcast
 
 #&& git clone https://github.com/librespot-org/librespot.git \
 #&& cd librespot \
