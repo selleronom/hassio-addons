@@ -1,12 +1,18 @@
-ARG BUILD_FROM=debian:latest
-FROM $BUILD_FROM
+ARG BUILD_FROM=hassioaddons/base:edge
+FROM ${BUILD_FROM}
+
+# Set shell
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Add env
 ENV LANG C.UTF-8
 
 #Install snapcast
-RUN apt update && apt install snapserver
-RUN curl -sL https://dtcooper.github.io/raspotify/install.sh | sh
+RUN apk add --update --no-cache \
+--repository http://dl-cdn.alpinelinux.org/alpine/edge/community \
+snapcast \
+jq \
+bash \
 
 #&& git clone https://github.com/librespot-org/librespot.git \
 #&& cd librespot \
