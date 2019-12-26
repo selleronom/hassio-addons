@@ -1,16 +1,12 @@
-ARG BUILD_FROM=alpine:edge
+ARG BUILD_FROM=debian:latest
 FROM $BUILD_FROM
 
 # Add env
 ENV LANG C.UTF-8
 
 #Install snapcast
-RUN apk add --update \
-build-base alsa-lib-dev libgcc musl git jq bash dbus
-
-RUN apk add --update \
---repository http://dl-cdn.alpinelinux.org/alpine/edge/community \
-cargo rust snapcast
+RUN apt update && apt install snapserver
+RUN curl -sL https://dtcooper.github.io/raspotify/install.sh | sh
 
 #&& git clone https://github.com/librespot-org/librespot.git \
 #&& cd librespot \
