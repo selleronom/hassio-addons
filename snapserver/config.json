@@ -1,20 +1,19 @@
 {
-  "name": "snapcast-server",
-  "version": "beta",
+  "name": "Snapserver",
+  "version": "latest",
   "slug": "snapcastserver",
-  "description": "Snapcast server",
+  "description": "Snapcast server with librespot",
   "startup": "application",
   "boot": "auto",
   "host_network": true,
   "host_dbus": true,
-  "map": ["share:rw"],
   "options": { 
-    "snapserveropts": "-s pipe:///share/snapfifo/librespot?name=SpotifyConnect&sampleformat=44100:16:2",
+    "snapserveropts": "",
     "log_level": "info"
   },
   "schema": {
     "snapserveropts": "str",
     "log_level": "match(^(trace|debug|info|notice|warning|error|fatal)$)"
    },
-  "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"]
+  "arch": ["armv7", "aarch64"]
   }
