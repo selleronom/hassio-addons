@@ -3,6 +3,7 @@ FROM $BUILD_FROM
 
 ENV LANG C.UTF-8
 
+# Install dep for snapserver and librespot
 RUN apt-get update && apt-get -y install \
 curl \
 apt-transport-https \
