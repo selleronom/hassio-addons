@@ -1,0 +1,8 @@
+#!/usr/bin/with-contenv bashio
+# ==============================================================================
+# Runs snapserver
+# ==============================================================================
+bashio::log.info 'Starting Snapserver...'
+
+# Run snapserver
+exec /usr/bin/snapserver

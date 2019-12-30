@@ -1,19 +1,30 @@
 {
   "name": "Snapserver",
-  "version": "latest",
-  "slug": "snapcastserver",
+  "version": "dev",
+  "slug": "snapserver",
   "description": "Snapcast server with librespot",
-  "startup": "application",
+  "url": "https://github.com/selleronom/hassio-addons/tree/master/snapserver",
+  "startup": "services",
+  "arch": [
+    "aarch64",
+    "armv7",
+    "armhf"
+  ],
+  "map": [
+    "config"
+  ],
   "boot": "auto",
+  "hassio_api": true,
+  "hassio_role": "default",
   "host_network": true,
   "host_dbus": true,
   "options": { 
-    "snapserveropts": "",
-    "log_level": "info"
+    "name": "Hass.io",
+    "bitrate": 160
   },
   "schema": {
-    "snapserveropts": "str",
-    "log_level": "match(^(trace|debug|info|notice|warning|error|fatal)$)"
-   },
-  "arch": ["armv7", "aarch64"]
+    "log_level": "match(^(trace|debug|info|notice|warning|error|fatal)$)?",
+    "name": "str",
+    "bitrate": "match(^(96|160|320)$)"
+   }
   }
