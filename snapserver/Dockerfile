@@ -8,28 +8,28 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # Setup base
 # hadolint ignore=DL3003
 RUN apt-get update && apt-get -y install \
-apt-transport-https \
-gnupg2 \
-libavahi-client3 \
-libavahi-common3 \
-libflac8 \
-libogg0 \
-libopus0 \
-libvorbis0a \
-libvorbisenc2 \
-&& curl -s https://api.github.com/repos/badaix/snapcast/releases/latest | \
-grep browser_download_url | \
-grep snapserver | \
-grep armhf | \
-cut -d '"' -f 4 | \
-xargs -I URL curl -L URL -o snapserver-latest.deb \
-&& dpkg -i snapserver-latest.deb \
-&& apt-get -f install \
-&& curl -sSL https://dtcooper.github.io/raspotify/key.asc | apt-key add -v - \
-&& echo 'deb https://dtcooper.github.io/raspotify raspotify main' | tee /etc/apt/sources.list.d/raspotify.list \
-&& apt-get update \
-&& apt-get install -y \
-raspotify
+    apt-transport-https \
+    gnupg2 \
+    libavahi-client3 \
+    libavahi-common3 \
+    libflac8 \
+    libogg0 \
+    libopus0 \
+    libvorbis0a \
+    libvorbisenc2 \
+    && curl -s https://api.github.com/repos/badaix/snapcast/releases/latest | \
+    grep browser_download_url | \
+    grep snapserver | \
+    grep armhf | \
+    cut -d '"' -f 4 | \
+    xargs -I URL curl -L URL -o snapserver-latest.deb \
+    && dpkg -i snapserver-latest.deb \
+    && apt-get -f install \
+    && curl -sSL https://dtcooper.github.io/raspotify/key.asc | apt-key add -v - \
+    && echo 'deb https://dtcooper.github.io/raspotify raspotify main' | tee /etc/apt/sources.list.d/raspotify.list \
+    && apt-get update \
+    && apt-get install -y \
+    raspotify
 
 # Copy root filesystem
 COPY rootfs /

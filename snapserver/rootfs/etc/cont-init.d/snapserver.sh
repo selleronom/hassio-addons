@@ -30,7 +30,16 @@ fi
 
 name=$(bashio::config 'name')
 bitrate=$(bashio::config 'bitrate')
+username=$(bashio::config 'username')
+password=$(bashio::config 'password')
+volume=$(bashio::config 'volume')
 
-{
-    echo "stream = spotify:///librespot?name=Spotify&devicename=${name}&bitrate=${bitrate}"
-} >> /etc/snapserver.conf
+if bashio::config.has_value 'username'; then
+    {
+        echo "stream = spotify:///librespot?name=Spotify&devicename=${name}&bitrate=${bitrate}&volume=${volume}&cache=/share/librespot&username=${username}&password=${password}"
+    } >> /etc/snapserver.conf
+else
+    {
+        echo "stream = spotify:///librespot?name=Spotify&devicename=${name}&bitrate=${bitrate}&volume=${volume}&cache=/share/librespot"
+    } >> /etc/snapserver.conf
+fi

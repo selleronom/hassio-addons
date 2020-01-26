@@ -11,20 +11,26 @@
     "armhf"
   ],
   "map": [
-    "config"
+    "share:rw"
   ],
   "boot": "auto",
   "hassio_api": true,
   "hassio_role": "default",
   "host_network": true,
   "host_dbus": true,
-  "options": { 
+  "options": {
     "name": "Hass.io",
-    "bitrate": 160
+    "bitrate": 320,
+    "username": "",
+    "password": "",
+    "volume": 50
   },
   "schema": {
     "log_level": "match(^(trace|debug|info|notice|warning|error|fatal)$)?",
     "name": "str",
-    "bitrate": "match(^(96|160|320)$)"
-   }
+    "bitrate": "match(^(96|160|320)$)",
+    "username": "str",
+    "password": "str",
+    "volume": "int"
   }
+}
