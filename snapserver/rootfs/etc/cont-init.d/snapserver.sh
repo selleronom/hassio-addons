@@ -36,10 +36,10 @@ volume=$(bashio::config 'volume')
 
 if bashio::config.has_value 'username'; then
     {
-        echo "stream = spotify:///librespot?name=Spotify&devicename=${name}&bitrate=${bitrate}&volume=${volume}&cache=/share/librespot&username=${username}&password=${password}"
+        echo "stream = spotify:///librespot?name=Spotify&devicename=${name}&bitrate=${bitrate}&volume=${volume}&username=${username}&password=${password}"
     } >> /etc/snapserver.conf
 else
     {
-        echo "stream = spotify:///librespot?name=Spotify&devicename=${name}&bitrate=${bitrate}&volume=${volume}&cache=/share/librespot"
+        echo "stream = spotify:///librespot?name=Spotify&devicename=${name}&bitrate=${bitrate}&volume=${volume}"
     } >> /etc/snapserver.conf
 fi
