@@ -1,35 +1,27 @@
-ARG BUILD_FROM
+ARG BUILD_FROM=hassioaddons/base:latest
 # hadolint ignore=DL3006
 FROM $BUILD_FROM
 
 # Set shell
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
+WORKDIR /root
+# nix 0.10.0 fix; https://github.com/librespot-org/librespot/issues/454
+COPY Cargo.toml-upd /tmp/Cargo.toml
+
 # Setup base
 # hadolint ignore=DL3003
-RUN apt-get update && apt-get -y install \
-    apt-transport-https \
-    gnupg2 \
-    libavahi-client3 \
-    libavahi-common3 \
-    libflac8 \
-    libogg0 \
-    libopus0 \
-    libvorbis0a \
-    libvorbisenc2 \
-    && curl -s https://api.github.com/repos/badaix/snapcast/releases/latest | \
-    grep browser_download_url | \
-    grep snapserver | \
-    grep armhf | \
-    cut -d '"' -f 4 | \
-    xargs -I URL curl -L URL -o snapserver-latest.deb \
-    && dpkg -i snapserver-latest.deb \
-    && apt-get -f install \
-    && curl -sSL https://dtcooper.github.io/raspotify/key.asc | apt-key add -v - \
-    && echo 'deb https://dtcooper.github.io/raspotify raspotify main' | tee /etc/apt/sources.list.d/raspotify.list \
-    && apt-get update \
-    && apt-get install -y \
-    raspotify
+RUN apk add --virtual .build-deps build-base git curl cargo portaudio-dev protobuf-dev pulseaudio-dev \
+    && cd /root \
+    && git clone https://github.com/librespot-org/librespot.git \
+    && cd librespot \
+    && cp /tmp/Cargo.toml connect/ \
+    && cargo build --jobs $(grep -c ^processor /proc/cpuinfo) --release --no-default-features \
+    && mv target/release/librespot /usr/local/bin \
+    && cd / \
+    && apk --purge del .build-deps \
+    && apk add llvm-libunwind snapcast-server@edge \
+    && rm -rf /etc/ssl /var/cache/apk/* /lib/apk/db/* /root/librespot /root/.cargo
 
 # Copy root filesystem
 COPY rootfs /

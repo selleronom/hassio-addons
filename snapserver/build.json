@@ -1,8 +1,7 @@
 {
+  "squash": false,
   "build_from": {
-    "aarch64": "hassioaddons/ubuntu-base-aarch64:4.0.3",
-    "armv7": "hassioaddons/ubuntu-base-armv7:4.0.3",
-    "armhf": "hassioaddons/ubuntu-base-armhf:4.0.3"
+    "aarch64": "hassioaddons/base-aarch64:latest"
   },
   "args": {}
 }
