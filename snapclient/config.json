@@ -12,7 +12,6 @@
   "boot": "auto",
   "hassio_api": true,
   "hassio_role": "default",
-  "host_network": true,
   "audio": true,
   "options": {},
   "schema": {}
