@@ -1,7 +1,7 @@
 {
   "squash": false,
   "build_from": {
-    "aarch64": "hassioaddons/base-aarch64:7.1.0"
+    "aarch64": "hassioaddons/base-aarch64:latest"
   },
   "args": {}
 }

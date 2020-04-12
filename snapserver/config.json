@@ -1,19 +1,25 @@
 {
   "name": "Snapserver",
-  "image": "byteri/hassio-addons-snapserver-{arch}",
   "version": "dev",
   "slug": "snapserver",
   "description": "Snapcast server with librespot",
   "url": "https://github.com/selleronom/hassio-addons/tree/master/snapserver",
   "startup": "services",
-  "arch": [
-    "aarch64"
-  ],
+  "arch": ["aarch64"],
   "boot": "auto",
   "hassio_api": true,
   "hassio_role": "default",
-  "host_network": true,
   "host_dbus": true,
+  "ports": {
+    "1704/tcp": 1704,
+    "1705/tcp": 1705,
+    "1780/tcp": 1780
+  },
+  "ports_description": {
+    "1704/tcp": "Snapcast server port",
+    "1705/tcp": "Snapcast TCP control port (set empty to disable)",
+    "1780/tcp": "Snapcast HTTP control port (set empty to disable)"
+  },
   "options": {
     "name": "Hass.io",
     "bitrate": 320,

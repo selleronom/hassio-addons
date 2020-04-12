@@ -1,18 +1,29 @@
 {
   "name": "librespot",
-  "version": "beta",
+  "version": "dev",
   "slug": "librespot",
-  "description": "spotify",
+  "description": "librespot",
+  "url": "https://github.com/selleronom/hassio-addons/tree/master/librespot",
   "startup": "services",
+  "arch": ["aarch64"],
   "boot": "auto",
-  "map": ["share:rw"],
+  "hassio_api": true,
+  "hassio_role": "default",
   "host_network": true,
   "host_dbus": true,
-  "options": { 
-    "librespotopts": "-v -n HomeAssistant --backend pipe --device /share/snapfifo/librespot"
+  "options": {
+    "name": "Hass.io",
+    "bitrate": 320,
+    "username": "",
+    "password": "",
+    "volume": 50
   },
   "schema": {
-    "librespotopts": "str"
-   },
-  "arch": ["armhf", "aarch64", "amd64"]
+    "log_level": "match(^(trace|debug|info|notice|warning|error|fatal)$)?",
+    "name": "str",
+    "bitrate": "match(^(96|160|320)$)",
+    "username": "str",
+    "password": "str",
+    "volume": "int"
   }
+}

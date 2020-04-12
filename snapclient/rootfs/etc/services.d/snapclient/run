@@ -1,0 +1,8 @@
+#!/usr/bin/with-contenv bashio
+# ==============================================================================
+# Runs snapclient
+# ==============================================================================
+bashio::log.info 'Starting snapclient...'
+
+# Run snapclient
+exec /usr/bin/snapclient

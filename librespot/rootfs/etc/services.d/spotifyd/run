@@ -1,0 +1,8 @@
+#!/usr/bin/with-contenv bashio
+# ==============================================================================
+# Runs librespot
+# ==============================================================================
+bashio::log.info 'Starting librespot...'
+
+# Run librespot
+exec /usr/bin/librespot

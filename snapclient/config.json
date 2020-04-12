@@ -1,16 +1,18 @@
 {
-  "name": "snapcast-client",
-  "version": "beta",
-  "slug": "snapcastclient",
+  "name": "Snapclient",
+  "version": "dev",
+  "slug": "snapclient",
   "description": "Snapcast client",
+  "url": "https://github.com/selleronom/hassio-addons/tree/master/snapclient",
   "startup": "services",
+  "arch": [
+    "aarch64"
+  ],
   "boot": "auto",
+  "hassio_api": true,
+  "hassio_role": "default",
+  "host_dbus": true,
   "audio": true,
-  "options": { 
-    "snapclientopts": "-h snapcastserver"
-  },
-  "schema": {
-    "snapclientopts": "str"
-   },
-  "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"]
-  }
+  "options": {},
+  "schema": {}
+}
