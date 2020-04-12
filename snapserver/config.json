@@ -1,11 +1,14 @@
 {
   "name": "Snapserver",
-  "version": "dev",
+  "version": "0.2",
+  "image": "byteri/hassio-addons-snapserver-{arch}",
   "slug": "snapserver",
   "description": "Snapcast server with librespot",
   "url": "https://github.com/selleronom/hassio-addons/tree/master/snapserver",
   "startup": "services",
-  "arch": ["aarch64"],
+  "arch": [
+    "aarch64"
+  ],
   "boot": "auto",
   "hassio_api": true,
   "hassio_role": "default",

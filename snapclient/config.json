@@ -1,6 +1,7 @@
 {
   "name": "Snapclient",
-  "version": "dev",
+  "image": "byteri/hassio-addons-snapclient-{arch}",
+  "version": "0.1",
   "slug": "snapclient",
   "description": "Snapcast client",
   "url": "https://github.com/selleronom/hassio-addons/tree/master/snapclient",
@@ -11,7 +12,7 @@
   "boot": "auto",
   "hassio_api": true,
   "hassio_role": "default",
-  "host_dbus": true,
+  "host_network": true,
   "audio": true,
   "options": {},
   "schema": {}
