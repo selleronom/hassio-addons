@@ -3,5 +3,5 @@
 # Starts the SSH service
 # ============================================================================== 
 
-# Start the SSH daemon
-exec /usr/sbin/sshd < /dev/null
+bashio::log.info "Starting the SSH daemon..."
+exec /usr/sbin/sshd -D -e
