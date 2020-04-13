@@ -14,7 +14,7 @@ RUN apt-get update && apt-get -y upgrade \
     && echo deb [arch=aarch64] https://download.gluster.org/pub/gluster/glusterfs/7/LATEST/Debian/buster/amd64/apt buster main > /etc/apt/sources.list.d/gluster.list \
     && apt-get update \
     && apt-get install -y glusterfs-server \
-    sed -i '/Port 22/c\Port 2121' /etc/ssh/sshd_config
+    && sed -i '/Port 22/c\Port 2121' /etc/ssh/sshd_config
 
 # Copy root filesystem
 COPY rootfs /
