@@ -2,6 +2,9 @@
 # ==============================================================================
 # SSH setup & user
 # ==============================================================================
+
+mkdir -p /var/run/sshd
+
 if bashio::config.has_value 'authorized_keys'; then
     bashio::log.info "Setup authorized_keys"
 
