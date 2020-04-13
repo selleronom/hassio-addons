@@ -1,10 +1,10 @@
 {
   "name": "Gluster",
-  "version": "0.1",
+  "version": "0.2",
   "slug": "gluster",
   "image": "byteri/hassio-addons-gluster-{arch}",
   "description": "Gluster server",
-  "url": "https://github.com/selleronom/hassio-addons/gluster",
+  "url": "https://github.com/selleronom/hassio-addons/tree/master/gluster",
   "startup": "services",
   "arch": [
     "aarch64"
@@ -13,23 +13,28 @@
   "hassio_api": true,
   "hassio_role": "default",
   "host_network": true,
-  "privileged": ["SYS_ADMIN"],
+  "privileged": [
+    "SYS_ADMIN"
+  ],
   "ports": {
+    "2121/tcp": 2121,
     "24007/tcp": 24007,
     "24008/tcp": 24008,
     "49152/tcp": 49152,
     "49153/tcp": 49153,
     "49154/tcp": 49154
-
   },
   "ports_description": {
+    "2121/tcp": "SSH",
     "24007/tcp": "Gluster Daemon",
     "24008/tcp": "Management",
     "49152/tcp": "Brick",
     "49153/tcp": "Brick",
     "49154/tcp": "Brick"
   },
-  "map": ["share:rw"],
+  "map": [
+    "share:rw"
+  ],
   "options": {},
   "schema": {}
 }

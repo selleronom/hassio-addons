@@ -9,7 +9,7 @@ WORKDIR /root
 
 #Install snapcast
 RUN apt-get update && apt-get -y upgrade \
-    && apt-get -y install wget gnupg openssh-server \
+    && apt-get -y install wget gnupg openssh-server openssh-client \
     && wget -O - https://download.gluster.org/pub/gluster/glusterfs/7/rsa.pub | apt-key add - \
     && echo deb [arch=aarch64] https://download.gluster.org/pub/gluster/glusterfs/7/LATEST/Debian/buster/amd64/apt buster main > /etc/apt/sources.list.d/gluster.list \
     && apt-get update \
@@ -38,5 +38,5 @@ LABEL \
     org.label-schema.name="gluster" \
     org.label-schema.schema-version="1.0" \
     org.label-schema.vcs-ref=${BUILD_REF} \
-    org.label-schema.vcs-url="https://github.com/selleronom/hassio-addons/gluster" \
+    org.label-schema.vcs-url="https://github.com/selleronom/hassio-addons/tree/master/gluster" \
     org.label-schema.vendor="Selleronom add-ons"
