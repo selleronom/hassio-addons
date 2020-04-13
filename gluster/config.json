@@ -35,6 +35,12 @@
   "map": [
     "share:rw"
   ],
-  "options": {},
-  "schema": {}
+  "options": {
+    "authorized_keys": []
+  },
+  "schema": {
+    "authorized_keys": [
+      "str"
+    ]
+  }
 }
