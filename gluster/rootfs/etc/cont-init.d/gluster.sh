@@ -3,4 +3,4 @@
 # Home Assistant Community Add-on: Bitwarden
 # ==============================================================================
 
-exec /bin/mkdir -p /data/brick1/gv0
+exec /bin/mkdir -p /share/gluster/brick1/gv0
