@@ -1,0 +1,7 @@
+{
+  "squash": false,
+  "build_from": {
+    "aarch64": "hassioaddons/debian-base-aarch64:3.1.0"
+  },
+  "args": {}
+}
