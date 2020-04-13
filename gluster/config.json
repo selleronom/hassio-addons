@@ -29,6 +29,7 @@
     "49153/tcp": "Brick",
     "49154/tcp": "Brick"
   },
+  "map": ["share:rw"],
   "options": {},
   "schema": {}
 }
