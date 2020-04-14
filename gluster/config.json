@@ -9,23 +9,26 @@
   "arch": [
     "aarch64"
   ],
+  "services": [
+    "gluster:provide"
+  ],
   "boot": "auto",
   "hassio_api": true,
   "hassio_role": "default",
-  "host_network": true,
+  "host_network": false,
   "privileged": [
     "SYS_ADMIN"
   ],
   "ports": {
-    "2121/tcp": 2121,
-    "24007/tcp": 24007,
-    "24008/tcp": 24008,
-    "49152/tcp": 49152,
-    "49153/tcp": 49153,
-    "49154/tcp": 49154
+    "21/tcp": 2121,
+    "24007/tcp": null,
+    "24008/tcp": null,
+    "49152/tcp": null,
+    "49153/tcp": null,
+    "49154/tcp": null
   },
   "ports_description": {
-    "2121/tcp": "SSH",
+    "21/tcp": "SSH",
     "24007/tcp": "Gluster Daemon",
     "24008/tcp": "Management",
     "49152/tcp": "Brick",

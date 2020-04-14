@@ -2,5 +2,8 @@
 # ==============================================================================
 # Home Assistant Community Add-on: Bitwarden
 # ==============================================================================
+declare host
 
-exec /bin/mount -t glusterfs localhost:/gv0 /data
+host=$(bashio::services "mysql" "host")
+
+exec /bin/mount -t glusterfs "${host}":/gv0 /data

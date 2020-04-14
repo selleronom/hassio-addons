@@ -1,11 +1,4 @@
-ARG BUILD_FROM=hassioaddons/debian-base:3.0.1
-###############################################################################
-# Get prebuild containers from Bitwarden RS
-###############################################################################
-ARG BITWARDEN_ARCH
-# hadolint ignore=DL3006
-FROM bitwardenrs/server:1.14.2-aarch64 as bitwarden
-
+ARG BUILD_FROM=hassioaddons/bitwarden-{arch}
 ###############################################################################
 # Build the actual add-on.
 ###############################################################################
@@ -15,32 +8,13 @@ FROM ${BUILD_FROM}
 # Set shell
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# Get the Bitwarden from official images
-COPY --from=bitwarden /bitwarden_rs /opt/bitwarden_rs
-COPY --from=bitwarden /Rocket.toml /opt/Rocket.toml
-COPY --from=bitwarden /web-vault /opt/web-vault
-
-# add Nginx
-# hadolint ignore=DL3009
-RUN \
-    apt-get update \
-    \
-    && apt-get install -y --no-install-recommends \
-    nginx=1.14.2-2+deb10u1 \
-    && apt-get clean \
-    && rm -f -r \
-    /etc/nginx \
-    \
-    && mkdir -p /var/log/nginx \
-    && touch /var/log/nginx/error.log
-    
 # add Gluster
 # hadolint ignore=DL3009
 RUN \
     apt-get update && apt-get install -y wget gnupg \
     && wget -O - https://download.gluster.org/pub/gluster/glusterfs/7/rsa.pub | apt-key add - \
     && echo deb [arch=amd64] https://download.gluster.org/pub/gluster/glusterfs/7/LATEST/Debian/buster/amd64/apt buster main > /etc/apt/sources.list.d/gluster.list \
-    && apt-get update && apt-get install -y glusterfs-client 
+    && apt-get update && apt-get install -y glusterfs-client
 
 # Copy root filesystem
 COPY rootfs /
