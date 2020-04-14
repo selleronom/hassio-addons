@@ -1,6 +1,6 @@
 {
   "name": "Gluster",
-  "version": "0.2",
+  "version": "0.3",
   "slug": "gluster",
   "image": "byteri/hassio-addons-gluster-{arch}",
   "description": "Gluster server",
