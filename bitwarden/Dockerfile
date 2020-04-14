@@ -1,4 +1,4 @@
-ARG BUILD_FROM=hassioaddons/bitwarden-{arch}
+ARG BUILD_FROM=hassioaddons/bitwarden-aarch64
 ###############################################################################
 # Build the actual add-on.
 ###############################################################################
