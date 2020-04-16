@@ -6,9 +6,7 @@
   "description": "Snapcast client",
   "url": "https://github.com/selleronom/hassio-addons/tree/master/snapclient",
   "startup": "services",
-  "arch": [
-    "aarch64"
-  ],
+  "arch": ["armhf", "armv7", "aarch64"],
   "boot": "auto",
   "hassio_api": true,
   "hassio_role": "default",
