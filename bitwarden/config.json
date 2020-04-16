@@ -7,33 +7,21 @@
   "url": "https://github.com/hassio-addons/addon-bitwarden",
   "webui": "[PROTO:ssl]://[HOST]:[PORT:7277]",
   "startup": "services",
-  "arch": [
-    "aarch64"
-  ],
-  "services": [
-    "gluster:need"
-  ],
+  "arch": ["armhf", "armv7", "aarch64"],
   "boot": "auto",
   "apparmor": false,
   "hassio_api": true,
   "hassio_role": "default",
-  "privileged": [
-    "SYS_ADMIN",
-    "SYS_RAWIO"
-  ],
+  "privileged": ["SYS_ADMIN", "SYS_RAWIO"],
   "host_network": false,
-  "devices": [
-    "/dev/fuse:/dev/fuse:rwm"
-  ],
+  "devices": ["/dev/fuse:/dev/fuse:rwm"],
   "ports": {
     "7277/tcp": 7277
   },
   "ports_description": {
     "7277/tcp": "Bitwarden Vault"
   },
-  "map": [
-    "ssl"
-  ],
+  "map": ["ssl"],
   "options": {
     "ssl": true,
     "certfile": "fullchain.pem",

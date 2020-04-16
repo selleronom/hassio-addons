@@ -7,11 +7,10 @@
   "url": "https://github.com/selleronom/hassio-addons/tree/master/gluster",
   "startup": "services",
   "arch": ["armhf", "armv7", "aarch64"],
-  "services": ["gluster:provide"],
   "boot": "auto",
   "hassio_api": true,
   "hassio_role": "default",
-  "host_network": false,
+  "host_network": true,
   "privileged": ["SYS_ADMIN"],
   "ports": {
     "21/tcp": 2121,
