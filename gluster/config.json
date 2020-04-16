@@ -6,19 +6,13 @@
   "description": "Gluster server",
   "url": "https://github.com/selleronom/hassio-addons/tree/master/gluster",
   "startup": "services",
-  "arch": [
-    "aarch64"
-  ],
-  "services": [
-    "gluster:provide"
-  ],
+  "arch": ["armhf", "armv7", "aarch64"],
+  "services": ["gluster:provide"],
   "boot": "auto",
   "hassio_api": true,
   "hassio_role": "default",
   "host_network": false,
-  "privileged": [
-    "SYS_ADMIN"
-  ],
+  "privileged": ["SYS_ADMIN"],
   "ports": {
     "21/tcp": 2121,
     "24007/tcp": null,
@@ -35,15 +29,11 @@
     "49153/tcp": "Brick",
     "49154/tcp": "Brick"
   },
-  "map": [
-    "share:rw"
-  ],
+  "map": ["share:rw"],
   "options": {
     "authorized_keys": []
   },
   "schema": {
-    "authorized_keys": [
-      "str"
-    ]
+    "authorized_keys": ["str"]
   }
 }
