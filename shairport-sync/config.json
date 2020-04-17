@@ -16,5 +16,6 @@
   },
   "audio": true,
   "host_network": false,
-  "host_dbus": true
+  "host_dbus": true,
+  "image": "byteri/hassio-addons-airplay-{arch}"
 }
