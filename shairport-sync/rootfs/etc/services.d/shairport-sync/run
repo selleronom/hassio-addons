@@ -1,0 +1,24 @@
+#!/usr/bin/with-contenv bashio
+# ==============================================================================
+# Runs shairport-sync
+# ==============================================================================
+declare name
+
+if ! bashio::config.has_value 'name'; then
+    bashio::log.fatal
+    bashio::log.fatal "Add-on configuration is incomplete!"
+    bashio::log.fatal
+    bashio::log.fatal "The AirPlay client needs to be identifiable with a name"
+    bashio::log.fatal "and it seems you haven't configured one."
+    bashio::log.fatal
+    bashio::log.fatal "Please set the 'name' add-on option."
+    bashio::log.fatal
+    bashio::exit.nok
+fi
+
+name=$(bashio::config 'name')
+
+bashio::log.info 'Starting shairport-sync...'
+
+# Run shairport-sync
+exec /usr/bin/shairport-sync -a ${name}
