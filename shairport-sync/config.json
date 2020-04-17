@@ -3,7 +3,7 @@
   "version": "0.1",
   "slug": "airplay",
   "description": "AirPlay audio player",
-  "arch": ["armhf", "armv7", "aarch64"],
+  "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"],
   "startup": "application",
   "boot": "auto",
   "options": {
