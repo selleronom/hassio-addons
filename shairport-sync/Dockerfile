@@ -5,7 +5,8 @@ FROM $BUILD_FROM
 #Install snapcast
 RUN apk add --update --no-cache \
     --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
-    shairport-sync
+    shairport-sync \
+    && apk add alsa-plugins-pulse
 
 # Copy root filesystem
 COPY rootfs /
