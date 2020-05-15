@@ -2,21 +2,18 @@
 # ==============================================================================
 # Sets up the configuration file for murmur
 # ==============================================================================
-declare certfile
-declare keyfile
 
 MUMBLE_SERVERPASSWORD=$(bashio::config 'serverpassword')
 MUMBLE_BANDWIDTH=$(bashio::config 'bandwidth')
 MUMBLE_REGISTERNAME=$(bashio::config 'registerName')
 MUMBLE_CERTFILE=$(bashio::config 'certfile')
 MUMBLE_KEYFILE=$(bashio::config 'keyfile')
+MUMBLE_WELCOMETEXT=$(bashio::config 'welcometext')
 
 #!/usr/bin/env sh
 set -e
 
 CONFIGFILE="/etc/murmur/murmur.ini"
-ICEFILE="/etc/murmur/ice.ini"
-WELCOMEFILE="/data/welcometext"
 
 setVal() {
     if [ -n "${1}" ] && [ -n "${2}" ]; then
@@ -30,3 +27,4 @@ setVal bandwidth "${MUMBLE_BANDWIDTH}"
 setVal registerName "${MUMBLE_REGISTERNAME}"
 setVal sslCert "${MUMBLE_CERTFILE}"
 setVal sslKey "${MUMBLE_KEYFILE}"
+setVal welcometext "${MUMBLE_WELCOMETEXT}"

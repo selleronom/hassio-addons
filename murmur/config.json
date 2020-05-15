@@ -10,7 +10,6 @@
   "boot": "auto",
   "hassio_api": true,
   "hassio_role": "default",
-  "host_dbus": true,
   "ports": {
     "64738/tcp": 64738,
     "64738/udp": 64738
@@ -21,10 +20,10 @@
   },
   "map": ["ssl"],
   "options": {
-    "registerName": "Hass.io",
-    "serverpassword": "Hass.io",
+    "registerName": "Hassio",
+    "serverpassword": "",
     "bandwidth": "130000",
-    "ssl": true,
+    "welcometext": "Hassio Mumble server",
     "certfile": "/ssl/fullchain.pem",
     "keyfile": "/ssl/privkey.pem"
   },
@@ -33,7 +32,7 @@
     "registerName": "str",
     "serverpassword": "str",
     "bandwidth": "str",
-    "ssl": "bool",
+    "welcometext": "str",
     "certfile": "str",
     "keyfile": "str"
   }
