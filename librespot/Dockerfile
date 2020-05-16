@@ -9,7 +9,9 @@ WORKDIR /root
 
 # Setup base
 # hadolint ignore=DL3003
-RUN apt-get update && apt-get install sudo -y && curl -sL https://dtcooper.github.io/raspotify/install.sh | sh
+RUN apt-get update && apt-get install wget -y
+RUN wget https://dtcooper.github.io/raspotify/raspotify-latest.deb
+RUN dpkg -i raspotify-latest.deb
 
 # Copy root filesystem
 COPY rootfs /
