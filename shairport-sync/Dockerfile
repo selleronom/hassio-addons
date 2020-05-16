@@ -10,22 +10,37 @@ WORKDIR /root
 # Install shairport-sync
 # hadolint ignore=DL3003
 RUN apk add --virtual .build-deps alpine-sdk \
-    && apk add \
-    alsa-lib \
-    avahi \
-    avahi-libs \
-    libconfig \
-    libcrypto1.1 \
-    libgcc \
-    musl \
-    popt \
-    soxr \
+    autoconf \
+    automake \
+    libtool \
+    alsa-lib-dev \
+    libdaemon-dev \
+    popt-dev \
+    libressl-dev \
+    soxr-dev \
+    avahi-dev \
+    libconfig-dev \
     && git clone https://github.com/mikebrady/shairport-sync.git \
     && cd shairport-sync \
     && autoreconf -i -f \
     && ./configure --with-pipe --with-avahi --with-ssl=openssl --with-metadata \
+    && make \
+    && make install \
     && apk --purge del .build-deps \
-    && rm -rf /etc/ssl /var/cache/apk/* /lib/apk/db/* /root/shairport-sync
+    && apk add \
+    dbus \
+    alsa-lib \
+    libdaemon \
+    popt \
+    libressl \
+    soxr \
+    avahi \
+    libconfig \
+    && rm -rf \
+    /etc/ssl \
+    /var/cache/apk/* \
+    /lib/apk/db/* \
+    /root/shairport-sync
 
 # Copy root filesystem
 COPY rootfs /
