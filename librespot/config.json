@@ -1,16 +1,23 @@
 {
-  "name": "librespot",
-  "version": "dev",
+  "name": "Librespot",
+  "version": "0.1",
+  "image": "byteri/hassio-addons-librespot-{arch}",
   "slug": "librespot",
-  "description": "librespot",
+  "description": "Spotify Connect piped to Snapcast",
   "url": "https://github.com/selleronom/hassio-addons/tree/master/librespot",
   "startup": "services",
-  "arch": ["aarch64"],
+  "arch": ["armhf", "armv7", "aarch64"],
   "boot": "auto",
   "hassio_api": true,
   "hassio_role": "default",
-  "host_network": true,
   "host_dbus": true,
+  "map": ["share:rw"],
+  "ports": {
+    "35535/tcp": 35535
+  },
+  "ports_description": {
+    "35535/tcp": "Zeroconf port"
+  },
   "options": {
     "name": "Hass.io",
     "bitrate": 320,

@@ -1,4 +1,4 @@
-ARG BUILD_FROM=hassioaddons/base:latest
+ARG BUILD_FROM=hassioaddons/base:7.1.0
 # hadolint ignore=DL3006
 FROM $BUILD_FROM
 
@@ -34,7 +34,7 @@ ARG BUILD_VERSION
 
 # Labels
 LABEL \
-    io.hass.name="librespot" \
+    io.hass.name="Librespot" \
     io.hass.description="librespot" \
     io.hass.arch="${BUILD_ARCH}" \
     io.hass.type="addon" \

@@ -2,4 +2,4 @@ Building instructions
 
 docker run --rm --privileged -v \
     ~/.docker:/root/.docker homeassistant/amd64-builder \
-    --armhf --armv7 --aarch64 -t murmur -r https://github.com/selleronom/hassio-addons
+    --armhf --armv7 --aarch64 -t librespot -r https://github.com/selleronom/hassio-addons
