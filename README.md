@@ -14,12 +14,34 @@ https://github.com/selleronom/hassio-addons
 
 ## Add-ons provided by this repository
 
-### &#10003; [Snapserver[addon-snapserver]
+### Bitwarden
 
-![Latest Version][adb-version-shield]
-![Supports aarch64 Architecture][adb-aarch64-shield]
-![Docker Pulls][adb-pulls-shield]
+Experimental support for Gluster, to be used with Gluser add-on
 
-The Android Debug Bridge server program
+### Gluster
 
-[:books: Snapserver add-on documentation][addon-doc-Snapserver]
+Experimental add-on, supporting replicating file systems via the gluster file system
+
+### Librespot
+
+Spotify connect add-on, to be used with Snapserver
+
+### Murmur
+
+Mumble server
+
+### Raspotify
+
+To be deleted
+
+### Shairport-sync
+
+Work in progress, will pipe to snapserver add-on
+
+### Snapclient
+
+Snapcast client, can be used with any snapcast server
+
+### Snapserver
+
+Snapcast server, to be used with Librespot add-on
