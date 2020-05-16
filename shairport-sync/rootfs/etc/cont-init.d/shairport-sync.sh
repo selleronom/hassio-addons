@@ -10,8 +10,9 @@ mkdir -p /share/snapfifo
 
 # Create shairport-sync fifo
 bashio::log.info 'Create fifo file...'
-
-if ! bashio::fs.socket_exists '/share/snapfifo/shairport-sync'; then
-    mkfifo /share/snapfifo/shairport-sync ||
-        bashio::exit.nok "Could not create fifo file file on filesystem"
+if [ -r '/share/snapfifo/shairport-sync' ]; then
+    bashio::log.info 'Fifo exists'
+else
+    mkfifo /share/snapfifo/shairport-sync
+    bashio::log.info 'Fifo created'
 fi
