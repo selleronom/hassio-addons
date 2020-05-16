@@ -4,7 +4,11 @@
 # ==============================================================================
 
 # Create snapfifo dir
-bashio::log.info 'Create snapfifo dir and fifo file...'
+bashio::log.info 'Create snapfifo dir...'
 
 mkdir -p /share/snapfifo
+
+# Create librespot fifo
+bashio::log.info 'Create fifo file...'
+
 mkfifo /share/snapfifo/librespot

@@ -1,4 +1,4 @@
-ARG BUILD_FROM=hassioaddons/debian-base:3.2.0
+ARG BUILD_FROM=hassioaddons/base:7.2.0
 # hadolint ignore=DL3006
 FROM $BUILD_FROM
 
@@ -9,9 +9,16 @@ WORKDIR /root
 
 # Setup base
 # hadolint ignore=DL3003
-RUN apt-get update && apt-get install wget libasound2 -y
-RUN wget https://dtcooper.github.io/raspotify/raspotify-latest.deb
-RUN dpkg -i raspotify-latest.deb
+RUN apk add --virtual .build-deps alpine-sdk cargo portaudio-dev protobuf-dev \
+    && cd /root \
+    && git clone https://github.com/librespot-org/librespot.git \
+    && cd librespot \
+    && cargo build --jobs $(grep -c ^processor /proc/cpuinfo) --release --no-default-features \
+    && mv target/release/librespot /usr/local/bin \
+    && cd / \
+    && apk --purge del .build-deps \
+    && apk add llvm-libunwind libgcc \
+    && rm -rf /etc/ssl /var/cache/apk/* /lib/apk/db/* /root/librespot /root/.cargo
 
 # Copy root filesystem
 COPY rootfs /

@@ -12,4 +12,4 @@ volume=$(bashio::config 'volume')
 # Run librespot
 bashio::log.info 'Starting librespot...'
 
-exec librespot  --name ${name} --backend pipe --device /share/snapfifo/librespot --bitrate ${bitrate} --disable-audio-cache --enable-volume-normalisation --linear-volume --initial-volume=${volume} --username ${username} --password ${password} --zeroconf-port 35535
+exec librespot --name ${name} --backend pipe --device /share/snapfifo/librespot --bitrate ${bitrate} --disable-audio-cache --enable-volume-normalisation --linear-volume --initial-volume=${volume} --username ${username} --password ${password} --zeroconf-port 35535
