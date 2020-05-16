@@ -6,8 +6,6 @@ FROM $BUILD_FROM
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 WORKDIR /root
-# nix 0.10.0 fix; https://github.com/librespot-org/librespot/issues/454
-COPY Cargo.toml-upd /tmp/Cargo.toml
 
 # Setup base
 # hadolint ignore=DL3003
@@ -15,7 +13,6 @@ RUN apk add --virtual .build-deps build-base git curl cargo portaudio-dev protob
     && cd /root \
     && git clone https://github.com/librespot-org/librespot.git \
     && cd librespot \
-    && cp /tmp/Cargo.toml connect/ \
     && cargo build --jobs $(grep -c ^processor /proc/cpuinfo) --release --no-default-features \
     && mv target/release/librespot /usr/local/bin \
     && cd / \
@@ -35,7 +32,7 @@ ARG BUILD_VERSION
 # Labels
 LABEL \
     io.hass.name="Librespot" \
-    io.hass.description="librespot" \
+    io.hass.description="Spotify Connect piped to Snapcast" \
     io.hass.arch="${BUILD_ARCH}" \
     io.hass.type="addon" \
     io.hass.version=${BUILD_VERSION} \
