@@ -17,7 +17,7 @@ RUN apk add --virtual .build-deps build-base git curl cargo portaudio-dev protob
     && mv target/release/librespot /usr/local/bin \
     && cd / \
     && apk --purge del .build-deps \
-    && apk add llvm-libunwind \
+    && apk add llvm-libunwind libgcc \
     && rm -rf /etc/ssl /var/cache/apk/* /lib/apk/db/* /root/librespot /root/.cargo
 
 # Copy root filesystem
