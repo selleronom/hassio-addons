@@ -21,4 +21,4 @@ name=$(bashio::config 'name')
 bashio::log.info 'Starting shairport-sync...'
 
 # Run shairport-sync
-exec /usr/bin/shairport-sync -a ${name}
+exec /usr/bin/shairport-sync -a ${name} --output=pipe -- /share/snapcast/shairport-sync

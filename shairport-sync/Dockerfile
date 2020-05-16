@@ -1,12 +1,31 @@
-ARG BUILD_FROM=hassioaddons/base:7.1.0
+ARG BUILD_FROM
 # hadolint ignore=DL3006
 FROM $BUILD_FROM
 
-#Install snapcast
-RUN apk add --update --no-cache \
-    --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
-    shairport-sync \
-    && apk add alsa-plugins-pulse
+# Set shell
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+WORKDIR /root
+
+# Install shairport-sync
+# hadolint ignore=DL3003
+RUN apk add --virtual .build-deps alpine-sdk \
+    && apk add \
+    alsa-lib \
+    avahi \
+    avahi-libs \
+    libconfig \
+    libcrypto1.1 \
+    libgcc \
+    musl \
+    popt \
+    soxr \
+    && git clone https://github.com/mikebrady/shairport-sync.git \
+    && cd shairport-sync \
+    && autoreconf -i -f \
+    && ./configure --with-pipe --with-avahi --with-ssl=openssl --with-metadata \
+    && apk --purge del .build-deps \
+    && rm -rf /etc/ssl /var/cache/apk/* /lib/apk/db/* /root/shairport-sync
 
 # Copy root filesystem
 COPY rootfs /
@@ -20,7 +39,7 @@ ARG BUILD_VERSION
 # Labels
 LABEL \
     io.hass.name="AirPlay" \
-    io.hass.description="AirPlay audio player" \
+    io.hass.description="AirPlay audio player piped to snapserver" \
     io.hass.arch="${BUILD_ARCH}" \
     io.hass.type="addon" \
     io.hass.version=${BUILD_VERSION} \

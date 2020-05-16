@@ -1,11 +1,18 @@
 {
   "name": "AirPlay",
   "version": "0.1",
+  "image": "byteri/hassio-addons-airplay-{arch}",
   "slug": "airplay",
-  "description": "AirPlay audio player",
-  "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"],
+  "description": "AirPlay audio player piped to snapserver",
+  "url": "https://github.com/selleronom/hassio-addons/tree/master/shairport-sync",
   "startup": "application",
+  "arch": ["armhf", "armv7", "aarch64"],
   "boot": "auto",
+  "hassio_api": true,
+  "hassio_role": "default",
+  "host_network": true,
+  "host_dbus": true,
+  "map": ["share:rw"],
   "options": {
     "log_level": "info",
     "name": "AirPlay"
@@ -13,9 +20,5 @@
   "schema": {
     "log_level": "match(^(trace|debug|info|notice|warning|error|fatal)$)",
     "name": "str"
-  },
-  "audio": true,
-  "host_network": true,
-  "host_dbus": true,
-  "image": "byteri/hassio-addons-airplay-{arch}"
+  }
 }
