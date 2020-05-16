@@ -17,4 +17,4 @@ mkdir -p /share/snapfifo
 # Run librespot
 bashio::log.info 'Starting librespot...'
 
-exec /usr/bin/librespot  --name ${name} --backend pipe --device /share/snapfifo/librespot --bitrate ${bitrate} --disable-audio-cache --enable-volume-normalisation --linear-volume --initial-volume=${volume} --username ${username} --password ${password} --zeroconf-port 35535
+exec /usr/local/bin/librespot  --name ${name} --backend pipe --device /share/snapfifo/librespot --bitrate ${bitrate} --disable-audio-cache --enable-volume-normalisation --linear-volume --initial-volume=${volume} --username ${username} --password ${password} --zeroconf-port 35535
