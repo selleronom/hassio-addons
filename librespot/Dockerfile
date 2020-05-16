@@ -9,16 +9,17 @@ WORKDIR /root
 
 # Setup base
 # hadolint ignore=DL3003
-RUN apk add --virtual .build-deps build-base git curl cargo portaudio-dev protobuf-dev pulseaudio-dev \
+RUN apk -U add curl cargo portaudio-dev protobuf-dev \
     && cd /root \
-    && git clone https://github.com/librespot-org/librespot.git \
-    && cd librespot \
+    && curl -LO https://github.com/librespot-org/librespot/archive/v0.1.1.zip \
+    && unzip v0.1.1.zip \
+    && cd librespot-0.1.1 \
     && cargo build --jobs $(grep -c ^processor /proc/cpuinfo) --release --no-default-features \
     && mv target/release/librespot /usr/local/bin \
     && cd / \
-    && apk --purge del .build-deps \
-    && apk add llvm-libunwind libgcc \
-    && rm -rf /etc/ssl /var/cache/apk/* /lib/apk/db/* /root/librespot /root/.cargo
+    && apk --purge del curl cargo portaudio-dev protobuf-dev \
+    && apk add llvm-libunwind \
+    && rm -rf /etc/ssl /var/cache/apk/* /lib/apk/db/* /root/v0.1.1.zip /root/librespot-0.1.1 /root/.cargo
 
 # Copy root filesystem
 COPY rootfs /
