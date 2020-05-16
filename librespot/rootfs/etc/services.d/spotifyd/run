@@ -9,11 +9,6 @@ username=$(bashio::config 'username')
 password=$(bashio::config 'password')
 volume=$(bashio::config 'volume')
 
-# Create snapfifo dir
-bashio::log.info 'Starting librespot...'
-
-mkdir -p /share/snapfifo
-
 # Run librespot
 bashio::log.info 'Starting librespot...'
 

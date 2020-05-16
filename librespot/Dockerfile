@@ -1,4 +1,4 @@
-ARG BUILD_FROM=hassioaddons/base:7.1.0
+ARG BUILD_FROM=hassioaddons/base:7.2.0
 # hadolint ignore=DL3006
 FROM $BUILD_FROM
 
@@ -9,7 +9,7 @@ WORKDIR /root
 
 # Setup base
 # hadolint ignore=DL3003
-RUN apk -U add curl cargo portaudio-dev protobuf-dev \
+RUN apk -U add libgcc curl cargo portaudio-dev protobuf-dev \
     && cd /root \
     && curl -LO https://github.com/librespot-org/librespot/archive/v0.1.1.zip \
     && unzip v0.1.1.zip \
