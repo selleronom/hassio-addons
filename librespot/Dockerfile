@@ -9,7 +9,7 @@ WORKDIR /root
 
 # Setup base
 # hadolint ignore=DL3003
-RUN apt-get update && apt-get install wget -y
+RUN apt-get update && apt-get install wget libasound2 -y
 RUN wget https://dtcooper.github.io/raspotify/raspotify-latest.deb
 RUN dpkg -i raspotify-latest.deb
 
