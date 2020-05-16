@@ -9,7 +9,7 @@ WORKDIR /root
 
 # Setup base
 # hadolint ignore=DL3003
-RUN curl -sL https://dtcooper.github.io/raspotify/install.sh | sh
+RUN apt-get update && apt-get install sudo && curl -sL https://dtcooper.github.io/raspotify/install.sh | sh
 
 # Copy root filesystem
 COPY rootfs /
