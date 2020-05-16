@@ -11,4 +11,7 @@ mkdir -p /share/snapfifo
 # Create librespot fifo
 bashio::log.info 'Create fifo file...'
 
-mkfifo /share/snapfifo/librespot
+if ! bashio::fs.file_exists '/share/snapfifo/librespot'; then
+    mkfifo /share/snapfifo/librespot ||
+        bashio::exit.nok "Could not create fifo file file on filesystem"
+fi
