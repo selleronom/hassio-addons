@@ -1,4 +1,4 @@
-ARG BUILD_FROM=hassioaddons/base:7.2.0
+ARG BUILD_FROM=hassioaddons/debian-base:3.2.0
 # hadolint ignore=DL3006
 FROM $BUILD_FROM
 
@@ -9,17 +9,7 @@ WORKDIR /root
 
 # Setup base
 # hadolint ignore=DL3003
-RUN apk -U add libgcc curl cargo portaudio-dev protobuf-dev \
-    && cd /root \
-    && curl -LO https://github.com/librespot-org/librespot/archive/v0.1.1.zip \
-    && unzip v0.1.1.zip \
-    && cd librespot-0.1.1 \
-    && cargo build --jobs $(grep -c ^processor /proc/cpuinfo) --release --no-default-features \
-    && mv target/release/librespot /usr/local/bin \
-    && cd / \
-    && apk --purge del curl cargo portaudio-dev protobuf-dev \
-    && apk add llvm-libunwind \
-    && rm -rf /etc/ssl /var/cache/apk/* /lib/apk/db/* /root/v0.1.1.zip /root/librespot-0.1.1 /root/.cargo
+RUN curl -sL https://dtcooper.github.io/raspotify/install.sh | sh
 
 # Copy root filesystem
 COPY rootfs /
