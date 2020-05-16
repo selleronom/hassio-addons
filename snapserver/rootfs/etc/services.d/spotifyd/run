@@ -5,4 +5,4 @@
 bashio::log.info 'Starting Snapserver...'
 
 # Run snapserver
-exec /usr/bin/snapserver
+exec /usr/bin/snapserver -c /etc/snapserver.conf

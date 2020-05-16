@@ -6,22 +6,10 @@ FROM $BUILD_FROM
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 WORKDIR /root
-# nix 0.10.0 fix; https://github.com/librespot-org/librespot/issues/454
-COPY Cargo.toml-upd /tmp/Cargo.toml
 
 # Setup base
 # hadolint ignore=DL3003
-RUN apk add --virtual .build-deps build-base git curl cargo portaudio-dev protobuf-dev pulseaudio-dev \
-    && cd /root \
-    && git clone https://github.com/librespot-org/librespot.git \
-    && cd librespot \
-    && cp /tmp/Cargo.toml connect/ \
-    && cargo build --jobs $(grep -c ^processor /proc/cpuinfo) --release --no-default-features \
-    && mv target/release/librespot /usr/local/bin \
-    && cd / \
-    && apk --purge del .build-deps \
-    && apk add llvm-libunwind snapcast-server@edge \
-    && rm -rf /etc/ssl /var/cache/apk/* /lib/apk/db/* /root/librespot /root/.cargo
+RUN apk add bash snapcast-server@edge
 
 # Copy root filesystem
 COPY rootfs /
@@ -35,12 +23,12 @@ ARG BUILD_VERSION
 # Labels
 LABEL \
     io.hass.name="Snapserver" \
-    io.hass.description="Snapcast server with librespot" \
+    io.hass.description="Snapcast server" \
     io.hass.arch="${BUILD_ARCH}" \
     io.hass.type="addon" \
     io.hass.version=${BUILD_VERSION} \
     maintainer="Selleronom" \
-    org.label-schema.description="Snapcast server with librespot" \
+    org.label-schema.description="Snapcast server" \
     org.label-schema.build-date=${BUILD_DATE} \
     org.label-schema.name="Snapserver" \
     org.label-schema.schema-version="1.0" \

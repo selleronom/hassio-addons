@@ -2,44 +2,41 @@
 # ==============================================================================
 # Sets up the configuration file for snapserver
 # ==============================================================================
-declare name
-declare bitrate
 
-if ! bashio::config.has_value 'name'; then
-    bashio::log.fatal
-    bashio::log.fatal "Add-on configuration is incomplete!"
-    bashio::log.fatal
-    bashio::log.fatal "The Snapcast server needs to be identifiable with a name"
-    bashio::log.fatal "and it seems you haven't configured one."
-    bashio::log.fatal
-    bashio::log.fatal "Please set the 'name' add-on option."
-    bashio::log.fatal
-    bashio::exit.nok
-fi
-if ! bashio::config.has_value 'bitrate'; then
-    bashio::log.fatal
-    bashio::log.fatal "Add-on configuration is incomplete!"
-    bashio::log.fatal
-    bashio::log.fatal "The Snapcast server needs a bitrate"
-    bashio::log.fatal "and it seems you haven't configured one."
-    bashio::log.fatal
-    bashio::log.fatal "Please set the 'bitrate' add-on option."
-    bashio::log.fatal
-    bashio::exit.nok
-fi
+mkdir -p /share/snapfifo
+mkdir -p /share/snapcast
 
-name=$(bashio::config 'name')
-bitrate=$(bashio::config 'bitrate')
-username=$(bashio::config 'username')
-password=$(bashio::config 'password')
-volume=$(bashio::config 'volume')
+config=/etc/snapserver.conf
 
-if bashio::config.has_value 'username'; then
-    {
-        echo "stream = spotify:///librespot?name=Spotify&devicename=${name}&bitrate=${bitrate}&volume=${volume}&username=${username}&password=${password}"
-    } >> /etc/snapserver.conf
-else
-    {
-        echo "stream = spotify:///librespot?name=Spotify&devicename=${name}&bitrate=${bitrate}&volume=${volume}"
-    } >> /etc/snapserver.conf
+if ! bashio::fs.file_exists '/etc/snapserver.conf'; then
+    touch /etc/snapserver.conf ||
+        bashio::exit.nok "Could not create snapserver.conf file on filesystem"
 fi
+bashio::log.info "Populating snapserver.conf..."
+
+# Start creation of configuration
+
+echo "[stream]" > "${config}"
+for stream in $(bashio::config 'stream.streams'); do
+    echo "stream = ${stream}" >> "${config}"
+done
+echo "buffer = $(bashio::config 'stream.buffer')" >> "${config}"
+echo "codec = $(bashio::config 'stream.codec')" >> "${config}"
+echo "send_to_muted = $(bashio::config 'stream.send_to_muted')" >> "${config}"
+echo "sampleformat = $(bashio::config 'stream.sampleformat')" >> "${config}"
+
+echo "[http]" >> "${config}"
+echo "enabled = $(bashio::config 'http.enabled')" >> "${config}"
+echo "doc_root = $(bashio::config 'http.docroot')" >> "${config}"
+
+echo "[tcp]" >> "${config}"
+echo "enabled = $(bashio::config 'tcp.enabled')" >> "${config}"
+
+echo "[logging]" >> "${config}"
+echo "debug = $(bashio::config 'logging.enabled')" >> "${config}"
+
+echo "[server]" >> "${config}"
+echo "threads = $(bashio::config 'server.threads')" >> "${config}"
+
+echo "[server]" >> "${config}"
+echo "datadir = $(bashio::config 'server.datadir')" >> "${config}"
