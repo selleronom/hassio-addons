@@ -20,7 +20,7 @@ fi
 
 # Are we running in debug mode?
 if bashio::debug; then
-  options+=(-v)
+  options+=(-vvv)
 fi
 
 # Log to stdout
