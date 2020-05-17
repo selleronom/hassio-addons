@@ -2,9 +2,9 @@
 # ==============================================================================
 # Runs shairport-sync
 # ==============================================================================
-declare name
+declare -a options
 
-if ! bashio::config.has_value 'name'; then
+if ! $(bashio::config.has_value 'name'); then
     bashio::log.fatal
     bashio::log.fatal "Add-on configuration is incomplete!"
     bashio::log.fatal
@@ -14,11 +14,20 @@ if ! bashio::config.has_value 'name'; then
     bashio::log.fatal "Please set the 'name' add-on option."
     bashio::log.fatal
     bashio::exit.nok
+else
+    options+=(--name $(bashio::config 'name'))
 fi
 
-name=$(bashio::config 'name')
+# Are we running in debug mode?
+if bashio::debug; then
+  options+=(-v)
+fi
+# Pipe to snapserver
+options+=(--output=pipe -- /share/snapcast/shairport-sync)
+
+options+=(-d)
 
 bashio::log.info 'Starting shairport-sync...'
 
 # Run shairport-sync
-exec shairport-sync -a ${name} --output=pipe -- /share/snapcast/shairport-sync
+exec shairport-sync "${options[@]}"
