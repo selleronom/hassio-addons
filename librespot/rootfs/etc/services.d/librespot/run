@@ -34,12 +34,15 @@ fi
 if $(bashio::config.true 'linear_volume'); then
     options+=(--linear-volume)
 fi
+if $(bashio::config.true 'linear_volume'); then
+    options+=(--enable-volume-normalisation)
+fi
 
 # Are we running in debug mode?
 if bashio::debug; then
   options+=(-v)
 fi
-
+# Pipe to snapserver
 options+=(--backend pipe --device /share/snapfifo/librespot)
 
 bashio::log.info 'Starting librespot...'

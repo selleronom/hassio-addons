@@ -21,6 +21,7 @@
     "initial_volume": 50,
     "disable_audio_cache": true,
     "linear_volume": false,
+    "enable_volume_normalisation": true,
     "log_level": "debug"
   },
   "schema": {
@@ -30,6 +31,7 @@
     "password": "str",
     "initial_volume": "int",
     "disable_audio_cache": "bool",
+    "enable_volume_normalisation": "bool",
     "linear_volume": "bool",
     "log_level": "match(^(trace|debug|info|notice|warning|error|fatal)$)?"
   }
