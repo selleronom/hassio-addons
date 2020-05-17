@@ -14,11 +14,11 @@
   "host_dbus": true,
   "map": ["share:rw"],
   "options": {
-    "log_level": "debug",
-    "name": "AirPlay"
+    "name": "AirPlay",
+    "log_level": "debug"
   },
   "schema": {
-    "log_level": "match(^(trace|debug|info|notice|warning|error|fatal)$)",
-    "name": "str"
+    "name": "str",
+    "log_level": "match(^(trace|debug|info|notice|warning|error|fatal)$)"
   }
 }

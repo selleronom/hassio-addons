@@ -22,10 +22,12 @@ fi
 if bashio::debug; then
   options+=(-v)
 fi
-# Pipe to snapserver
-options+=(--output=pipe -- /share/snapcast/shairport-sync)
 
-options+=(-d)
+# Log to stdout
+options+=(-u)
+
+# Pipe to snapserver
+options+=(-o pipe -- /share/snapcast/shairport-sync)
 
 bashio::log.info 'Starting shairport-sync...'
 
