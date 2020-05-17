@@ -27,7 +27,7 @@ fi
 options+=(-u)
 
 # Pipe to snapserver
-options+=(-o pipe -- /share/snapcast/shairport-sync)
+options+=(-o pipe -- /share/snapcast/shairport_sync)
 
 bashio::log.info 'Starting shairport-sync...'
 

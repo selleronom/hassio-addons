@@ -23,7 +23,7 @@ RUN apk add --virtual .build-deps alpine-sdk \
     && git clone https://github.com/mikebrady/shairport-sync.git \
     && cd shairport-sync \
     && autoreconf -i -f \
-    && ./configure --with-pipe --with-avahi --with-ssl=openssl --with-metadata \
+    && ./configure --with-pipe --with-avahi --with-ssl=openssl \
     && make \
     && make install \
     && apk --purge del .build-deps \
