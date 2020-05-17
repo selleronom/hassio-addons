@@ -15,7 +15,7 @@ if ! $(bashio::config.has_value 'name'); then
     bashio::log.fatal
     bashio::exit.nok
 else
-    options+=(--name $(bashio::config 'name'))
+    options+=(-a $(bashio::config 'name'))
 fi
 
 # Are we running in debug mode?
