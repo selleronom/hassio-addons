@@ -40,6 +40,8 @@ if bashio::debug; then
   options+=(-v)
 fi
 
+options+=(--backend pipe --device /share/snapfifo/librespot)
+
 bashio::log.info 'Starting librespot...'
 
 # Run librespot
