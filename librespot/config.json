@@ -11,21 +11,16 @@
   "hassio_api": true,
   "hassio_role": "default",
   "host_dbus": true,
+  "host_network": true,
   "map": ["share:rw"],
-  "ports": {
-    "35535/tcp": 35535
-  },
-  "ports_description": {
-    "35535/tcp": "Zeroconf port"
-  },
   "options": {
     "name": "Hass.io",
     "bitrate": 320,
     "username": "",
     "password": "",
-    "initial-volume": 50,
-    "disable-audio-cache": true,
-    "linear-volume": false,
+    "initial_volume": 50,
+    "disable_audio_cache": true,
+    "linear_volume": false,
     "log_level": "debug"
   },
   "schema": {
@@ -33,9 +28,9 @@
     "bitrate": "match(^(96|160|320)$)",
     "username": "str",
     "password": "str",
-    "initial-volume": "int",
-    "disable-audio-cache": "bool",
-    "linear-volume": "bool",
+    "initial_volume": "int",
+    "disable_audio_cache": "bool",
+    "linear_volume": "bool",
     "log_level": "match(^(trace|debug|info|notice|warning|error|fatal)$)?"
   }
 }

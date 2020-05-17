@@ -25,13 +25,13 @@ if $(bashio::config.has_value 'username') && $(bashio::config.has_value 'passwor
     options+=(--username $(bashio::config 'username'))
     options+=(--password $(bashio::config 'password'))
 fi
-if $(bashio::config.has_value 'initial-volume'); then
-    options+=(--initial-volume $(bashio::config 'initial-volume'))
+if $(bashio::config.has_value 'initial_volume'); then
+    options+=(--initial-volume $(bashio::config 'initial_volume'))
 fi
-if $(bashio::config.true 'disable-audio-cache'); then
+if $(bashio::config.true 'disable_audio_cache'); then
     options+=(--disable-audio-cache)
 fi
-if $(bashio::config.true 'linear-volume'); then
+if $(bashio::config.true 'linear_volume'); then
     options+=(--linear-volume)
 fi
 
@@ -39,8 +39,6 @@ fi
 if bashio::debug; then
   options+=(-v)
 fi
-
-options+=(--zeroconf-port 35535)
 
 bashio::log.info 'Starting librespot...'
 
