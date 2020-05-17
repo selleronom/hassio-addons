@@ -40,7 +40,8 @@ RUN apk add --virtual .build-deps alpine-sdk \
     /etc/ssl \
     /var/cache/apk/* \
     /lib/apk/db/* \
-    /root/shairport-sync
+    /root/shairport-sync \
+    && cd /root
 
 # Copy root filesystem
 COPY rootfs /
