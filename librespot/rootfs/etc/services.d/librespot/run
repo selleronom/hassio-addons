@@ -1,0 +1,41 @@
+#!/usr/bin/with-contenv bashio
+# ==============================================================================
+# Runs librespot
+# ==============================================================================
+declare -a options
+
+if ! $(bashio::config.has_value 'name'); then
+    bashio::log.fatal
+    bashio::log.fatal "Add-on configuration is incomplete!"
+    bashio::log.fatal
+    bashio::log.fatal "The Librespot server needs to be identifiable with a name"
+    bashio::log.fatal "and it seems you haven't configured one."
+    bashio::log.fatal
+    bashio::log.fatal "Please set the 'name' add-on option."
+    bashio::log.fatal
+    bashio::exit.nok
+else
+    options+=(--name $(bashio::config 'name'))
+fi
+
+if $(bashio::config.exists 'bitrate'); then
+    options+=(--bitrate $(bashio::config 'bitrate'))
+fi
+if $(bashio::config.exists 'username'); then
+    options+=(--username $(bashio::config 'username'))
+fi
+if $(bashio::config.exists 'password'); then
+    options+=(--password $(bashio::config 'password'))
+fi
+if $(bashio::config.exists 'volume'); then
+    options+=(--initial-volume $(bashio::config 'volume'))
+fi
+# Are we running in debug mode?
+if bashio::debug; then
+  options+=(--verbose)
+fi
+
+bashio::log.info 'Starting librespot...'
+
+# Run librespot
+exec librespot "${options[@]}"
