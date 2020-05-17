@@ -23,14 +23,19 @@
     "bitrate": 320,
     "username": "",
     "password": "",
-    "volume": 50
+    "initial-volume": 50,
+    "disable-audio-cache": true,
+    "linear-volume": false,
+    "log_level": "debug"
   },
   "schema": {
-    "log_level": "match(^(trace|debug|info|notice|warning|error|fatal)$)?",
     "name": "str",
     "bitrate": "match(^(96|160|320)$)",
     "username": "str",
     "password": "str",
-    "volume": "int"
+    "initial-volume": "int",
+    "disable-audio-cache": "bool",
+    "linear-volume": "bool",
+    "log_level": "match(^(trace|debug|info|notice|warning|error|fatal)$)?"
   }
 }

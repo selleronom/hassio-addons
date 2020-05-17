@@ -18,22 +18,29 @@ else
     options+=(--name $(bashio::config 'name'))
 fi
 
-if $(bashio::config.exists 'bitrate'); then
+if $(bashio::config.has_value 'bitrate'); then
     options+=(--bitrate $(bashio::config 'bitrate'))
 fi
-if $(bashio::config.exists 'username'); then
+if $(bashio::config.has_value 'username') && $(bashio::config.has_value 'password') ; then
     options+=(--username $(bashio::config 'username'))
-fi
-if $(bashio::config.exists 'password'); then
     options+=(--password $(bashio::config 'password'))
 fi
-if $(bashio::config.exists 'volume'); then
-    options+=(--initial-volume $(bashio::config 'volume'))
+if $(bashio::config.has_value 'initial-volume'); then
+    options+=(--initial-volume $(bashio::config 'initial-volume'))
 fi
+if $(bashio::config.true 'disable-audio-cache'); then
+    options+=(--disable-audio-cache)
+fi
+if $(bashio::config.true 'linear-volume'); then
+    options+=(--linear-volume)
+fi
+
 # Are we running in debug mode?
 if bashio::debug; then
-  options+=(--verbose)
+  options+=(-v)
 fi
+
+options+=(--zeroconf-port 35535)
 
 bashio::log.info 'Starting librespot...'
 
