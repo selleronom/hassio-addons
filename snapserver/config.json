@@ -1,6 +1,6 @@
 {
   "name": "Snapserver",
-  "version": "0.3",
+  "version": "0.4",
   "image": "byteri/hassio-addons-snapserver-{arch}",
   "slug": "snapserver",
   "description": "Snapcast server",
