@@ -34,6 +34,10 @@ Mumble server
 
 To be deleted
 
+### Searx
+
+Searx metasearch engine
+
 ### Shairport-sync
 
 Work in progress, will pipe to snapserver add-on
