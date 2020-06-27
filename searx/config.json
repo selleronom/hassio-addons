@@ -1,0 +1,26 @@
+{
+  "name": "Searx",
+  "version": "0.1",
+  "slug": "searx",
+  "image": "byteri/hassio-addons-searx-{arch}",
+  "description": "Searx server",
+  "url": "https://github.com/selleronom/hassio-addons/tree/master/searx",
+  "startup": "services",
+  "arch": ["armhf", "armv7", "aarch64"],
+  "boot": "auto",
+  "hassio_api": true,
+  "hassio_role": "default",
+  "ports": {
+    "8888/tcp": 8888
+  },
+  "ports_description": {
+    "1704/tcp": "Searx server port"
+  },
+  "map": ["ssl"],
+  "options": {
+
+  },
+  "schema": {
+
+  }
+}
