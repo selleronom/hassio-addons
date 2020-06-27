@@ -14,7 +14,7 @@
     "8888/tcp": 8888
   },
   "ports_description": {
-    "1704/tcp": "Searx server port"
+    "8888/tcp": "Searx server port"
   },
   "map": ["ssl"],
   "options": {
