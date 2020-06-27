@@ -9,8 +9,7 @@ WORKDIR /root
 
 # Setup base
 # hadolint ignore=DL3003
-
-RUN apk add searx \
+RUN apk add searx@edge \
     && sed -i "s/127.0.0.1/0.0.0.0/g" /etc/searx/settings.yml
 
 # Copy root filesystem
