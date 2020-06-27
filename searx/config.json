@@ -6,7 +6,7 @@
   "description": "Searx server",
   "url": "https://github.com/selleronom/hassio-addons/tree/master/searx",
   "startup": "services",
-  "arch": ["armhf", "armv7", "aarch64"],
+  "arch": ["armhf", "armv7", "aarch64", "amd64"],
   "boot": "auto",
   "hassio_api": true,
   "hassio_role": "default",
@@ -16,11 +16,20 @@
   "ports_description": {
     "8888/tcp": "Searx server port"
   },
-  "map": ["ssl"],
   "options": {
-
+    "instance_name": "searx",
+    "autocomplete": "qwant",
+    "secret_key": "changeme",
+    "base_url": "",
+    "http_protocol_version": "1.1",
+    "enable_all_engines": false
   },
   "schema": {
-
+    "instance_name": "str",
+    "autocomplete": "str",
+    "secret_key": "str",
+    "base_url": "str",
+    "http_protocol_version": "str",
+    "enable_all_engines": "bool"
   }
 }
