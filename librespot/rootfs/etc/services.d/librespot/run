@@ -34,13 +34,13 @@ fi
 if $(bashio::config.true 'linear_volume'); then
     options+=(--linear-volume)
 fi
-if $(bashio::config.true 'enable-volume-normalisation'); then
+if $(bashio::config.true 'enable_volume_normalisation'); then
     options+=(--enable-volume-normalisation)
 fi
 if $(bashio::config.true 'disable_discovery'); then
     options+=(--disable-discovery)
 fi
-if $(bashio::config.true 'disable-gapless'); then
+if $(bashio::config.true 'disable_gapless'); then
     options+=(--disable-gapless)
 fi
 

@@ -23,7 +23,7 @@
     "linear_volume": false,
     "enable_volume_normalisation": true,
     "disable_discovery": true,
-    "disable-gapless": true,
+    "disable_gapless": true,
     "log_level": "info"
   },
   "schema": {
@@ -36,7 +36,7 @@
     "linear_volume": "bool",
     "enable_volume_normalisation": "bool",
     "disable_discovery": "bool",
-    "disable-gapless": "bool",
+    "disable_gapless": "bool",
     "log_level": "match(^(trace|debug|info|notice|warning|error|fatal)$)?"
   }
 }
