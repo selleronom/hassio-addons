@@ -22,7 +22,9 @@
     "disable_audio_cache": true,
     "linear_volume": false,
     "enable_volume_normalisation": true,
-    "log_level": "debug"
+    "disable_discovery": true,
+    "disable-gapless": true,
+    "log_level": "info"
   },
   "schema": {
     "name": "str",
@@ -31,8 +33,10 @@
     "password": "str",
     "initial_volume": "int",
     "disable_audio_cache": "bool",
-    "enable_volume_normalisation": "bool",
     "linear_volume": "bool",
+    "enable_volume_normalisation": "bool",
+    "disable_discovery": "bool",
+    "disable-gapless": "bool",
     "log_level": "match(^(trace|debug|info|notice|warning|error|fatal)$)?"
   }
 }

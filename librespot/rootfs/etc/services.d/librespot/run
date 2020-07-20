@@ -21,7 +21,7 @@ fi
 if $(bashio::config.has_value 'bitrate'); then
     options+=(--bitrate $(bashio::config 'bitrate'))
 fi
-if $(bashio::config.has_value 'username') && $(bashio::config.has_value 'password') ; then
+if $(bashio::config.has_value 'username') && $(bashio::config.has_value 'password'); then
     options+=(--username $(bashio::config 'username'))
     options+=(--password $(bashio::config 'password'))
 fi
@@ -34,13 +34,19 @@ fi
 if $(bashio::config.true 'linear_volume'); then
     options+=(--linear-volume)
 fi
-if $(bashio::config.true 'linear_volume'); then
+if $(bashio::config.true 'enable-volume-normalisation'); then
     options+=(--enable-volume-normalisation)
+fi
+if $(bashio::config.true 'disable_discovery'); then
+    options+=(--disable-discovery)
+fi
+if $(bashio::config.true 'disable-gapless'); then
+    options+=(--disable-gapless)
 fi
 
 # Are we running in debug mode?
 if bashio::debug; then
-  options+=(-v)
+    options+=(-v)
 fi
 # Pipe to snapserver
 options+=(--backend pipe --device /share/snapfifo/librespot)
