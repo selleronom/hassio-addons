@@ -1,6 +1,6 @@
 {
   "name": "Librespot",
-  "version": "0.3",
+  "version": "0.4",
   "image": "byteri/hassio-addons-librespot-{arch}",
   "slug": "librespot",
   "description": "Spotify Connect piped to Snapcast",
