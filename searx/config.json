@@ -1,6 +1,6 @@
 {
   "name": "Searx",
-  "version": "0.1",
+  "version": "0.2",
   "slug": "searx",
   "image": "byteri/hassio-addons-searx-{arch}",
   "description": "Searx server",
