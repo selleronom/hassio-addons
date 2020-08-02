@@ -1,6 +1,6 @@
 {
   "name": "Searx",
-  "version": "0.2",
+  "version": "0.3",
   "slug": "searx",
   "image": "byteri/hassio-addons-searx-{arch}",
   "description": "Searx server",
@@ -22,7 +22,8 @@
     "secret_key": "changeme",
     "base_url": "",
     "http_protocol_version": "1.1",
-    "enable_all_engines": false
+    "enable_all_engines": false,
+    "image_proxy": true
   },
   "schema": {
     "instance_name": "str",
@@ -30,6 +31,7 @@
     "secret_key": "str",
     "base_url": "str",
     "http_protocol_version": "str",
-    "enable_all_engines": "bool"
+    "enable_all_engines": "bool",
+    "image_proxy": "bool"
   }
 }
