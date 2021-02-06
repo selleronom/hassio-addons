@@ -1,7 +1,6 @@
 {
   "name": "Murmur",
-  "version": "0.1",
-  "image": "byteri/hassio-addons-murmur-{arch}",
+  "version": "0.2",
   "slug": "murmur",
   "description": "Murmur server",
   "url": "https://github.com/selleronom/hassio-addons/tree/master/murmur",
