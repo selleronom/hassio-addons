@@ -1,6 +1,6 @@
 {
   "name": "Murmur",
-  "version": "0.2",
+  "version": "0.3",
   "slug": "murmur",
   "description": "Murmur server",
   "url": "https://github.com/selleronom/hassio-addons/tree/master/murmur",
