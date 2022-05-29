@@ -1,0 +1,64 @@
+name: Snapserver
+version: '0.5'
+slug: snapserver
+description: Snapcast server
+url: https://github.com/selleronom/hassio-addons/tree/master/snapserver
+startup: services
+arch:
+- aarch64
+- amd64
+- armhf
+- armv7
+- i386
+boot: auto
+hassio_api: true
+hassio_role: default
+host_dbus: true
+init: false
+apparmor: false
+ports:
+  1704/tcp: 1704
+  1705/tcp: 1705
+  1780/tcp: 1780
+ports_description:
+  1704/tcp: Snapcast server port
+  1705/tcp: Snapcast TCP control port (set empty to disable)
+  1780/tcp: Snapcast HTTP control port (set empty to disable)
+map:
+- share:rw
+options:
+  stream:
+    streams:
+    - pipe:///share/snapfifo/librespot?name=SpotifyConnect&sampleformat=44100:16:2
+    buffer: '1000'
+    codec: flac
+    send_to_muted: 'false'
+    sampleformat: '48000:16:2'
+  http:
+    enabled: 'true'
+    doc_root: " "
+  tcp:
+    enabled: 'true'
+  logging:
+    enabled: 'false'
+  server:
+    threads: "-1"
+    datadir: "/share/snapcast/"
+schema:
+  stream:
+    streams:
+    - str
+    buffer: int
+    codec: str
+    send_to_muted: str
+    sampleformat: str
+  http:
+    enabled: str
+    doc_root: str
+  tcp:
+    enabled: str
+  logging:
+    enabled: str
+  server:
+    threads: int
+    datadir: str

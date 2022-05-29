@@ -2,7 +2,7 @@
 # ==============================================================================
 # Runs snapserver
 # ==============================================================================
-bashio::log.info 'Starting Snapserver...'
 
-# Run snapserver
-exec /usr/bin/snapserver -c /etc/snapserver.conf
+## Run snapserver
+bashio::log.info 'Starting Snapserver...'
+exec /usr/bin/snapserver_up
