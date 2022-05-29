@@ -1,0 +1,20 @@
+---
+name: qBittorrent
+version: dev
+slug: qbittorrent
+description: qBittorrent is a cross-platform BitTorrent client.
+arch:
+  - armhf
+  - armv7
+  - aarch64
+  - amd64
+  - i386
+init: false
+apparmor: false
+ports:
+  8080/tcp: 8080
+ports_description:
+  8080/tcp: qBittorrent web interface
+map:
+  - media:rw
+  - config:rw
