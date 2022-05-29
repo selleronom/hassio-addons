@@ -1,0 +1,4 @@
+#!/bin/bash
+echo "Stopping WireGuard Client..."
+
+wg-quick down wg1

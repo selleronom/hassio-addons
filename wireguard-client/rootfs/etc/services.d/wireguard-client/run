@@ -1,0 +1,9 @@
+#!/usr/bin/with-contenv bashio
+# ==============================================================================
+# Start the WireGuard Client service
+# s6-overlay docs: https://github.com/just-containers/s6-overlay
+# ==============================================================================
+
+## Run your program
+bashio::log.info "Starting WireGuard Client..."
+exec /usr/bin/wg_client_up
