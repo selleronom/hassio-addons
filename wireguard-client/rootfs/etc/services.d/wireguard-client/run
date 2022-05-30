@@ -4,6 +4,18 @@
 # s6-overlay docs: https://github.com/just-containers/s6-overlay
 # ==============================================================================
 
+readonly conf=/ssl/wireguard-client/wg1.conf
+readonly defconf=/defaults/wg1.conf
+
+bashio::log.info "Creating config for WireGuard Client..."
+
+# Ensure configuration folder exists
+if ! bashio::fs.directory_exists "$(dirname "${conf}")"; then
+    mkdir -p "$(dirname "${conf}")" \
+        || bashio::exit.nok "Failed to create WireGuard Client configuration directory"
+    cp $defconf $conf
+fi
+
 ## Run your program
 bashio::log.info "Starting WireGuard Client..."
 exec /usr/bin/wg_client_up
