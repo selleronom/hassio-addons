@@ -14,3 +14,4 @@ map:
 privileged:
   - NET_ADMIN
   - SYS_MODULE
+host_network: true
