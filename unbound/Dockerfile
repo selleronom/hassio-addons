@@ -5,7 +5,7 @@ FROM $BUILD_FROM
 ENV LANG C.UTF-8
 
 # Setup base
-RUN apk add --no-cache unbound dns-root-hints
+RUN apk add --no-cache unbound dns-root-hints bind-tools
 
 # Copy data
 COPY rootfs /
