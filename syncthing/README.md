@@ -9,8 +9,6 @@
 
 [![Donate][donation-badge]][donation-url]
 
-{% if channel == "edge" %}
-## ⚠ WARNING! THIS IS AN EDGE VERSION!
 
 This Home Assistant Add-on is and bloody edge build.
 Edge builds add-ons are based upon the latest development version.
@@ -22,7 +20,6 @@ Edge builds add-ons are based upon the latest development version.
 If you are more interested in stable releases of our add-ons:
 
 For the stable version of the add-ons: [Stable-Repository]
-{% endif %}
 
 [stage-badge]: https://img.shields.io/badge/Addon%20stage-stable-green.svg
 
@@ -32,6 +29,3 @@ For the stable version of the add-ons: [Stable-Repository]
 [donation-badge]: https://img.shields.io/badge/Buy%20me%20a%20coffee-%23d32f2f?logo=buy-me-a-coffee&style=for-the-badge&logoColor=white
 [donation-url]: https://www.buymeacoffee.com/Poeschl
 
-{% if channel == "edge" %}
-[Stable-Repository]: https://github.com/Poeschl-HomeAssistant-Addons/repository
-{% endif %}
