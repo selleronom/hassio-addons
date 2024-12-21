@@ -2,16 +2,7 @@
 # shellcheck shell=bash
 set -e
 
-# determine IP address for api requests
-ip=$(ifconfig | grep "inet " | grep -Fv 127.0.0.1 | awk '{sub("addr:",""); print $2}' | head -n 1)
-
-if [ -z "$ip" ]
-then
-  ip=0.0.0.0
-  bashio::log.info "Couldn't detect local syncthing address. Falling back to: $ip"
-else
-  bashio::log.info "Detected syncthing address: $ip"
-fi
+ip=127.0.0.1
 
 bashio::net.wait_for 8384 "$ip"
 bashio::log.info 'Post-Start syncthing setup'
