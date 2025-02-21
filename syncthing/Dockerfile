@@ -1,7 +1,8 @@
 ARG BUILD_FROM
 FROM $BUILD_FROM
 
-RUN apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community
+RUN apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community \
+		syncthing
 
 COPY root /
 RUN chmod +x /etc/s6-overlay/s6-rc.d/syncthing-setup/run
