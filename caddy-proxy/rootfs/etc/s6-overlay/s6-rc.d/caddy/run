@@ -18,7 +18,5 @@ echo "$JSON_CONF" | tempio \
   -template /etc/caddy/Caddyfile.gtpl \
   -out /etc/caddy/Caddyfile
 
-cat /etc/caddy/Caddyfile
-
 bashio::log.info "Starting Caddy..."
 exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
