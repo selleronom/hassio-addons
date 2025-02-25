@@ -13,7 +13,6 @@
 
 https://{{ .options.domain }}:443 {
     tls /ssl/{{ .options.certfile }} /ssl/{{ .options.keyfile }}
-    encode gzip
     reverse_proxy http://homeassistant.local.hass.io:{{ .variables.port }} {
         {{ if .options.trusted_proxies }}
         trusted_proxies {{ .options.trusted_proxies }}
