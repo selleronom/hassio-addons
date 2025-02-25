@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1
+
+### Changed
+- Remove print of Caddyfile in startup script
+- Remove gzip encoding from Caddyfile configuration for Home Assistant reverse proxy
+
 ## 1.0.0
 
 ### Added
