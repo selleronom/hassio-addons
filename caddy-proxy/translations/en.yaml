@@ -1,0 +1,18 @@
+---
+configuration:
+  domain:
+    name: Domain
+    description: The domain name to use for the proxy.
+  certfile:
+    name: Certificate File
+    description: >-
+      The certificate file to use in the `/ssl` directory.
+  keyfile:
+    name: Private Key File
+    description: Private Private Key File to use in the `/ssl` directory.
+  trusted_proxies:
+    name: Trusted proxies IP 
+    description: >-
+      Configures trusted proxies
+network:
+  443/tcp: HTTPS (SSL) Port

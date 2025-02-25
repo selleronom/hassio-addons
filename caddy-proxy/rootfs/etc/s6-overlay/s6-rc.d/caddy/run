@@ -1,0 +1,24 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+# ==============================================================================
+# Start caddy service
+# ==============================================================================
+
+set -e
+
+bashio::log.info "Merging options & variables for template"
+# shellcheck disable=SC2046
+JSON_CONF=$(jq --arg port $(bashio::core.port) \
+    '({options: .}) + ({variables: {port: $port}})' \
+    /data/options.json)
+bashio::log.info "Generating caddyfile from template in /etc/caddy/Caddyfile.gtpl"
+# shellcheck disable=SC2086
+echo "$JSON_CONF" | tempio \
+  -template /etc/caddy/Caddyfile.gtpl \
+  -out /etc/caddy/Caddyfile
+
+cat /etc/caddy/Caddyfile
+
+bashio::log.info "Starting Caddy..."
+exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
