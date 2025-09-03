@@ -1,11 +1,27 @@
 #!/command/with-contenv bashio
 # shellcheck shell=bash
-set -e
+set -euo pipefail
 
 ip=127.0.0.1
 
 bashio::net.wait_for 8384 "$ip"
-bashio::log.info 'Post-Start syncthing setup'
+bashio::log.info 'Post-start Syncthing setup'
 
-apikey=$(grep -o '<apikey>[^<]*' /config/config.xml | sed 's/<apikey>//;s/<\/apikey>//')
-syncthing cli --gui-address="$ip:8384" --gui-apikey="$apikey" config gui insecure-admin-access set true
+CONFIG_DIR="${STCONFDIR:-/data/config}"
+
+if [ -f "$CONFIG_DIR/config.xml" ]; then
+	apikey=$(sed -n 's:.*<apikey>\(.*\)</apikey>.*:\1:p' "$CONFIG_DIR/config.xml" | head -n1 || true)
+	if [ -n "${apikey:-}" ]; then
+		# Allow ingress-only GUI without auth
+		bashio::log.info 'Disabling Syncthing GUI auth (insecure-admin-access) for ingress-only access'
+		syncthing cli --gui-address="$ip:8384" --gui-apikey="$apikey" config gui insecure-admin-access set true || true
+
+		# Set a default folder path suggestion for new folders in the GUI
+		bashio::log.info 'Configuring default Syncthing folder path to /data/sync'
+		syncthing cli --gui-address="$ip:8384" --gui-apikey="$apikey" config defaults folder path set /data/sync || true
+	else
+		bashio::log.warning 'API key not found in config.xml; skipping defaults setup'
+	fi
+else
+	bashio::log.warning 'config.xml not found; skipping setup'
+fi

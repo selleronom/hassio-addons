@@ -1,10 +1,30 @@
 #!/command/with-contenv bashio
 # shellcheck shell=bash
-set -e
+set -euo pipefail
 
-bashio::log.info 'Intializing Syncthing'
+bashio::log.info 'Initializing Syncthing service'
 
-ip=0.0.0.0
+# Add-on private persistent storage layout
+CONFIG_DIR="${STCONFDIR:-/data/config}"
+STATE_DIR="${STDATADIR:-/data/state}"
+SYNC_ROOT="/data/sync"
+
+mkdir -p "$CONFIG_DIR" "$STATE_DIR" "$SYNC_ROOT"
+
+# Ensure ownership to the running user (root in add-on container)
+chmod 700 "$CONFIG_DIR" || true
+
+# Generate initial config if missing, binding GUI to localhost for Ingress
+if [ ! -f "$CONFIG_DIR/config.xml" ]; then
+	bashio::log.info 'No existing config found, creating initial configuration'
+	syncthing -generate "$CONFIG_DIR" >/dev/null 2>&1 || true
+fi
+
+# Always ensure GUI binds to localhost for Ingress security
+GUI_ADDR="127.0.0.1:8384"
 
 bashio::log.info 'Starting Syncthing'
-syncthing --gui-address="$ip:8384" --no-browser
+exec syncthing \
+	--gui-address="$GUI_ADDR" \
+	--no-browser \
+	--no-default-folder
