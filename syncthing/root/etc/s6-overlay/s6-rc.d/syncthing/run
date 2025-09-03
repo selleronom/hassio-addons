@@ -26,5 +26,4 @@ GUI_ADDR="0.0.0.0:8384"
 bashio::log.info 'Starting Syncthing'
 exec syncthing \
 	--gui-address="$GUI_ADDR" \
-	--no-browser \
-	--no-default-folder
+	--no-browser
