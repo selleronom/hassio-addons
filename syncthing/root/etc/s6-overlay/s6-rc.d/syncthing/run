@@ -20,8 +20,8 @@ if [ ! -f "$CONFIG_DIR/config.xml" ]; then
 	syncthing -generate "$CONFIG_DIR" >/dev/null 2>&1 || true
 fi
 
-# Always ensure GUI binds to localhost for Ingress security
-GUI_ADDR="127.0.0.1:8384"
+# Bind GUI to all interfaces so Ingress can reach it inside the container
+GUI_ADDR="0.0.0.0:8384"
 
 bashio::log.info 'Starting Syncthing'
 exec syncthing \
