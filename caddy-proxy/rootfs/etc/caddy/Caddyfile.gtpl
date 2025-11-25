@@ -13,6 +13,8 @@
 
 https://{{ .options.domain }}:443 {
     tls /ssl/{{ .options.certfile }} /ssl/{{ .options.keyfile }}
+
+    header Cache-Control "no-cache, no-store, must-revalidate"
     reverse_proxy http://homeassistant.local.hass.io:{{ .variables.port }} {
         {{ if .options.trusted_proxies }}
         trusted_proxies {{ .options.trusted_proxies }}
