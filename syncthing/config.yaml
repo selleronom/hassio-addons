@@ -13,20 +13,16 @@ init: false
 ingress: true
 ingress_port: 8384
 ingress_stream: true
+host_network: true
 panel_title: Syncthing
 panel_icon: mdi:sync
 
 # Use add-on private storage only; no host directories mapped by default
 map: []
 
-# Ports are disabled by default. Users can enable them from the UI if needed.
-ports:
-  8384/tcp: null
-  22000/tcp: 22000
-  22000/udp: 22000
-  21027/udp: 21027
-ports_description:
-  8384/tcp: Web frontend (not needed with Ingress)
-  22000/tcp: Sync protocol (TCP)
-  22000/udp: Sync protocol (QUIC/UDP)
-  21027/udp: Discovery broadcast
+options:
+  gui_user: "admin"
+  gui_password: "changeme"
+schema:
+  gui_user: str
+  gui_password: password

@@ -2,7 +2,7 @@
 # shellcheck shell=bash
 set -euo pipefail
 
-ip=127.0.0.1
+ip=0.0.0.0
 
 bashio::net.wait_for 8384 "$ip"
 bashio::log.info 'Post-start Syncthing setup'
@@ -12,11 +12,29 @@ CONFIG_DIR="${STCONFDIR:-/data/config}"
 if [ -f "$CONFIG_DIR/config.xml" ]; then
 	apikey=$(sed -n 's:.*<apikey>\(.*\)</apikey>.*:\1:p' "$CONFIG_DIR/config.xml" | head -n1 || true)
 	if [ -n "${apikey:-}" ]; then
-		# Allow ingress-only GUI without auth
-		bashio::log.info 'Disabling Syncthing GUI auth (insecure-admin-access) for ingress-only access'
-		syncthing cli --gui-address="$ip:8384" --gui-apikey="$apikey" config gui insecure-admin-access set true || true
+		syncthing cli --gui-address="$ip:8384" --gui-apikey="$apikey" config gui address set "$ip:8384" || true
 
-		# Set a default folder path suggestion for new folders in the GUI
+		gui_user=$(bashio::config 'gui_user' || echo "")
+		gui_password=$(bashio::config 'gui_password' || echo "")
+
+		# Require both username and password to be set
+		if [ -z "${gui_user:-}" ] || [ -z "${gui_password:-}" ]; then
+			bashio::log.fatal "GUI username and password must be configured!"
+			bashio::log.fatal "Please set 'gui_user' and 'gui_password' in addon configuration"
+			bashio::exit.nok
+		fi
+
+		bashio::log.info 'Setting Syncthing GUI authentication from addon config'
+		syncthing cli --gui-address="$ip:8384" --gui-apikey="$apikey" config gui user set "$gui_user" || true
+		echo "$gui_password" | syncthing cli --gui-address="$ip:8384" --gui-apikey="$apikey" config gui password set - || true
+		syncthing cli --gui-address="$ip:8384" --gui-apikey="$apikey" config gui insecure-admin-access set false || true
+
+		# Enable frame loading for Ingress
+		syncthing cli --gui-address="$ip:8384" --gui-apikey="$apikey" config gui insecure-allow-frame-loading set true || true
+
+		# Skip hostname check for reverse proxy
+		syncthing cli --gui-address="$ip:8384" --gui-apikey="$apikey" config gui insecure-skip-hostcheck set true || true
+
 		bashio::log.info 'Configuring default Syncthing folder path to /data/sync'
 		syncthing cli --gui-address="$ip:8384" --gui-apikey="$apikey" config defaults folder path set /data/sync || true
 	else
