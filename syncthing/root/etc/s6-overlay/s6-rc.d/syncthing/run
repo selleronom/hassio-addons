@@ -4,23 +4,31 @@ set -euo pipefail
 
 bashio::log.info 'Initializing Syncthing service'
 
-# Add-on private persistent storage layout
 CONFIG_DIR="${STCONFDIR:-/data/config}"
 STATE_DIR="${STDATADIR:-/data/state}"
 SYNC_ROOT="/data/sync"
 
 mkdir -p "$CONFIG_DIR" "$STATE_DIR" "$SYNC_ROOT"
-
-# Ensure ownership to the running user (root in add-on container)
 chmod 700 "$CONFIG_DIR" || true
 
-# Generate initial config if missing, binding GUI to localhost for Ingress
-if [ ! -f "$CONFIG_DIR/config.xml" ]; then
-	bashio::log.info 'No existing config found, creating initial configuration'
-	syncthing -generate "$CONFIG_DIR" >/dev/null 2>&1 || true
+# Get credentials from addon options
+gui_user=$(bashio::config 'gui_user' || echo "")
+gui_password=$(bashio::config 'gui_password' || echo "")
+
+# Require both username and password
+if [ -z "${gui_user:-}" ] || [ -z "${gui_password:-}" ]; then
+	bashio::log.fatal "GUI username and password must be configured!"
+	bashio::log.fatal "Please set 'gui_user' and 'gui_password' in addon configuration"
+	bashio::exit.nok
 fi
 
-# Bind GUI to all interfaces so Ingress can reach it inside the container
+# Set or update credentials
+bashio::log.info 'Configuring Syncthing with credentials'
+echo "$gui_password" | syncthing generate \
+	--home="$CONFIG_DIR" \
+	--gui-user="$gui_user" \
+	--gui-password=- || true
+
 GUI_ADDR="0.0.0.0:8384"
 
 bashio::log.info 'Starting Syncthing'
