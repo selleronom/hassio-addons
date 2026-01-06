@@ -25,7 +25,7 @@ fi
 # Set or update credentials
 bashio::log.info 'Configuring Syncthing with credentials'
 echo "$gui_password" | syncthing generate \
-	--home="$CONFIG_DIR" \
+	--config="$CONFIG_DIR" \
 	--gui-user="$gui_user" \
 	--gui-password=- || true
 
