@@ -1,5 +1,5 @@
 ---
-version: 2.10.2-r2
+version: 2.10.2-r2-1
 hassio_api: true
 slug: caddy_proxy
 name: Caddy Home Assistant SSL proxy
