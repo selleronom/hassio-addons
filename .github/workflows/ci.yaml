@@ -39,6 +39,14 @@ jobs:
               with:
                 path: "./${{ matrix.addon }}"
 
+            - name: 🔍 Debug addon info
+              run: |
+                echo "Addon dir:  '${{ matrix.addon }}'"
+                echo "Slug:       '${{ steps.info.outputs.slug }}'"
+                echo "Target:     '${{ steps.info.outputs.target }}'"
+                echo "Version:    '${{ steps.info.outputs.version }}'"
+                echo "Archs:      '${{ steps.info.outputs.architectures }}'"
+
             - name: ✋ Check if architecture is supported
               id: arch
               run: |
@@ -46,6 +54,7 @@ jobs:
                   echo "build=true" >> $GITHUB_OUTPUT
                 else
                   echo "build=false" >> $GITHUB_OUTPUT
+                  echo "Skip ${{ matrix.addon }} for ${{ matrix.architecture }} (not supported)"
                 fi
 
             - name: 🚀 Run Add-on Lint
@@ -77,15 +86,6 @@ jobs:
               if: steps.arch.outputs.build == 'true'
               uses: docker/setup-buildx-action@v3
 
-            - name: 🔍 Debug addon info
-              if: steps.arch.outputs.build == 'true'
-              run: |
-                echo "Addon:     '${{ matrix.addon }}'"
-                echo "Slug:      '${{ steps.info.outputs.slug }}'"
-                echo "Target:    '${{ steps.info.outputs.target }}'"
-                echo "Version:   '${{ steps.info.outputs.version }}'"
-                echo "Archs:     '${{ steps.info.outputs.architectures }}'"
-
             - name: 🚀 Build
               if: steps.arch.outputs.build == 'true'
               uses: home-assistant/builder@2025.09.0
@@ -94,5 +94,6 @@ jobs:
                     --test \
                     --${{ matrix.architecture }} \
                     --target /data/${{ matrix.addon }} \
+                    --image hassio-addons_${{ matrix.addon }}-{arch} \
                     --no-latest \
                     --no-cache
