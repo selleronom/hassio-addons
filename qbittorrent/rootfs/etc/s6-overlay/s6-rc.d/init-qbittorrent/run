@@ -26,6 +26,11 @@ Accepted=true
 
 [Preferences]
 WebUI\Address=*
+WebUI\CSRFProtection=false
+WebUI\HostHeaderValidation=false
+WebUI\LocalHostAuth=false
+WebUI\TrustedReverseProxiesList=
+WebUI\ServerDomains=*
 EOF
 fi
 
