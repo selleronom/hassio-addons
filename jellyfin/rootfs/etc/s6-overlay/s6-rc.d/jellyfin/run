@@ -1,0 +1,51 @@
+#!/command/with-contenv bashio
+# ==============================================================================
+# Start the Jellyfin service
+# s6-overlay docs: https://github.com/just-containers/s6-overlay
+# ==============================================================================
+
+# Get configuration from options
+LOG_LEVEL=$(bashio::config 'log_level')
+CACHE_SIZE=$(bashio::config 'cache_size')
+ENABLE_HWACCEL=$(bashio::config 'enable_hwaccel')
+
+# Set directories in /data
+DATA_DIR="/data"
+CONFIG_DIR="${DATA_DIR}/config"
+CACHE_DIR="${DATA_DIR}/cache"
+LOG_DIR="${DATA_DIR}/log"
+
+# Create directories if they don't exist
+mkdir -p "${CONFIG_DIR}" "${CACHE_DIR}" "${LOG_DIR}"
+
+bashio::log.info "Starting Jellyfin..."
+bashio::log.info "Data directory: ${DATA_DIR}"
+bashio::log.info "Config directory: ${CONFIG_DIR}"
+bashio::log.info "Cache directory: ${CACHE_DIR}"
+bashio::log.info "Log level: ${LOG_LEVEL}"
+
+# Check for video devices (Raspberry Pi 5 hardware acceleration)
+if bashio::var.true "${ENABLE_HWACCEL}"; then
+  if [ -e /dev/video19 ] && [ -e /dev/media2 ]; then
+    bashio::log.info "Hardware acceleration devices detected (Pi 5 HEVC decoder)"
+    bashio::log.info "Enable V4L2 in Jellyfin Dashboard > Playback > Hardware Acceleration"
+  else
+    bashio::log.warning "Hardware acceleration enabled but video devices not found"
+    bashio::log.warning "Available on Raspberry Pi 5 for H.265/HEVC only"
+  fi
+fi
+
+# Set Jellyfin environment variables
+export JELLYFIN_DATA_DIR="${DATA_DIR}"
+export JELLYFIN_CONFIG_DIR="${CONFIG_DIR}"
+export JELLYFIN_CACHE_DIR="${CACHE_DIR}"
+export JELLYFIN_LOG_DIR="${LOG_DIR}"
+
+# Execute Jellyfin with proper directories
+exec jellyfin \
+  --datadir "${DATA_DIR}" \
+  --configdir "${CONFIG_DIR}" \
+  --cachedir "${CACHE_DIR}" \
+  --logdir "${LOG_DIR}" \
+  --webdir /usr/share/webapps/jellyfin-web \
+  --ffmpeg /usr/bin/ffmpeg
