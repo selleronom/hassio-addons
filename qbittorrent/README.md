@@ -36,87 +36,8 @@ qBittorrent is a cross-platform BitTorrent client that aims to provide an open-s
 
 2. Find the "qBittorrent" add-on and click it
 3. Click "INSTALL"
-4. Configure the add-on options (see below)
-5. Click "START"
+4. Click "START"
 
-## Configuration
-
-**Note**: _Remember to restart the add-on when the configuration is changed._
-
-Example add-on configuration:
-
-```yaml
-webui_port: 8080
-bt_port: 6881
-save_path: /share/qbittorrent/downloads
-temp_path: /share/qbittorrent/temp
-max_connec: 500
-max_connec_per_torrent: 100
-max_uploads: 15
-max_uploads_per_torrent: 4
-limit_utp_rate: true
-limit_tcp_overhead: false
-alt_dl_limit: 10240
-alt_up_limit: 10240
-scheduler_enabled: false
-ssl_enabled: false
-```
-
-### Option: `webui_port`
-
-The port for the qBittorrent Web UI (default: 8080).
-
-### Option: `bt_port`
-
-The port for BitTorrent connections (default: 6881).
-
-### Option: `save_path`
-
-The path where completed downloads will be saved.
-
-### Option: `temp_path`
-
-The path for incomplete downloads.
-
-### Option: `max_connec`
-
-Maximum number of connections (default: 500).
-
-### Option: `max_connec_per_torrent`
-
-Maximum number of connections per torrent (default: 100).
-
-### Option: `max_uploads`
-
-Maximum number of upload slots (default: 15).
-
-### Option: `max_uploads_per_torrent`
-
-Maximum number of upload slots per torrent (default: 4).
-
-### Option: `alt_dl_limit`
-
-Alternative download rate limit in KiB/s (default: 10240 = 10 MB/s).
-
-### Option: `alt_up_limit`
-
-Alternative upload rate limit in KiB/s (default: 10240 = 10 MB/s).
-
-### Option: `scheduler_enabled`
-
-Enable the bandwidth scheduler (default: false).
-
-### Option: `ssl_enabled`
-
-Enable SSL/TLS for the Web UI (default: false).
-
-## Usage
-
-1. Access the Web UI at `http://homeassistant.local:8080` (or your configured port)
-2. Default login credentials:
-   - Username: `admin`
-   - Password: `adminadmin`
-3. **Important**: Change the default password immediately after first login!
 
 ## Support
 
@@ -125,13 +46,3 @@ Got questions?
 Open an issue on GitHub:
 
 [https://github.com/Selleronom/hassio-addons/issues](https://github.com/Selleronom/hassio-addons/issues)
-
-## Authors & Contributors
-
-This add-on is maintained by [Erik Montnemery](https://github.com/Selleronom).
-
-## License
-
-MIT License
-
-Copyright (c) 2025 Erik Montnemery
