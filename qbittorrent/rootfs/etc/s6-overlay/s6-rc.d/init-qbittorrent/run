@@ -7,6 +7,7 @@
 
 readonly CONFIG_DIR="/config/qBittorrent/config"
 readonly CONFIG_FILE="${CONFIG_DIR}/qBittorrent.conf"
+readonly DATA_DIR="/config/qBittorrent/data"
 
 bashio::log.info "Initializing qBittorrent..."
 
@@ -14,6 +15,12 @@ bashio::log.info "Initializing qBittorrent..."
 if ! bashio::fs.directory_exists "${CONFIG_DIR}"; then
     bashio::log.debug "Creating config directory..."
     mkdir -p "${CONFIG_DIR}"
+fi
+
+# Create data directory if it doesn't exist
+if ! bashio::fs.directory_exists "${DATA_DIR}"; then
+    bashio::log.debug "Creating data directory..."
+    mkdir -p "${DATA_DIR}"
 fi
 
 # Create minimal default configuration if it doesn't exist
@@ -33,5 +40,9 @@ WebUI\TrustedReverseProxiesList=
 WebUI\ServerDomains=*
 EOF
 fi
+
+# Ensure config directory is writable so qBittorrent can save changes
+chmod -R 755 "${CONFIG_DIR}"
+chmod 644 "${CONFIG_FILE}" 2>/dev/null || true
 
 bashio::log.info "Initialization complete!"
