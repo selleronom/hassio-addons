@@ -1,6 +1,0 @@
-#!/usr/bin/with-contenv bashio
-CONFIG="/etc/unbound/unbound.conf"
-
-# Run unbound
-bashio::log.info "Starting unbound..."
-exec unbound -c "${CONFIG}" -d

@@ -1,7 +1,0 @@
-#!/usr/bin/with-contenv bashio
-# ==============================================================================
-# Starts the SSH service
-# ============================================================================== 
-
-bashio::log.info "Starting the SSH daemon..."
-exec /usr/sbin/sshd -D -e

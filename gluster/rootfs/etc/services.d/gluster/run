@@ -1,8 +1,0 @@
-#!/usr/bin/with-contenv bashio
-# ==============================================================================
-# Runs snapclient
-# ==============================================================================
-bashio::log.info 'Starting gluster...'
-
-# Run snapclient
-exec /usr/sbin/glusterd -N

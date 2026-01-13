@@ -1,4 +1,0 @@
-#!/bin/bash
-echo "Stopping WireGuard Client..."
-
-wg-quick down /ssl/wireguard-client/wg1.conf

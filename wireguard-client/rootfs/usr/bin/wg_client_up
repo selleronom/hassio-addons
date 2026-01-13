@@ -1,6 +1,0 @@
-#!/bin/bash
-echo "Starting WireGuard Client..."
-
-wg-quick down /ssl/wireguard-client/wg1.conf
-wg-quick up /ssl/wireguard-client/wg1.conf
-watch wg

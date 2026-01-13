@@ -1,8 +1,0 @@
-#!/usr/bin/with-contenv bashio
-# ==============================================================================
-# Runs searx
-# ==============================================================================
-bashio::log.info 'Starting Searx server...'
-
-# Run searx
-python3 /usr/lib/python3.8/site-packages/searx/webapp.py
