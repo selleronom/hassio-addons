@@ -8,5 +8,3 @@ RUN apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/edge/c
 # Copy root filesystem
 COPY rootfs /
 
-# Set working directory
-WORKDIR /

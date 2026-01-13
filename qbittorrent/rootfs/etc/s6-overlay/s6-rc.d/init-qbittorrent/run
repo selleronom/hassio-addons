@@ -4,7 +4,7 @@
 # Configures qBittorrent
 # ==============================================================================
 
-readonly CONFIG_DIR="/data/qBittorrent"
+readonly CONFIG_DIR="/data/qBittorrent/config"
 readonly CONFIG_FILE="${CONFIG_DIR}/qBittorrent.conf"
 
 bashio::log.info "Initializing qBittorrent..."
@@ -26,10 +26,7 @@ WebUI\LocalHostAuth=false
 WebUI\CSRFProtection=false
 WebUI\HostHeaderValidation=false
 WebUI\ServerDomains=*
-WebUI\UseUPnP=false
 
-[LegalNotice]
-Accepted=true
 EOF
 fi
 
