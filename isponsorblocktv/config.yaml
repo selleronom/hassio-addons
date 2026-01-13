@@ -1,0 +1,43 @@
+---
+name: iSponsorBlockTV
+version: 2.6.1-1
+slug: isponsorblocktv
+description: Skip sponsor segments in YouTube videos on YouTube TV devices
+url: https://github.com/selleronom/hassio-addons/tree/main/isponsorblocktv
+arch:
+  - aarch64
+  - amd64
+init: false
+startup: application
+boot: auto
+host_network: true
+panel_icon: mdi:youtube-tv
+
+options:
+  devices: []
+  channel_whitelist: []
+  skip_categories: []
+  skip_count_tracking: false
+  mute_ads: false
+  skip_ads: true
+  auto_play: true
+  minimum_skip_length: 1
+  join_name: "iSponsorBlockTV"
+
+schema:
+  apikey: password?
+  devices:
+    - name: str?
+      screen_id: str
+      offset: int?
+  channel_whitelist:
+    - id: str
+      name: str
+  skip_categories:
+    - match(^.*(sponsor|selfpromo|exclusive_access|interaction|poi_highlight|intro|outro|preview|filler|music_offtopic).*$)
+  skip_count_tracking: bool
+  mute_ads: bool
+  skip_ads: bool
+  auto_play: bool
+  minimum_skip_length: int?
+  join_name: str?
