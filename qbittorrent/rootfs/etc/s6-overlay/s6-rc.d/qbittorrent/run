@@ -8,4 +8,4 @@
 bashio::log.info "Starting qBittorrent..."
 
 # Run qBittorrent with configuration directory
-exec qbittorrent-nox --profile=/config
+exec qbittorrent-nox --profile=/data/qBittorrent
