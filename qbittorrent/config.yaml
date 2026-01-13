@@ -1,6 +1,6 @@
 ---
 name: qBittorrent
-version: "5.1.4-r1-1"
+version: "5.1.4-r1-2"
 slug: qbittorrent
 description: qBittorrent - A free and reliable P2P BitTorrent client
 url: https://github.com/selleronom/hassio-addons/tree/main/qbittorrent
@@ -10,7 +10,7 @@ arch:
   - aarch64
   - amd64
   - i386
-init: true
+init: false
 startup: application
 boot: auto
 apparmor: true
