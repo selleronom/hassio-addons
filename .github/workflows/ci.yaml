@@ -94,6 +94,7 @@ jobs:
                     --test \
                     --${{ matrix.architecture }} \
                     --target /data/${{ matrix.addon }} \
-                    --image hassio-addons_${{ matrix.addon }}-{arch} \
+                    --image hassio-addons_${{ matrix.addon }} \
+                    --load \
                     --no-latest \
                     --no-cache
