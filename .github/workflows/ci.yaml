@@ -76,16 +76,6 @@ jobs:
               if: steps.check.outputs.build == 'true'
               uses: docker/setup-buildx-action@v3
 
-            - name: ℹ️ Compose build flags
-              if: steps.check.outputs.build == 'true'
-              id: flags
-              run: |
-                echo "date=$(date +"%Y-%m-%dT%H:%M:%SZ")" >> $GITHUB_OUTPUT
-                if [[ -f "${{ matrix.addon }}/build.yaml" ]]; then
-                  from=$(yq --no-colors eval ".build_from.${{ matrix.architecture }}" "${{ matrix.addon }}/build.yaml")
-                  echo "from=${from}" >> $GITHUB_OUTPUT
-                fi
-
             - name: 🚀 Build
               if: steps.check.outputs.build == 'true'
               uses: home-assistant/builder@2025.09.0
@@ -93,7 +83,7 @@ jobs:
                 args: |
                     --test \
                     --${{ matrix.architecture }} \
-                    --target ${{ matrix.addon }} \
+                    --target /data/${{ matrix.addon }} \
                     --docker-hub ghcr.io/${{ github.repository_owner }} \
                     --no-latest \
                     --no-cache

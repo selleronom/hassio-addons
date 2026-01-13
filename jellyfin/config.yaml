@@ -1,5 +1,5 @@
 name: Jellyfin
-version: "10.11.5-r0"
+version: 10.11.5-r0
 slug: jellyfin
 description: Jellyfin media server
 url: https://github.com/selleronom/hassio-addons/tree/main/jellyfin
