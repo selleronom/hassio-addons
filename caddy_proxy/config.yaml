@@ -1,7 +1,7 @@
+name: Caddy Home Assistant SSL proxy
+slug: caddy_proxy
 version: 2.10.2-r2-1
 hassio_api: true
-slug: caddy_proxy
-name: Caddy Home Assistant SSL proxy
 description: A reverse proxy using Caddy
 arch:
     - aarch64

@@ -1,7 +1,7 @@
 name: iSponsorBlockTV
+description: Skip sponsor segments in YouTube videos on YouTube TV devices
 version: 2.6.1-1
 slug: isponsorblocktv
-description: Skip sponsor segments in YouTube videos on YouTube TV devices
 url: https://github.com/selleronom/hassio-addons/tree/main/isponsorblocktv
 arch:
     - aarch64

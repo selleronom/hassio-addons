@@ -1,7 +1,7 @@
 name: Garage S3
+description: Lightweight S3-compatible storage server
 version: 2.1.0-r0-1
 slug: garage
-description: Lightweight S3-compatible storage server
 url: https://github.com/selleronom/hassio-addons/tree/main/garage
 arch:
     - aarch64
