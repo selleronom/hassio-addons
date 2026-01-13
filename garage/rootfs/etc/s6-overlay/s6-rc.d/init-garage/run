@@ -1,0 +1,106 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Configures Garage S3
+# ==============================================================================
+
+readonly CONFIG_PATH="/data/garage.toml"
+readonly METADATA_DIR="/data/meta"
+readonly DATA_DIR="/data/data"
+
+bashio::log.info "Initializing Garage S3..."
+
+# Create directories
+mkdir -p "${METADATA_DIR}" "${DATA_DIR}"
+
+# Generate rpc_secret if not provided
+RPC_SECRET=$(bashio::config 'rpc_secret')
+if [ -z "${RPC_SECRET}" ]; then
+    RPC_SECRET=$(openssl rand -hex 32)
+    bashio::log.warning "No rpc_secret configured, generated: ${RPC_SECRET}"
+fi
+
+# Get S3 region
+S3_REGION=$(bashio::config 's3_region')
+
+# Generate garage.toml
+bashio::log.info "Generating Garage configuration..."
+cat > "${CONFIG_PATH}" <<EOF
+metadata_dir = "${METADATA_DIR}"
+data_dir = "${DATA_DIR}"
+db_engine = "sqlite"
+replication_factor = 1
+
+rpc_bind_addr = "[::]:3901"
+rpc_public_addr = "127.0.0.1:3901"
+rpc_secret = "${RPC_SECRET}"
+
+[s3_api]
+s3_region = "${S3_REGION}"
+api_bind_addr = "[::]:3900"
+root_domain = ".s3.garage"
+
+[admin]
+api_bind_addr = "[::]:3903"
+admin_token = "$(openssl rand -base64 32)"
+metrics_token = "$(openssl rand -base64 32)"
+EOF
+
+# Start Garage server in background to initialize
+bashio::log.info "Starting Garage server for initialization..."
+garage -c "${CONFIG_PATH}" server &
+GARAGE_PID=$!
+
+# Wait for Garage to be ready
+sleep 5
+
+# Check if this is first run
+if [ ! -f /data/.initialized ]; then
+    bashio::log.info "First run - initializing cluster..."
+    
+    # Get node ID
+    NODE_ID=$(garage -c "${CONFIG_PATH}" status 2>/dev/null | grep "127.0.0.1:3901" | awk '{print $1}')
+    
+    if [ -n "${NODE_ID}" ]; then
+        # Assign layout
+        bashio::log.info "Assigning layout to node ${NODE_ID}..."
+        garage -c "${CONFIG_PATH}" layout assign -z dc1 -c 1G "${NODE_ID}" || true
+        garage -c "${CONFIG_PATH}" layout apply --version 1 || true
+        
+        # Create keys and buckets
+        bashio::log.info "Creating keys and buckets..."
+        KEYS_LEN=$(bashio::config 'keys|length')
+
+        for i in $(seq 0 $((KEYS_LEN-1))); do
+            NAME=$(bashio::config "keys[${i}].name")
+
+            bashio::log.info "Ensuring key exists: ${NAME}"
+            if ! garage -c "${CONFIG_PATH}" key info "${NAME}" >/dev/null 2>&1; then
+                garage -c "${CONFIG_PATH}" key create "${NAME}"
+            fi
+
+            BUCKETS_LEN=$(bashio::config "keys[${i}].buckets|length")
+            for j in $(seq 0 $((BUCKETS_LEN-1))); do
+                BUCKET=$(bashio::config "keys[${i}].buckets[${j}]")
+                bashio::log.info "Ensuring bucket + allow: ${BUCKET} -> ${NAME}"
+
+                garage -c "${CONFIG_PATH}" bucket create "${BUCKET}" >/dev/null 2>&1 || true
+                garage -c "${CONFIG_PATH}" bucket allow \
+                --read --write --owner \
+                "${BUCKET}" \
+                --key "${NAME}"
+            done
+        done
+        
+        touch /data/.initialized
+        bashio::log.info "Initialization complete!"
+    else
+        bashio::log.warning "Could not get node ID, will retry on next start"
+    fi
+fi
+
+# Stop the background server
+kill ${GARAGE_PID} 2>/dev/null || true
+wait ${GARAGE_PID} 2>/dev/null || true
+
+bashio::log.info "Initialization finished"

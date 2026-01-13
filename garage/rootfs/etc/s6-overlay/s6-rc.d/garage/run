@@ -1,0 +1,11 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Home Assistant Community Add-on: Garage S3
+# Runs the Garage daemon
+# ==============================================================================
+
+bashio::log.info "Starting Garage server..."
+
+# Run Garage server
+exec garage -c /data/garage.toml server

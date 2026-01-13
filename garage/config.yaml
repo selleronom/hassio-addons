@@ -1,0 +1,35 @@
+---
+name: Garage S3
+version: 2.1.0-r0-1
+slug: garage
+description: Lightweight S3-compatible storage server
+url: https://github.com/selleronom/hassio-addons/tree/main/garage
+arch:
+  - armhf
+  - armv7
+  - aarch64
+  - amd64
+  - i386
+init: false
+startup: application
+boot: auto
+ports:
+  3900/tcp: null
+  3903/tcp: null
+ports_description:
+  3900/tcp: S3 API endpoint
+  3903/tcp: Admin API and metrics
+panel_icon: mdi:database
+
+options:
+  rpc_secret: ""
+  s3_region: "garage"
+  keys: []
+
+schema:
+  rpc_secret: str
+  s3_region: str
+  keys:
+    - name: str
+      buckets:
+        - str
