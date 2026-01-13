@@ -7,6 +7,7 @@
 
 readonly CONFIG_DIR="/config/qBittorrent/config"
 readonly DATA_DIR="/config/qBittorrent/data"
+readonly CONFIG_FILE="${CONFIG_DIR}/qBittorrent.conf"
 
 bashio::log.info "Initializing qBittorrent..."
 
@@ -20,6 +21,24 @@ fi
 if ! bashio::fs.directory_exists "${DATA_DIR}"; then
     bashio::log.debug "Creating data directory..."
     mkdir -p "${DATA_DIR}"
+fi
+
+# Create initial config file only if it doesn't exist
+if [[ ! -f "${CONFIG_FILE}" ]]; then
+    bashio::log.info "Creating initial qBittorrent configuration for reverse proxy access..."
+    cat > "${CONFIG_FILE}" <<EOF
+[Preferences]
+WebUI\Address=*
+WebUI\Port=8080
+WebUI\LocalHostAuth=false
+WebUI\CSRFProtection=false
+WebUI\HostHeaderValidation=false
+WebUI\ServerDomains=*
+WebUI\UseUPnP=false
+
+[LegalNotice]
+Accepted=true
+EOF
 fi
 
 # Ensure directories are writable
