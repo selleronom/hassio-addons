@@ -19,7 +19,7 @@ jobs:
             fail-fast: false
             matrix:
                 addon:
-                    - caddy-proxy
+                    - caddy_proxy
                     - garage
                     - isponsorblocktv
                     - jellyfin
@@ -80,9 +80,9 @@ jobs:
             - name: 🔍 Debug addon info
               if: steps.arch.outputs.build == 'true'
               run: |
+                echo "Addon:     '${{ matrix.addon }}'"
                 echo "Slug:      '${{ steps.info.outputs.slug }}'"
                 echo "Target:    '${{ steps.info.outputs.target }}'"
-                echo "Image tpl: '${{ steps.info.outputs.image }}'"
                 echo "Version:   '${{ steps.info.outputs.version }}'"
                 echo "Archs:     '${{ steps.info.outputs.architectures }}'"
 
@@ -94,6 +94,5 @@ jobs:
                     --test \
                     --${{ matrix.architecture }} \
                     --target /data/${{ matrix.addon }} \
-                    --image "${{ steps.info.outputs.image }}" \
                     --no-latest \
                     --no-cache
