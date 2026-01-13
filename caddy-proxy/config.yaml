@@ -4,11 +4,8 @@ slug: caddy_proxy
 name: Caddy Home Assistant SSL proxy
 description: A reverse proxy using Caddy
 arch:
-    - armhf
-    - armv7
     - aarch64
     - amd64
-    - i386
 map:
     - ssl
     - share

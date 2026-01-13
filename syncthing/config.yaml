@@ -4,11 +4,8 @@ slug: syncthing
 description: Syncthing is a continuous file synchronization program in a decentralized way
 url: https://github.com/selleronom/hassio-addons
 arch:
-    - armhf
-    - armv7
     - aarch64
     - amd64
-    - i386
 init: false
 ingress: true
 ingress_port: 8384

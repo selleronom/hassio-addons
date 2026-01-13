@@ -4,11 +4,8 @@ slug: qbittorrent
 description: qBittorrent - A free and reliable P2P BitTorrent client
 url: https://github.com/selleronom/hassio-addons/tree/main/qbittorrent
 arch:
-    - armhf
-    - armv7
     - aarch64
     - amd64
-    - i386
 init: false
 startup: application
 boot: auto

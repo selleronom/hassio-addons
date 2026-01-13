@@ -12,9 +12,78 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
-    information:
-        name: Gather add-on information
+    find-addons:
+        name: Find addons to build
         runs-on: ubuntu-latest
+        outputs:
+            addons: ${{ steps.addons.outputs.addons }}
+        steps:
+            - name: ⤵️ Check out code from GitHub
+              uses: actions/checkout@v6
+              with:
+                fetch-depth: 0
+
+            - name: 🔍 Find addons
+              id: addons
+              run: |
+                declare -a addons
+
+                if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+                  # Build all addons on manual trigger
+                  addons=($(find . -maxdepth 2 -name "config.yaml" -not -path "./.github/*" | sed 's|./||' | cut -d'/' -f1 | sort -u))
+                else
+                  # Build only changed addons on push/PR
+                  if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+                    base_ref="${{ github.event.pull_request.base.sha }}"
+                    head_ref="${{ github.event.pull_request.head.sha }}"
+                  else
+                    if git rev-parse HEAD^ >/dev/null 2>&1; then
+                      base_ref="HEAD^"
+                      head_ref="HEAD"
+                    else
+                      # First commit, build all
+                      addons=($(find . -maxdepth 2 -name "config.yaml" -not -path "./.github/*" | sed 's|./||' | cut -d'/' -f1 | sort -u))
+                      base_ref=""
+                    fi
+                  fi
+
+                  if [[ -n "$base_ref" ]]; then
+                    changed_files=$(git diff --name-only ${base_ref} ${head_ref})
+                    addons=($(echo "$changed_files" | grep -E '^[^/]+/' | cut -d'/' -f1 | sort -u))
+
+                    # If no addons changed, check if workflow file changed
+                    if [[ ${#addons[@]} -eq 0 ]] && echo "$changed_files" | grep -q ".github/workflows"; then
+                      addons=($(find . -maxdepth 2 -name "config.yaml" -not -path "./.github/*" | sed 's|./||' | cut -d'/' -f1 | sort -u))
+                    fi
+                  fi
+                fi
+
+                # Verify each addon has config.yaml
+                declare -a valid_addons
+                for addon in "${addons[@]}"; do
+                  if [[ -f "${addon}/config.yaml" ]]; then
+                    valid_addons+=("$addon")
+                  fi
+                done
+
+                # Convert to JSON array
+                if [[ ${#valid_addons[@]} -eq 0 ]]; then
+                  echo "addons=[]" >> $GITHUB_OUTPUT
+                  echo "No addons to build"
+                else
+                  addons_json=$(printf '%s\n' "${valid_addons[@]}" | jq -R . | jq -s -c .)
+                  echo "addons=${addons_json}" >> $GITHUB_OUTPUT
+                  echo "Found addons to build: ${addons_json}"
+                fi
+
+    information:
+        name: Get ${{ matrix.addon }} information
+        needs: find-addons
+        runs-on: ubuntu-latest
+        if: needs.find-addons.outputs.addons != '[]'
+        strategy:
+            matrix:
+                addon: ${{ fromJson(needs.find-addons.outputs.addons) }}
         outputs:
             architectures: ${{ steps.information.outputs.architectures }}
             build: ${{ steps.information.outputs.build }}
@@ -25,82 +94,128 @@ jobs:
             version: ${{ steps.information.outputs.version }}
         steps:
             - name: ⤵️ Check out code from GitHub
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
 
             - name: 🚀 Run add-on information action
               id: information
               uses: frenck/action-addon-information@v1.4.2
+              with:
+                path: "./${{ matrix.addon }}"
 
     lint-addon:
-        name: Lint Add-on
-        needs: information
-        runs-on: ubuntu-latest
-        steps:
-            - name: ⤵️ Check out code from GitHub
-              uses: actions/checkout@v4
-
-            - name: 🚀 Run Add-on Lint
-              uses: frenck/action-addon-linter@v2.15.1
-              with:
-                path: "./${{ needs.information.outputs.target }}"
-
-    lint-hadolint:
-        name: Hadolint
-        needs: information
-        runs-on: ubuntu-latest
-        steps:
-            - name: ⤵️ Check out code from GitHub
-              uses: actions/checkout@v4
-
-            - name: 🚀 Run Hadolint
-              uses: hadolint/hadolint-action@v3.1.0
-              with:
-                dockerfile: "./${{ needs.information.outputs.target }}/Dockerfile"
-
-    build:
-        name: Test build
+        name: Lint ${{ matrix.addon }}
         needs:
+            - find-addons
             - information
-            - lint-addon
-            - lint-hadolint
         runs-on: ubuntu-latest
+        if: needs.find-addons.outputs.addons != '[]'
         strategy:
             matrix:
-                architecture: ${{ fromJson(needs.information.outputs.architectures) }}
+                addon: ${{ fromJson(needs.find-addons.outputs.addons) }}
         steps:
             - name: ⤵️ Check out code from GitHub
               uses: actions/checkout@v6
 
+            - name: 🚀 Run Add-on Lint
+              uses: frenck/action-addon-linter@v2.15.1
+              with:
+                path: "./${{ matrix.addon }}"
+
+    lint-hadolint:
+        name: Hadolint ${{ matrix.addon }}
+        needs:
+            - find-addons
+            - information
+        runs-on: ubuntu-latest
+        if: needs.find-addons.outputs.addons != '[]'
+        strategy:
+            matrix:
+                addon: ${{ fromJson(needs.find-addons.outputs.addons) }}
+        steps:
+            - name: ⤵️ Check out code from GitHub
+              uses: actions/checkout@v6
+
+            - name: 🚀 Run Hadolint
+              uses: hadolint/hadolint-action@v3.1.0
+              with:
+                dockerfile: "./${{ matrix.addon }}/Dockerfile"
+
+    build:
+        name: Build ${{ matrix.addon }} (${{ matrix.architecture }})
+        needs:
+            - find-addons
+            - information
+            - lint-addon
+            - lint-hadolint
+        runs-on: ubuntu-latest
+        if: needs.find-addons.outputs.addons != '[]'
+        strategy:
+            fail-fast: false
+            matrix:
+                addon: ${{ fromJson(needs.find-addons.outputs.addons) }}
+                architecture:
+                    - aarch64
+                    - amd64
+                    - armhf
+                    - armv7
+                    - i386
+        steps:
+            - name: ⤵️ Check out code from GitHub
+              uses: actions/checkout@v6
+
+            - name: 📝 Get addon information
+              id: addon-info
+              uses: frenck/action-addon-information@v1.4.2
+              with:
+                path: "./${{ matrix.addon }}"
+
+            - name: ✋ Check if architecture is supported
+              id: supported
+              run: |
+                if echo '${{ steps.addon-info.outputs.architectures }}' | jq -e 'map(select(. == "${{ matrix.architecture }}")) | length > 0' > /dev/null; then
+                  echo "build=true" >> $GITHUB_OUTPUT
+                else
+                  echo "build=false" >> $GITHUB_OUTPUT
+                  echo "⏭️ Skipping ${{ matrix.addon }} for ${{ matrix.architecture }} (architecture not supported)"
+                fi
+
             - name: 🏗 Set up build cache
-              id: cache
+              if: steps.supported.outputs.build == 'true'
               uses: actions/cache@v4
               with:
                 path: /tmp/.docker-cache
-                key: docker-${{ matrix.architecture }}-${{ github.sha }}
+                key: docker-${{ matrix.addon }}-${{ matrix.architecture }}-${{ github.sha }}
                 restore-keys: |
-                    docker-${{ matrix.architecture }}
+                    docker-${{ matrix.addon }}-${{ matrix.architecture }}
 
             - name: 🏗 Set up QEMU
+              if: steps.supported.outputs.build == 'true'
               uses: docker/setup-qemu-action@v3
 
             - name: 🏗 Set up Docker Buildx
+              if: steps.supported.outputs.build == 'true'
               uses: docker/setup-buildx-action@v3
 
             - name: ℹ️ Compose build flags
+              if: steps.supported.outputs.build == 'true'
               id: flags
               run: |
                 echo "date=$(date +"%Y-%m-%dT%H:%M:%SZ")" >> $GITHUB_OUTPUT
-                target_file="${{ needs.information.outputs.target }}/build.yaml"
-                from=$(yq --no-colors eval ".build_from.${{ matrix.architecture }}" "$target_file")
-                echo "from=${from}" >> $GITHUB_OUTPUT
+                if [[ -f "${{ matrix.addon }}/build.yaml" ]]; then
+                  from=$(yq --no-colors eval ".build_from.${{ matrix.architecture }}" "${{ matrix.addon }}/build.yaml" 2>/dev/null || echo "null")
+                  if [[ "$from" != "null" ]]; then
+                    echo "from=${from}" >> $GITHUB_OUTPUT
+                  fi
+                fi
 
             - name: 🚀 Build
+              if: steps.supported.outputs.build == 'true'
               uses: home-assistant/builder@2025.09.0
               with:
                 args: |
                     --test \
                     --${{ matrix.architecture }} \
-                    --target ${{ needs.information.outputs.target }} \
+                    --target ${{ matrix.addon }} \
                     --docker-hub ghcr.io/${{ github.repository_owner }} \
                     --no-latest \
                     --no-cache
