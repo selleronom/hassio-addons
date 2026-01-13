@@ -1,0 +1,70 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+        "config:recommended"
+    ],
+    "timezone": "Europe/Stockholm",
+    "schedule": [
+        "before 6am every weekday"
+    ],
+    "labels": [
+        "dependencies"
+    ],
+    "commitMessagePrefix": "⬆️",
+    "commitMessageTopic": "{{depName}}",
+    "regexManagers": [
+        {
+            "description": "Update Alpine packages in Dockerfiles",
+            "fileMatch": [
+                "(^|/)Dockerfile$"
+            ],
+            "matchStrings": [
+                "# renovate: datasource=(?<datasource>repology) depName=(?<depName>.*?)\\s+.*?(?<packageName>[a-z0-9-]+)==(?<currentValue>[^ \\\\]+)"
+            ],
+            "datasourceTemplate": "repology",
+            "versioningTemplate": "loose"
+        },
+        {
+            "description": "Update versioned dependencies",
+            "fileMatch": [
+                "(^|/)Dockerfile$"
+            ],
+            "matchStrings": [
+                "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?\\s+(?:ARG|ENV) .*?_VERSION=(?<currentValue>.*)\\s"
+            ],
+            "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}"
+        }
+    ],
+    "packageRules": [
+        {
+            "matchDatasources": [
+                "repology"
+            ],
+            "automerge": false,
+            "groupName": "Alpine packages"
+        },
+        {
+            "matchManagers": [
+                "dockerfile"
+            ],
+            "matchUpdateTypes": [
+                "major"
+            ],
+            "automerge": false
+        },
+        {
+            "description": "Group all add-on updates together",
+            "matchFileNames": [
+                "**/Dockerfile"
+            ],
+            "groupName": "Add-on dependencies"
+        },
+        {
+            "description": "Group GitHub Actions updates",
+            "matchManagers": [
+                "github-actions"
+            ],
+            "groupName": "GitHub Actions"
+        }
+    ]
+}

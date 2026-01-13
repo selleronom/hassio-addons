@@ -1,0 +1,44 @@
+repos:
+    - repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v5.0.0
+      hooks:
+        - id: trailing-whitespace
+        - id: end-of-file-fixer
+        - id: check-yaml
+          args: ["--unsafe"] # Allow custom YAML tags used by Home Assistant
+        - id: check-added-large-files
+        - id: check-merge-conflict
+        - id: mixed-line-ending
+
+    - repo: https://github.com/google/yamlfmt
+      rev: v0.14.0
+      hooks:
+        - id: yamlfmt
+          name: Format YAML files
+          files: \.(yaml|yml)$
+          args: ["-formatter", "indent=4,retain_line_breaks=true"]
+
+    - repo: https://github.com/jumanjihouse/pre-commit-hooks
+      rev: 3.0.0
+      hooks:
+        - id: shellcheck
+          name: Check shell scripts with shellcheck
+          files: \.(sh|bash)$
+
+    - repo: local
+      hooks:
+        - id: hadolint
+          name: Lint Dockerfiles with Hadolint (Docker)
+          entry: >-
+            bash -c 'for file in "$@"; do docker run --rm -i hadolint/hadolint:latest-alpine < "$file" || exit 1; done' --
+          language: system
+          files: Dockerfile$
+          pass_filenames: true
+
+        - id: addon-linter
+          name: Lint Home Assistant Add-on Config
+          entry: >-
+            bash -c 'if command -v jq &> /dev/null; then for config in */config.yaml; do echo "Checking $config"; done; fi'
+          language: system
+          files: config\.yaml$
+          pass_filenames: false

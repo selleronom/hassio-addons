@@ -1,0 +1,66 @@
+name: Update Add-on Version
+
+on:
+    pull_request:
+        paths:
+            - "**/Dockerfile"
+    workflow_dispatch: {}
+
+jobs:
+    update-version:
+        name: Update config.yaml version
+        runs-on: ubuntu-latest
+        if: github.actor == 'renovate[bot]' || github.event_name == 'workflow_dispatch'
+        permissions:
+            contents: write
+            pull-requests: write
+        steps:
+            - name: ⤵️ Check out code
+              uses: actions/checkout@v6
+              with:
+                ref: ${{ github.head_ref }}
+                token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: 🔍 Detect changed add-on
+              id: detect
+              run: |
+                # Find which add-on's Dockerfile changed
+                changed_file=$(git diff --name-only origin/${{ github.base_ref }}..HEAD | grep 'Dockerfile' | head -n1)
+                if [ -z "$changed_file" ]; then
+                  echo "No Dockerfile changes detected"
+                  exit 0
+                fi
+                addon_dir=$(dirname "$changed_file")
+                echo "addon_dir=${addon_dir}" >> $GITHUB_OUTPUT
+
+            - name: 📝 Bump add-on version
+              if: steps.detect.outputs.addon_dir != ''
+              run: |
+                addon_dir="${{ steps.detect.outputs.addon_dir }}"
+                config_file="${addon_dir}/config.yaml"
+
+                if [ ! -f "$config_file" ]; then
+                  echo "Config file not found: $config_file"
+                  exit 0
+                fi
+
+                # Get current version
+                current=$(yq eval '.version' "$config_file")
+
+                # Increment patch version
+                IFS='.' read -ra VERSION_PARTS <<< "$current"
+                new_patch=$((${VERSION_PARTS[2]} + 1))
+                new_version="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.${new_patch}"
+
+                # Update version in config.yaml
+                yq eval -i ".version = \"${new_version}\"" "$config_file"
+
+                echo "Updated ${addon_dir} version from ${current} to ${new_version}"
+
+            - name: 🚀 Commit changes
+              if: steps.detect.outputs.addon_dir != ''
+              uses: stefanzweifel/git-auto-commit-action@v5.0.1
+              with:
+                commit_message: "⬆️ Bump add-on version after dependency update"
+                commit_user_name: "renovate[bot]"
+                commit_user_email: "29139614+renovate[bot]@users.noreply.github.com"

@@ -2,11 +2,11 @@ ARG BUILD_FROM
 FROM $BUILD_FROM
 
 # Install Syncthing (pinned) from Alpine edge community and base utilities
+# renovate: datasource=repology depName=alpine_edge/syncthing
 RUN apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community \
     syncthing=2.0.12-r0 \
-    && apk add --no-cache \
-    tzdata \
-    ca-certificates
+    tzdata=2025c-r0 \
+    ca-certificates=20251003-r0
 
 COPY root /
 # Ensure s6 services are executable

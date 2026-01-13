@@ -57,16 +57,16 @@ sleep 5
 # Check if this is first run
 if [ ! -f /data/.initialized ]; then
     bashio::log.info "First run - initializing cluster..."
-    
+
     # Get node ID
     NODE_ID=$(garage -c "${CONFIG_PATH}" status 2>/dev/null | grep "127.0.0.1:3901" | awk '{print $1}')
-    
+
     if [ -n "${NODE_ID}" ]; then
         # Assign layout
         bashio::log.info "Assigning layout to node ${NODE_ID}..."
         garage -c "${CONFIG_PATH}" layout assign -z dc1 -c 1G "${NODE_ID}" || true
         garage -c "${CONFIG_PATH}" layout apply --version 1 || true
-        
+
         # Create keys and buckets
         bashio::log.info "Creating keys and buckets..."
         KEYS_LEN=$(bashio::config 'keys|length')
@@ -91,7 +91,7 @@ if [ ! -f /data/.initialized ]; then
                 --key "${NAME}"
             done
         done
-        
+
         touch /data/.initialized
         bashio::log.info "Initialization complete!"
     else
