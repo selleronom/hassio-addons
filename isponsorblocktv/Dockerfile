@@ -1,4 +1,5 @@
 ARG BUILD_FROM
+# hadolint ignore=DL3006
 FROM $BUILD_FROM AS builder
 
 # renovate: datasource=github-releases depName=dmunozv04/iSponsorBlockTV
@@ -23,6 +24,7 @@ RUN uv sync --no-dev --no-editable --index-strategy unsafe-best-match
 RUN uv run python -m compileall -b -f src \
     && find src -name "*.py" -type f -delete
 
+# hadolint ignore=DL3006
 FROM $BUILD_FROM
 
 ENV iSPBTV_docker=True \
