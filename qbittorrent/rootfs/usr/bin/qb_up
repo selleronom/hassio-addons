@@ -1,4 +1,0 @@
-#!/bin/bash
-echo "Starting qb_client..."
-
-/usr/bin/qbittorrent-nox --profile="/config/"

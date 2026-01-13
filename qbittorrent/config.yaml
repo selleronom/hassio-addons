@@ -1,8 +1,9 @@
 ---
 name: qBittorrent
-version: dev
+version: "5.1.4-r1"
 slug: qbittorrent
-description: qBittorrent is a cross-platform BitTorrent client.
+description: qBittorrent - A free and reliable P2P BitTorrent client
+url: https://github.com/selleronom/hassio-addons/tree/main/qbittorrent
 arch:
   - armhf
   - armv7
@@ -10,11 +11,21 @@ arch:
   - amd64
   - i386
 init: false
-apparmor: false
+startup: application
+boot: auto
+apparmor: true
 ports:
-  8080/tcp: 8080
+  8080/tcp: null
+  6881/tcp: null
+  6881/udp: null
 ports_description:
-  8080/tcp: qBittorrent web interface
+  8080/tcp: Web Interface (HTTP)
+  6881/tcp: BitTorrent TCP
+  6881/udp: BitTorrent UDP
+webui: http://[HOST]:[PORT:8080]
+ingress: false
+ingress_port: 0
+panel_icon: mdi:cloud-download
 map:
+  - share:rw
   - media:rw
-  - config:rw

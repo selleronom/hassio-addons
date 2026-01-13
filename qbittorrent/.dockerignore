@@ -1,0 +1,25 @@
+# Git
+.git
+.github
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+!README.md
+DOCS.md
+CHANGELOG.md
+
+# Images
+*.png
+*.jpg
+*.gif
+icon.png
+logo.png
+
+# IDE
+.vscode
+.idea
+
+# Misc
+.DS_Store

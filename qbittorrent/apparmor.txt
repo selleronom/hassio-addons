@@ -1,0 +1,61 @@
+#include <tunables/global>
+
+profile qbittorrent flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+
+  # Capabilities
+  capability dac_override,
+  capability dac_read_search,
+  capability setgid,
+  capability setuid,
+
+  # Networking
+  network inet stream,
+  network inet6 stream,
+  network inet dgram,
+  network inet6 dgram,
+
+  # S6-Overlay
+  /init ix,
+  /bin/** ix,
+  /usr/bin/** ix,
+  /usr/lib/bashio/** ix,
+  /etc/s6-overlay/** rix,
+  /run/{s6,s6-rc*,service}/** ix,
+  /package/** ix,
+  /command/** ix,
+  /run/{,**} rw,
+  /dev/tty rw,
+
+  # Bashio
+  /tmp/** rw,
+
+  # Data access
+  /data/** rw,
+
+  # Shared storage
+  /share/** rw,
+
+  # Config directory
+  /config/** rw,
+
+  # qBittorrent binary
+  /usr/bin/qbittorrent-nox ix,
+
+  # System files  
+  /etc/passwd r,
+  /etc/group r,
+  /etc/nsswitch.conf r,
+  /etc/hosts r,
+  /etc/resolv.conf r,
+  /etc/ssl/openssl.cnf r,
+  /etc/ssl/certs/** r,
+
+  # Proc and sys
+  @{PROC}/sys/kernel/random/uuid r,
+  /sys/devices/**/net/** r,
+
+  # Deny some dangerous capabilities
+  deny capability sys_admin,
+  deny capability sys_module,
+}

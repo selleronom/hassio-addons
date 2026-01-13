@@ -1,0 +1,32 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Home Assistant Community Add-on: qBittorrent
+# Configures qBittorrent
+# ==============================================================================
+
+readonly CONFIG_DIR="/config/qBittorrent/config"
+readonly CONFIG_FILE="${CONFIG_DIR}/qBittorrent.conf"
+
+bashio::log.info "Initializing qBittorrent..."
+
+# Create configuration directory if it doesn't exist
+if ! bashio::fs.directory_exists "${CONFIG_DIR}"; then
+    bashio::log.debug "Creating config directory..."
+    mkdir -p "${CONFIG_DIR}"
+fi
+
+# Create minimal default configuration if it doesn't exist
+if ! bashio::fs.file_exists "${CONFIG_FILE}"; then
+    bashio::log.info "Creating default configuration..."
+    
+    cat > "${CONFIG_FILE}" <<EOF
+[LegalNotice]
+Accepted=true
+
+[Preferences]
+WebUI\Address=*
+EOF
+fi
+
+bashio::log.info "Initialization complete!"

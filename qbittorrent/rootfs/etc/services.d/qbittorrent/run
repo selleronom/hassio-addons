@@ -1,7 +1,0 @@
-#!/usr/bin/with-contenv bashio
-# ==============================================================================
-# Runs the qbittorrent daemon
-# ==============================================================================
-
-bashio::log.info "Starting qbittorrent..."
-exec /usr/bin/qb_up

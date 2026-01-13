@@ -1,0 +1,11 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Home Assistant Community Add-on: qBittorrent
+# Runs the qBittorrent daemon
+# ==============================================================================
+
+bashio::log.info "Starting qBittorrent..."
+
+# Run qBittorrent with configuration directory
+exec qbittorrent-nox --profile=/config
