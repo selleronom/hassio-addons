@@ -4,8 +4,8 @@ FROM $BUILD_FROM
 
 # Install packages
 RUN apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community \
-# main_package
-    caddy=2.10.2-r2 \
+    # main_package
+    caddy=2.10.2-r2-2 \
     openssl=3.5.4-r0
 
 # Copy rootfs contents
