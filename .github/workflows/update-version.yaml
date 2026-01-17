@@ -1,7 +1,7 @@
 name: Update Add-on Version
 
 on:
-    pull_request:
+    pull_request_target:
         paths:
             - "**/Dockerfile"
     workflow_dispatch: {}
@@ -18,7 +18,7 @@ jobs:
             - name: ⤵️ Check out code
               uses: actions/checkout@v6
               with:
-                ref: ${{ github.head_ref || github.ref }}
+                ref: ${{ github.event.pull_request.head.sha || github.ref }}
                 token: ${{ secrets.GITHUB_TOKEN }}
                 fetch-depth: 0
 
@@ -31,8 +31,9 @@ jobs:
               id: detect
               run: |
                 # Find which add-on's Dockerfile changed
-                if [ "${{ github.event_name }}" = "pull_request" ]; then
-                    changed_file=$(git diff --name-only origin/${{ github.base_ref }}..HEAD | grep 'Dockerfile' | head -n1)
+                if [ "${{ github.event_name }}" = "pull_request_target" ]; then
+                    git fetch origin ${{ github.base_ref }}
+                    changed_file=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep 'Dockerfile' | head -n1)
                 else
                     changed_file=$(git diff --name-only HEAD~1..HEAD | grep 'Dockerfile' | head -n1)
                 fi
@@ -65,59 +66,43 @@ jobs:
                 echo "Current config version: $current_config"
 
                 # Extract main package version from Dockerfile
-                # Find the first renovate repology comment and get the package version on the next line
-                main_pkg_version=""
-
-                # Use grep to find renovate comment, then extract version from next line
-                # Format: # renovate: datasource=repology depName=...
-                #         package=version
-                main_pkg_version=$(grep -A1 "# renovate:.*datasource=repology" "$dockerfile" | \
-                    grep -oE '[a-z0-9_-]+==[0-9][^ \\]*|[a-z0-9_-]+=[0-9][^ \\]*' | \
+                main_pkg_version=$(awk '/# *main_package/{getline; print; exit}' "$dockerfile" | \
+                    sed 's/^[[:space:]]*//; s/[[:space:]]*$//' | \
+                    grep -oE '[^=[:space:]]+=[^ \\]+' | \
                     head -n1 | \
                     sed 's/.*=//')
 
-                if [ -n "$main_pkg_version" ]; then
-                    echo "Found main package version (repology): $main_pkg_version"
+                if [ -z "$main_pkg_version" ]; then
+                    echo "ERROR: Could not detect main package version (expected '# main_package' marker). Aborting."
+                    exit 1
                 fi
 
-                # If no repology package found, try github-releases pattern
-                if [ -z "$main_pkg_version" ]; then
-                    main_pkg_version=$(grep -A1 "# renovate:.*datasource=github-releases" "$dockerfile" | \
-                        grep -oE 'VERSION=[^ ]+' | \
-                        head -n1 | \
-                        sed 's/VERSION=//' | \
-                        sed 's/^v//')
+                echo "Found main package version: $main_pkg_version"
 
-                    if [ -n "$main_pkg_version" ]; then
-                        echo "Found main package version (github): $main_pkg_version"
-                    fi
-                fi
-
-                if [ -z "$main_pkg_version" ]; then
-                    echo "Could not detect main package version, incrementing suffix only"
-                    # Fallback: just increment suffix
-                    if [[ "$current_config" =~ ^(.+)-([0-9]+)$ ]]; then
-                        new_version="${BASH_REMATCH[1]}-$((BASH_REMATCH[2] + 1))"
-                    else
-                        new_version="${current_config}-1"
-                    fi
+                # Parse current config version to extract base and suffix
+                # Format expected: "version" or "version-suffix" where suffix is our build number
+                # We need to distinguish between Alpine's -rX and our -suffix
+                if [[ "$current_config" =~ ^(.+-r[0-9]+)-([0-9]+)$ ]]; then
+                    # Has our build suffix: e.g., "2.10.2-r2-5"
+                    current_base="${BASH_REMATCH[1]}"
+                    current_suffix="${BASH_REMATCH[2]}"
                 else
-                    # Check if main package version changed
-                    if [[ "$current_config" =~ ^(.+)-([0-9]+)$ ]]; then
-                        current_base="${BASH_REMATCH[1]}"
-                        current_suffix="${BASH_REMATCH[2]}"
-                    else
-                        current_base="$current_config"
-                        current_suffix="0"
-                    fi
+                    # No build suffix yet: e.g., "2.10.2-r2"
+                    current_base="$current_config"
+                    current_suffix="0"
+                fi
 
-                    if [ "$current_base" = "$main_pkg_version" ]; then
-                        # Same package version, increment suffix
-                        new_version="${main_pkg_version}-$((current_suffix + 1))"
-                    else
-                        # New package version, reset to -1
-                        new_version="${main_pkg_version}-1"
-                    fi
+                echo "Parsed config - base: $current_base, suffix: $current_suffix"
+
+                # Compare main package version to determine new version
+                if [ "$current_base" = "$main_pkg_version" ]; then
+                    # Same package version, increment suffix
+                    new_version="${main_pkg_version}-$((current_suffix + 1))"
+                    echo "Main package unchanged, incrementing build suffix"
+                else
+                    # New package version, reset to -1
+                    new_version="${main_pkg_version}-1"
+                    echo "Main package changed from $current_base to $main_pkg_version, resetting suffix"
                 fi
 
                 echo "New version: $new_version"

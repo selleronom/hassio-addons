@@ -3,6 +3,7 @@ ARG BUILD_FROM
 FROM $BUILD_FROM
 
 RUN apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community \
+# main_package
     garage=2.1.0-r0 \
     curl=8.18.0-r0 \
     openssl=3.5.4-r0 \
