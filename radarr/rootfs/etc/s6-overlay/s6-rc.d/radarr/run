@@ -1,0 +1,19 @@
+#!/command/with-contenv bashio
+# ==============================================================================
+# Home Assistant Add-on: Radarr
+# Runs Radarr PVR for movies
+# ==============================================================================
+
+bashio::log.info "Starting Radarr..."
+
+# Ensure data directory exists
+if ! bashio::fs.directory_exists /data/radarr; then
+    bashio::log.info "Creating Radarr data directory..."
+    mkdir -p /data/radarr
+fi
+
+# Start Radarr
+cd /data/radarr || exit 1
+exec radarr \
+    -nobrowser \
+    -data=/data/radarr

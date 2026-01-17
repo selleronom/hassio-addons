@@ -1,0 +1,19 @@
+#!/command/with-contenv bashio
+# ==============================================================================
+# Home Assistant Add-on: Sonarr
+# Runs Sonarr PVR for TV shows
+# ==============================================================================
+
+bashio::log.info "Starting Sonarr..."
+
+# Ensure data directory exists
+if ! bashio::fs.directory_exists /data/sonarr; then
+    bashio::log.info "Creating Sonarr data directory..."
+    mkdir -p /data/sonarr
+fi
+
+# Start Sonarr
+cd /data/sonarr || exit 1
+exec sonarr \
+    -nobrowser \
+    -data=/data/sonarr
