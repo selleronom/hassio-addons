@@ -19,9 +19,9 @@
                 "(^|/)Dockerfile$"
             ],
             "matchStrings": [
-                "(?<packageName>[a-z][a-z0-9_-]*)=(?<currentValue>[0-9]+\\.[0-9]+[^\\s\\\\]*)"
+                "(?<depName>[a-z][a-z0-9_-]*)=(?<currentValue>[0-9]+\\.[0-9]+[^\\s\\\\]*)"
             ],
-            "depNameTemplate": "alpine_edge/{{packageName}}",
+            "packageNameTemplate": "alpine_edge/{{depName}}",
             "datasourceTemplate": "repology",
             "versioningTemplate": "loose"
         },
