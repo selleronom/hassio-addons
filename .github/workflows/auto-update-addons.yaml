@@ -38,449 +38,449 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v4
               with:
-                  fetch-depth: 0
-                  token: ${{ secrets.GITHUB_TOKEN }}
+                fetch-depth: 0
+                token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Install dependencies
               run: |
-                  sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-                  sudo chmod +x /usr/local/bin/yq
+                sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+                sudo chmod +x /usr/local/bin/yq
 
             - name: Scan and update addons
               id: update
               env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  DRY_RUN: ${{ inputs.dry_run || 'false' }}
-                  TARGET_ADDON: ${{ inputs.addon || '' }}
-                  UPDATE_ALL_PACKAGES: ${{ inputs.update_all_packages || 'true' }}
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                DRY_RUN: ${{ inputs.dry_run || 'false' }}
+                TARGET_ADDON: ${{ inputs.addon || '' }}
+                UPDATE_ALL_PACKAGES: ${{ inputs.update_all_packages || 'true' }}
               run: |
-                  set -euo pipefail
-
-                  UPDATES_FOUND=false
-                  UPDATED_ADDONS=""
-                  UPDATE_SUMMARY=""
-
-                  # Cache for Repology API results
-                  declare -A REPOLOGY_CACHE
-
-                  # Function to query Repology API for Alpine package version (with caching)
-                  get_repology_version() {
-                      local dep_name="$1"
-                      # dep_name format: alpine_edge/package-name or just package-name
-                      local repo pkg
-
-                      if [[ "$dep_name" == */* ]]; then
-                          repo="${dep_name%%/*}"
-                          pkg="${dep_name##*/}"
-                      else
-                          repo="alpine_edge"
-                          pkg="$dep_name"
-                      fi
-
-                      # Check cache
-                      local cache_key="${repo}/${pkg}"
-                      if [[ -v "REPOLOGY_CACHE[$cache_key]" ]]; then
-                          echo "${REPOLOGY_CACHE[$cache_key]}"
-                          return
-                      fi
-
-                      # Query repology API
-                      local response
-                      response=$(curl -sf "https://repology.org/api/v1/project/${pkg}" 2>/dev/null || echo "[]")
-
-                      # Find the version for the specified Alpine repository
-                      local version
-                      version=$(echo "$response" | jq -r --arg repo "$repo" '
-                          [.[] | select(.repo == $repo)] |
-                          if length > 0 then
-                              (map(select(.status == "newest")) | if length > 0 then .[0].version else null end) //
-                              (map(select(.status == "devel")) | if length > 0 then .[0].version else null end) //
-                              .[0].version
-                          else
-                              null
-                          end
-                      ' 2>/dev/null)
-
-                      if [ -z "$version" ] || [ "$version" = "null" ]; then
-                          version=""
-                      fi
-
-                      REPOLOGY_CACHE[$cache_key]="$version"
-                      echo "$version"
-                  }
-
-                  # Function to query GitHub API for latest release
-                  get_github_release_version() {
-                      local dep_name="$1"
-                      local response
-                      response=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-                          "https://api.github.com/repos/${dep_name}/releases/latest" 2>/dev/null || echo "{}")
-
-                      local version
-                      version=$(echo "$response" | jq -r '.tag_name // empty' 2>/dev/null)
-                      echo "$version"
-                  }
-
-                  # Function to extract main package info from Dockerfile
-                  get_main_package_info() {
-                      local dockerfile="$1"
-                      local datasource=""
-                      local dep_name=""
-                      local current_version=""
-                      local package_name=""
-
-                      # Look for renovate comment to identify main package
-                      while IFS= read -r line; do
-                          if [[ "$line" =~ ^#[[:space:]]*renovate:[[:space:]]*datasource=([^[:space:]]+)[[:space:]]+depName=([^[:space:]]+) ]]; then
-                              datasource="${BASH_REMATCH[1]}"
-                              dep_name="${BASH_REMATCH[2]}"
-
-                              # Read next lines to find version
-                              if [ "$datasource" = "repology" ]; then
-                                  # For repology, look for package==version or package=version pattern
-                                  # Read until we find the package version
-                                  local in_block=true
-                                  while IFS= read -r next_line && [ "$in_block" = true ]; do
-                                      # Match package==version or package=version
-                                      if [[ "$next_line" =~ ([a-z0-9_-]+)==?([0-9][^[:space:]\\]*) ]]; then
-                                          package_name="${BASH_REMATCH[1]}"
-                                          current_version="${BASH_REMATCH[2]}"
-                                          break 2
-                                      fi
-                                      # Stop if we hit another comment or empty line outside continuation
-                                      if [[ ! "$next_line" =~ \\ ]] && [[ ! "$next_line" =~ ^[[:space:]]*[a-z] ]]; then
-                                          break
-                                      fi
-                                  done
-                              elif [ "$datasource" = "github-releases" ]; then
-                                  # For github-releases, look for ARG/ENV with VERSION
-                                  while IFS= read -r next_line; do
-                                      if [[ "$next_line" =~ (ARG|ENV)[[:space:]]+[A-Z_]*VERSION=([^[:space:]]+) ]]; then
-                                          current_version="${BASH_REMATCH[2]}"
-                                          package_name="${dep_name##*/}"
-                                          break 2
-                                      fi
-                                      if [[ "$next_line" =~ ^# ]] || [[ -z "$next_line" ]]; then
-                                          continue
-                                      fi
-                                      if [[ ! "$next_line" =~ ^(ARG|ENV) ]]; then
-                                          break
-                                      fi
-                                  done
-                              fi
-                          fi
-                      done < "$dockerfile"
-
-                      echo "${datasource}|${dep_name}|${package_name}|${current_version}"
-                  }
-
-                  # Function to update version in Dockerfile
-                  update_dockerfile_version() {
-                      local dockerfile="$1"
-                      local package_name="$2"
-                      local old_version="$3"
-                      local new_version="$4"
-                      local datasource="$5"
-
-                      if [ "$datasource" = "repology" ]; then
-                          # Update package==version or package=version
-                          sed -i "s/${package_name}==${old_version}/${package_name}==${new_version}/g" "$dockerfile"
-                          sed -i "s/${package_name}=${old_version}/${package_name}=${new_version}/g" "$dockerfile"
-                      elif [ "$datasource" = "github-releases" ]; then
-                          # Update ARG/ENV VERSION
-                          sed -i "s/VERSION=${old_version}/VERSION=${new_version}/g" "$dockerfile"
-                      fi
-                  }
-
-                  # Function to calculate new config version
-                  calculate_config_version() {
-                      local current_config_version="$1"
-                      local old_package_version="$2"
-                      local new_package_version="$3"
-
-                      # Remove 'v' prefix if present (for github releases)
-                      new_package_version="${new_package_version#v}"
-                      old_package_version="${old_package_version#v}"
-
-                      # Check if package version changed
-                      if [ "$old_package_version" != "$new_package_version" ]; then
-                          # New package version - reset suffix to -1
-                          echo "${new_package_version}-1"
-                      else
-                          # Same package version - increment suffix
-                          if [[ "$current_config_version" =~ ^(.+)-([0-9]+)$ ]]; then
-                              local base="${BASH_REMATCH[1]}"
-                              local suffix="${BASH_REMATCH[2]}"
-                              echo "${base}-$((suffix + 1))"
-                          else
-                              # No suffix exists, add -1
-                              echo "${current_config_version}-1"
-                          fi
-                      fi
-                  }
-
-                  # Function to update config.yaml version
-                  update_config_version() {
-                      local config_file="$1"
-                      local new_version="$2"
-
-                      yq eval -i ".version = \"${new_version}\"" "$config_file"
-                  }
-
-                  # Function to update all packages in a Dockerfile
-                  update_all_dockerfile_packages() {
-                      local dockerfile="$1"
-                      local addon_name="$2"
-                      local packages_updated=""
-
-                      echo "  Scanning all packages in Dockerfile..."
-
-                      # Find all packages with ==version or =version pattern
-                      while IFS= read -r match; do
-                          if [[ "$match" =~ ([a-z0-9_-]+)==?([0-9][^[:space:]\\]*) ]]; then
-                              local pkg="${BASH_REMATCH[1]}"
-                              local current_ver="${BASH_REMATCH[2]}"
-
-                              # Get latest version from Repology
-                              local latest_ver
-                              latest_ver=$(get_repology_version "$pkg")
-
-                              if [ -n "$latest_ver" ] && [ "$latest_ver" != "$current_ver" ]; then
-                                  echo "    Package $pkg: $current_ver -> $latest_ver"
-
-                                  if [ "$DRY_RUN" != "true" ]; then
-                                      # Update both == and = patterns
-                                      sed -i "s/${pkg}==${current_ver}/${pkg}==${latest_ver}/g" "$dockerfile"
-                                      sed -i "s/${pkg}=${current_ver}/${pkg}=${latest_ver}/g" "$dockerfile"
-                                  fi
-
-                                  packages_updated="${packages_updated}${pkg}:${current_ver}->${latest_ver},"
-                              fi
-                          fi
-                      done < <(grep -oE '[a-z0-9_-]+==?[0-9][^[:space:]\\]*' "$dockerfile" 2>/dev/null || true)
-
-                      echo "$packages_updated"
-                  }
-
-                  # Main logic: iterate through all addon directories
-                  echo "Scanning addon directories..."
-
-                  for addon_dir in */; do
-                      addon_name="${addon_dir%/}"
-
-                      # Skip if not an addon directory (no Dockerfile)
-                      if [ ! -f "${addon_dir}Dockerfile" ]; then
-                          continue
-                      fi
-
-                      # Skip if specific addon requested and this isn't it
-                      if [ -n "$TARGET_ADDON" ] && [ "$addon_name" != "$TARGET_ADDON" ]; then
-                          continue
-                      fi
-
-                      echo "----------------------------------------"
-                      echo "Processing addon: $addon_name"
-
-                      dockerfile="${addon_dir}Dockerfile"
-                      config_file="${addon_dir}config.yaml"
-
-                      if [ ! -f "$config_file" ]; then
-                          echo "  Warning: config.yaml not found, skipping"
-                          continue
-                      fi
-
-                      # Get current config version
-                      current_config_version=$(yq eval '.version' "$config_file")
-                      echo "  Current config version: $current_config_version"
-
-                      # Get main package info from Dockerfile
-                      package_info=$(get_main_package_info "$dockerfile")
-                      IFS='|' read -r datasource dep_name package_name current_version <<< "$package_info"
-
-                      if [ -z "$datasource" ] || [ -z "$current_version" ]; then
-                          echo "  Warning: Could not detect main package info, skipping"
-                          continue
-                      fi
-
-                      echo "  Main package: $package_name"
-                      echo "  Datasource: $datasource"
-                      echo "  Current package version: $current_version"
-                      echo "  Dependency name: $dep_name"
-
-                      # Get latest version
-                      latest_version=""
-                      if [ "$datasource" = "repology" ]; then
-                          latest_version=$(get_repology_version "$dep_name")
-                      elif [ "$datasource" = "github-releases" ]; then
-                          latest_version=$(get_github_release_version "$dep_name")
-                      fi
-
-                      if [ -z "$latest_version" ]; then
-                          echo "  Warning: Could not fetch latest version, skipping"
-                          continue
-                      fi
-
-                      echo "  Latest version available: $latest_version"
-
-                      # Compare versions (normalize github versions by removing 'v' prefix)
-                      current_normalized="${current_version#v}"
-                      latest_normalized="${latest_version#v}"
-
-                      if [ "$current_normalized" = "$latest_normalized" ]; then
-                          echo "  Main package already up to date"
-
-                          # Still check for other package updates if enabled
-                          if [ "$UPDATE_ALL_PACKAGES" = "true" ]; then
-                              local other_packages_updated
-                              other_packages_updated=$(update_all_dockerfile_packages "$dockerfile" "$addon_name")
-
-                              if [ -n "$other_packages_updated" ]; then
-                                  echo "  Other packages need updating: $other_packages_updated"
-
-                                  if [ "$DRY_RUN" != "true" ]; then
-                                      # Increment config version suffix for other package updates
-                                      local incremented_version
-                                      if [[ "$current_config_version" =~ ^(.+)-([0-9]+)$ ]]; then
-                                          local base="${BASH_REMATCH[1]}"
-                                          local suffix="${BASH_REMATCH[2]}"
-                                          incremented_version="${base}-$((suffix + 1))"
-                                      else
-                                          incremented_version="${current_config_version}-1"
-                                      fi
-
-                                      update_config_version "$config_file" "$incremented_version"
-
-                                      UPDATES_FOUND=true
-                                      UPDATED_ADDONS="${UPDATED_ADDONS}${addon_name},"
-                                      UPDATE_SUMMARY="${UPDATE_SUMMARY}- **${addon_name}**: dependency updates (config: ${incremented_version})\n  - Packages: ${other_packages_updated%,}\n"
-                                  else
-                                      UPDATES_FOUND=true
-                                      UPDATE_SUMMARY="${UPDATE_SUMMARY}- **${addon_name}**: dependency updates available\n  - Packages: ${other_packages_updated%,}\n"
-                                  fi
-                              fi
-                          fi
-
-                          continue
-                      fi
-
-                      echo "  Update available: $current_version -> $latest_version"
-
-                      # Calculate new config version
-                      new_config_version=$(calculate_config_version "$current_config_version" "$current_version" "$latest_version")
-                      echo "  New config version will be: $new_config_version"
-
-                      if [ "$DRY_RUN" = "true" ]; then
-                          echo "  [DRY RUN] Would update $addon_name"
-
-                          # Also check other packages in dry run mode
-                          local other_packages=""
-                          if [ "$UPDATE_ALL_PACKAGES" = "true" ]; then
-                              other_packages=$(update_all_dockerfile_packages "$dockerfile" "$addon_name")
-                          fi
-
-                          UPDATES_FOUND=true
-                          local summary_line="- **${addon_name}**: ${package_name} ${current_version} -> ${latest_version} (config: ${new_config_version})"
-                          if [ -n "$other_packages" ]; then
-                              summary_line="${summary_line}\n  - Other packages to update: ${other_packages%,}"
-                          fi
-                          UPDATE_SUMMARY="${UPDATE_SUMMARY}${summary_line}\n"
-                          continue
-                      fi
-
-                      # Apply updates
-                      echo "  Updating main package in Dockerfile..."
-                      update_dockerfile_version "$dockerfile" "$package_name" "$current_version" "$latest_version" "$datasource"
-
-                      # Update all other packages if enabled
-                      local other_packages_updated=""
-                      if [ "$UPDATE_ALL_PACKAGES" = "true" ]; then
-                          other_packages_updated=$(update_all_dockerfile_packages "$dockerfile" "$addon_name")
-                      fi
-
-                      echo "  Updating config.yaml..."
-                      update_config_version "$config_file" "$new_config_version"
-
-                      UPDATES_FOUND=true
-                      UPDATED_ADDONS="${UPDATED_ADDONS}${addon_name},"
-
-                      local summary_line="- **${addon_name}**: ${package_name} ${current_version} -> ${latest_version} (config: ${new_config_version})"
-                      if [ -n "$other_packages_updated" ]; then
-                          summary_line="${summary_line}\n  - Other packages updated: ${other_packages_updated%,}"
-                      fi
-                      UPDATE_SUMMARY="${UPDATE_SUMMARY}${summary_line}\n"
-
-                      echo "  Done updating $addon_name"
-                  done
-
-                  echo "----------------------------------------"
-                  echo "Scan complete"
-
-                  # Set outputs
-                  echo "updates_found=$UPDATES_FOUND" >> $GITHUB_OUTPUT
-                  echo "updated_addons=${UPDATED_ADDONS%,}" >> $GITHUB_OUTPUT
-
-                  # Store summary for PR body
-                  {
-                      echo "update_summary<<EOF"
-                      echo -e "$UPDATE_SUMMARY"
-                      echo "EOF"
-                  } >> $GITHUB_OUTPUT
+                set -euo pipefail
+
+                UPDATES_FOUND=false
+                UPDATED_ADDONS=""
+                UPDATE_SUMMARY=""
+
+                # Cache for Repology API results
+                declare -A REPOLOGY_CACHE
+
+                # Function to query Repology API for Alpine package version (with caching)
+                get_repology_version() {
+                    local dep_name="$1"
+                    # dep_name format: alpine_edge/package-name or just package-name
+                    local repo pkg
+
+                    if [[ "$dep_name" == */* ]]; then
+                        repo="${dep_name%%/*}"
+                        pkg="${dep_name##*/}"
+                    else
+                        repo="alpine_edge"
+                        pkg="$dep_name"
+                    fi
+
+                    # Check cache
+                    local cache_key="${repo}/${pkg}"
+                    if [[ -v "REPOLOGY_CACHE[$cache_key]" ]]; then
+                        echo "${REPOLOGY_CACHE[$cache_key]}"
+                        return
+                    fi
+
+                    # Query repology API
+                    local response
+                    response=$(curl -sf "https://repology.org/api/v1/project/${pkg}" 2>/dev/null || echo "[]")
+
+                    # Find the version for the specified Alpine repository
+                    local version
+                    version=$(echo "$response" | jq -r --arg repo "$repo" '
+                        [.[] | select(.repo == $repo)] |
+                        if length > 0 then
+                            (map(select(.status == "newest")) | if length > 0 then .[0].version else null end) //
+                            (map(select(.status == "devel")) | if length > 0 then .[0].version else null end) //
+                            .[0].version
+                        else
+                            null
+                        end
+                    ' 2>/dev/null)
+
+                    if [ -z "$version" ] || [ "$version" = "null" ]; then
+                        version=""
+                    fi
+
+                    REPOLOGY_CACHE[$cache_key]="$version"
+                    echo "$version"
+                }
+
+                # Function to query GitHub API for latest release
+                get_github_release_version() {
+                    local dep_name="$1"
+                    local response
+                    response=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+                        "https://api.github.com/repos/${dep_name}/releases/latest" 2>/dev/null || echo "{}")
+
+                    local version
+                    version=$(echo "$response" | jq -r '.tag_name // empty' 2>/dev/null)
+                    echo "$version"
+                }
+
+                # Function to extract main package info from Dockerfile
+                get_main_package_info() {
+                    local dockerfile="$1"
+                    local datasource=""
+                    local dep_name=""
+                    local current_version=""
+                    local package_name=""
+
+                    # Look for renovate comment to identify main package
+                    while IFS= read -r line; do
+                        if [[ "$line" =~ ^#[[:space:]]*renovate:[[:space:]]*datasource=([^[:space:]]+)[[:space:]]+depName=([^[:space:]]+) ]]; then
+                            datasource="${BASH_REMATCH[1]}"
+                            dep_name="${BASH_REMATCH[2]}"
+
+                            # Read next lines to find version
+                            if [ "$datasource" = "repology" ]; then
+                                # For repology, look for package==version or package=version pattern
+                                # Read until we find the package version
+                                local in_block=true
+                                while IFS= read -r next_line && [ "$in_block" = true ]; do
+                                    # Match package==version or package=version
+                                    if [[ "$next_line" =~ ([a-z0-9_-]+)==?([0-9][^[:space:]\\]*) ]]; then
+                                        package_name="${BASH_REMATCH[1]}"
+                                        current_version="${BASH_REMATCH[2]}"
+                                        break 2
+                                    fi
+                                    # Stop if we hit another comment or empty line outside continuation
+                                    if [[ ! "$next_line" =~ \\ ]] && [[ ! "$next_line" =~ ^[[:space:]]*[a-z] ]]; then
+                                        break
+                                    fi
+                                done
+                            elif [ "$datasource" = "github-releases" ]; then
+                                # For github-releases, look for ARG/ENV with VERSION
+                                while IFS= read -r next_line; do
+                                    if [[ "$next_line" =~ (ARG|ENV)[[:space:]]+[A-Z_]*VERSION=([^[:space:]]+) ]]; then
+                                        current_version="${BASH_REMATCH[2]}"
+                                        package_name="${dep_name##*/}"
+                                        break 2
+                                    fi
+                                    if [[ "$next_line" =~ ^# ]] || [[ -z "$next_line" ]]; then
+                                        continue
+                                    fi
+                                    if [[ ! "$next_line" =~ ^(ARG|ENV) ]]; then
+                                        break
+                                    fi
+                                done
+                            fi
+                        fi
+                    done < "$dockerfile"
+
+                    echo "${datasource}|${dep_name}|${package_name}|${current_version}"
+                }
+
+                # Function to update version in Dockerfile
+                update_dockerfile_version() {
+                    local dockerfile="$1"
+                    local package_name="$2"
+                    local old_version="$3"
+                    local new_version="$4"
+                    local datasource="$5"
+
+                    if [ "$datasource" = "repology" ]; then
+                        # Update package==version or package=version
+                        sed -i "s/${package_name}==${old_version}/${package_name}==${new_version}/g" "$dockerfile"
+                        sed -i "s/${package_name}=${old_version}/${package_name}=${new_version}/g" "$dockerfile"
+                    elif [ "$datasource" = "github-releases" ]; then
+                        # Update ARG/ENV VERSION
+                        sed -i "s/VERSION=${old_version}/VERSION=${new_version}/g" "$dockerfile"
+                    fi
+                }
+
+                # Function to calculate new config version
+                calculate_config_version() {
+                    local current_config_version="$1"
+                    local old_package_version="$2"
+                    local new_package_version="$3"
+
+                    # Remove 'v' prefix if present (for github releases)
+                    new_package_version="${new_package_version#v}"
+                    old_package_version="${old_package_version#v}"
+
+                    # Check if package version changed
+                    if [ "$old_package_version" != "$new_package_version" ]; then
+                        # New package version - reset suffix to -1
+                        echo "${new_package_version}-1"
+                    else
+                        # Same package version - increment suffix
+                        if [[ "$current_config_version" =~ ^(.+)-([0-9]+)$ ]]; then
+                            local base="${BASH_REMATCH[1]}"
+                            local suffix="${BASH_REMATCH[2]}"
+                            echo "${base}-$((suffix + 1))"
+                        else
+                            # No suffix exists, add -1
+                            echo "${current_config_version}-1"
+                        fi
+                    fi
+                }
+
+                # Function to update config.yaml version
+                update_config_version() {
+                    local config_file="$1"
+                    local new_version="$2"
+
+                    yq eval -i ".version = \"${new_version}\"" "$config_file"
+                }
+
+                # Function to update all packages in a Dockerfile
+                update_all_dockerfile_packages() {
+                    local dockerfile="$1"
+                    local addon_name="$2"
+                    local packages_updated=""
+
+                    echo "  Scanning all packages in Dockerfile..."
+
+                    # Find all packages with ==version or =version pattern
+                    while IFS= read -r match; do
+                        if [[ "$match" =~ ([a-z0-9_-]+)==?([0-9][^[:space:]\\]*) ]]; then
+                            local pkg="${BASH_REMATCH[1]}"
+                            local current_ver="${BASH_REMATCH[2]}"
+
+                            # Get latest version from Repology
+                            local latest_ver
+                            latest_ver=$(get_repology_version "$pkg")
+
+                            if [ -n "$latest_ver" ] && [ "$latest_ver" != "$current_ver" ]; then
+                                echo "    Package $pkg: $current_ver -> $latest_ver"
+
+                                if [ "$DRY_RUN" != "true" ]; then
+                                    # Update both == and = patterns
+                                    sed -i "s/${pkg}==${current_ver}/${pkg}==${latest_ver}/g" "$dockerfile"
+                                    sed -i "s/${pkg}=${current_ver}/${pkg}=${latest_ver}/g" "$dockerfile"
+                                fi
+
+                                packages_updated="${packages_updated}${pkg}:${current_ver}->${latest_ver},"
+                            fi
+                        fi
+                    done < <(grep -oE '[a-z0-9_-]+==?[0-9][^[:space:]\\]*' "$dockerfile" 2>/dev/null || true)
+
+                    echo "$packages_updated"
+                }
+
+                # Main logic: iterate through all addon directories
+                echo "Scanning addon directories..."
+
+                for addon_dir in */; do
+                    addon_name="${addon_dir%/}"
+
+                    # Skip if not an addon directory (no Dockerfile)
+                    if [ ! -f "${addon_dir}Dockerfile" ]; then
+                        continue
+                    fi
+
+                    # Skip if specific addon requested and this isn't it
+                    if [ -n "$TARGET_ADDON" ] && [ "$addon_name" != "$TARGET_ADDON" ]; then
+                        continue
+                    fi
+
+                    echo "----------------------------------------"
+                    echo "Processing addon: $addon_name"
+
+                    dockerfile="${addon_dir}Dockerfile"
+                    config_file="${addon_dir}config.yaml"
+
+                    if [ ! -f "$config_file" ]; then
+                        echo "  Warning: config.yaml not found, skipping"
+                        continue
+                    fi
+
+                    # Get current config version
+                    current_config_version=$(yq eval '.version' "$config_file")
+                    echo "  Current config version: $current_config_version"
+
+                    # Get main package info from Dockerfile
+                    package_info=$(get_main_package_info "$dockerfile")
+                    IFS='|' read -r datasource dep_name package_name current_version <<< "$package_info"
+
+                    if [ -z "$datasource" ] || [ -z "$current_version" ]; then
+                        echo "  Warning: Could not detect main package info, skipping"
+                        continue
+                    fi
+
+                    echo "  Main package: $package_name"
+                    echo "  Datasource: $datasource"
+                    echo "  Current package version: $current_version"
+                    echo "  Dependency name: $dep_name"
+
+                    # Get latest version
+                    latest_version=""
+                    if [ "$datasource" = "repology" ]; then
+                        latest_version=$(get_repology_version "$dep_name")
+                    elif [ "$datasource" = "github-releases" ]; then
+                        latest_version=$(get_github_release_version "$dep_name")
+                    fi
+
+                    if [ -z "$latest_version" ]; then
+                        echo "  Warning: Could not fetch latest version, skipping"
+                        continue
+                    fi
+
+                    echo "  Latest version available: $latest_version"
+
+                    # Compare versions (normalize github versions by removing 'v' prefix)
+                    current_normalized="${current_version#v}"
+                    latest_normalized="${latest_version#v}"
+
+                    if [ "$current_normalized" = "$latest_normalized" ]; then
+                        echo "  Main package already up to date"
+
+                        # Still check for other package updates if enabled
+                        if [ "$UPDATE_ALL_PACKAGES" = "true" ]; then
+                            other_packages_updated=""
+                            other_packages_updated=$(update_all_dockerfile_packages "$dockerfile" "$addon_name")
+
+                            if [ -n "$other_packages_updated" ]; then
+                                echo "  Other packages need updating: $other_packages_updated"
+
+                                if [ "$DRY_RUN" != "true" ]; then
+                                    # Increment config version suffix for other package updates
+                                    incremented_version=""
+                                    if [[ "$current_config_version" =~ ^(.+)-([0-9]+)$ ]]; then
+                                        base="${BASH_REMATCH[1]}"
+                                        suffix="${BASH_REMATCH[2]}"
+                                        incremented_version="${base}-$((suffix + 1))"
+                                    else
+                                        incremented_version="${current_config_version}-1"
+                                    fi
+
+                                    update_config_version "$config_file" "$incremented_version"
+
+                                    UPDATES_FOUND=true
+                                    UPDATED_ADDONS="${UPDATED_ADDONS}${addon_name},"
+                                    UPDATE_SUMMARY="${UPDATE_SUMMARY}- **${addon_name}**: dependency updates (config: ${incremented_version})\n  - Packages: ${other_packages_updated%,}\n"
+                                else
+                                    UPDATES_FOUND=true
+                                    UPDATE_SUMMARY="${UPDATE_SUMMARY}- **${addon_name}**: dependency updates available\n  - Packages: ${other_packages_updated%,}\n"
+                                fi
+                            fi
+                        fi
+
+                        continue
+                    fi
+
+                    echo "  Update available: $current_version -> $latest_version"
+
+                    # Calculate new config version
+                    new_config_version=$(calculate_config_version "$current_config_version" "$current_version" "$latest_version")
+                    echo "  New config version will be: $new_config_version"
+
+                    if [ "$DRY_RUN" = "true" ]; then
+                        echo "  [DRY RUN] Would update $addon_name"
+
+                        # Also check other packages in dry run mode
+                        other_packages=""
+                        if [ "$UPDATE_ALL_PACKAGES" = "true" ]; then
+                            other_packages=$(update_all_dockerfile_packages "$dockerfile" "$addon_name")
+                        fi
+
+                        UPDATES_FOUND=true
+                        summary_line="- **${addon_name}**: ${package_name} ${current_version} -> ${latest_version} (config: ${new_config_version})"
+                        if [ -n "$other_packages" ]; then
+                            summary_line="${summary_line}\n  - Other packages to update: ${other_packages%,}"
+                        fi
+                        UPDATE_SUMMARY="${UPDATE_SUMMARY}${summary_line}\n"
+                        continue
+                    fi
+
+                    # Apply updates
+                    echo "  Updating main package in Dockerfile..."
+                    update_dockerfile_version "$dockerfile" "$package_name" "$current_version" "$latest_version" "$datasource"
+
+                    # Update all other packages if enabled
+                    other_packages_updated=""
+                    if [ "$UPDATE_ALL_PACKAGES" = "true" ]; then
+                        other_packages_updated=$(update_all_dockerfile_packages "$dockerfile" "$addon_name")
+                    fi
+
+                    echo "  Updating config.yaml..."
+                    update_config_version "$config_file" "$new_config_version"
+
+                    UPDATES_FOUND=true
+                    UPDATED_ADDONS="${UPDATED_ADDONS}${addon_name},"
+
+                    summary_line="- **${addon_name}**: ${package_name} ${current_version} -> ${latest_version} (config: ${new_config_version})"
+                    if [ -n "$other_packages_updated" ]; then
+                        summary_line="${summary_line}\n  - Other packages updated: ${other_packages_updated%,}"
+                    fi
+                    UPDATE_SUMMARY="${UPDATE_SUMMARY}${summary_line}\n"
+
+                    echo "  Done updating $addon_name"
+                done
+
+                echo "----------------------------------------"
+                echo "Scan complete"
+
+                # Set outputs
+                echo "updates_found=$UPDATES_FOUND" >> $GITHUB_OUTPUT
+                echo "updated_addons=${UPDATED_ADDONS%,}" >> $GITHUB_OUTPUT
+
+                # Store summary for PR body
+                {
+                    echo "update_summary<<EOF"
+                    echo -e "$UPDATE_SUMMARY"
+                    echo "EOF"
+                } >> $GITHUB_OUTPUT
 
             - name: Check for changes
               id: changes
               if: steps.update.outputs.updates_found == 'true' && inputs.dry_run != true
               run: |
-                  if git diff --quiet; then
-                      echo "has_changes=false" >> $GITHUB_OUTPUT
-                  else
-                      echo "has_changes=true" >> $GITHUB_OUTPUT
-                  fi
+                if git diff --quiet; then
+                    echo "has_changes=false" >> $GITHUB_OUTPUT
+                else
+                    echo "has_changes=true" >> $GITHUB_OUTPUT
+                fi
 
             - name: Create Pull Request
               if: steps.changes.outputs.has_changes == 'true'
               uses: peter-evans/create-pull-request@v6
               with:
-                  token: ${{ secrets.GITHUB_TOKEN }}
-                  commit-message: "chore: auto-update addon versions"
-                  title: "chore: Auto-update addon versions"
-                  body: |
-                      ## Automated Addon Updates
+                token: ${{ secrets.GITHUB_TOKEN }}
+                commit-message: "chore: auto-update addon versions"
+                title: "chore: Auto-update addon versions"
+                body: |
+                    ## Automated Addon Updates
 
-                      This PR was automatically generated by the addon auto-update workflow.
+                    This PR was automatically generated by the addon auto-update workflow.
 
-                      ### Updates
+                    ### Updates
 
-                      ${{ steps.update.outputs.update_summary }}
+                    ${{ steps.update.outputs.update_summary }}
 
-                      ### Checklist
+                    ### Checklist
 
-                      - [ ] Review the version changes
-                      - [ ] Verify the addons build correctly
-                      - [ ] Test the updated addons if possible
-                  branch: auto-update/addon-versions
-                  delete-branch: true
-                  labels: |
-                      dependencies
-                      automated
+                    - [ ] Review the version changes
+                    - [ ] Verify the addons build correctly
+                    - [ ] Test the updated addons if possible
+                branch: auto-update/addon-versions
+                delete-branch: true
+                labels: |
+                    dependencies
+                    automated
 
             - name: Summary
               if: always()
               run: |
-                  echo "## Addon Update Summary" >> $GITHUB_STEP_SUMMARY
-                  echo "" >> $GITHUB_STEP_SUMMARY
+                echo "## Addon Update Summary" >> $GITHUB_STEP_SUMMARY
+                echo "" >> $GITHUB_STEP_SUMMARY
 
-                  if [ "${{ inputs.dry_run }}" = "true" ]; then
-                      echo "**Mode:** Dry Run (no changes applied)" >> $GITHUB_STEP_SUMMARY
-                  else
-                      echo "**Mode:** Live Update" >> $GITHUB_STEP_SUMMARY
-                  fi
+                if [ "${{ inputs.dry_run }}" = "true" ]; then
+                    echo "**Mode:** Dry Run (no changes applied)" >> $GITHUB_STEP_SUMMARY
+                else
+                    echo "**Mode:** Live Update" >> $GITHUB_STEP_SUMMARY
+                fi
 
-                  echo "" >> $GITHUB_STEP_SUMMARY
+                echo "" >> $GITHUB_STEP_SUMMARY
 
-                  if [ "${{ steps.update.outputs.updates_found }}" = "true" ]; then
-                      echo "### Updates Found" >> $GITHUB_STEP_SUMMARY
-                      echo "" >> $GITHUB_STEP_SUMMARY
-                      echo -e "${{ steps.update.outputs.update_summary }}" >> $GITHUB_STEP_SUMMARY
-                  else
-                      echo "No updates found. All addons are up to date." >> $GITHUB_STEP_SUMMARY
-                  fi
+                if [ "${{ steps.update.outputs.updates_found }}" = "true" ]; then
+                    echo "### Updates Found" >> $GITHUB_STEP_SUMMARY
+                    echo "" >> $GITHUB_STEP_SUMMARY
+                    echo -e "${{ steps.update.outputs.update_summary }}" >> $GITHUB_STEP_SUMMARY
+                else
+                    echo "No updates found. All addons are up to date." >> $GITHUB_STEP_SUMMARY
+                fi
