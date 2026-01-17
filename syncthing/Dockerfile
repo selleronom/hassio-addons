@@ -2,8 +2,7 @@ ARG BUILD_FROM
 # hadolint ignore=DL3006
 FROM $BUILD_FROM
 
-# Install Syncthing (pinned) from Alpine edge community and base utilities
-# renovate: datasource=repology depName=alpine_edge/syncthing
+# Install Syncthing from Alpine edge community
 RUN apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community \
     syncthing=2.0.12-r0 \
     tzdata=2025c-r0 \

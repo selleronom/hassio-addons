@@ -19,8 +19,9 @@
                 "(^|/)Dockerfile$"
             ],
             "matchStrings": [
-                "# renovate: datasource=(?<datasource>repology) depName=(?<depName>.*?)\\s+.*?(?<packageName>[a-z0-9-]+)==(?<currentValue>[^ \\\\]+)"
+                "(?<packageName>[a-z][a-z0-9_-]*)=(?<currentValue>[0-9]+\\.[0-9]+[^\\s\\\\]*)"
             ],
+            "depNameTemplate": "alpine_edge/{{packageName}}",
             "datasourceTemplate": "repology",
             "versioningTemplate": "loose"
         },

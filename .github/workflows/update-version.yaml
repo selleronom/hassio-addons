@@ -20,54 +20,119 @@ jobs:
               with:
                 ref: ${{ github.head_ref || github.ref }}
                 token: ${{ secrets.GITHUB_TOKEN }}
-                fetch-depth: 2
+                fetch-depth: 0
+
+            - name: 📦 Install yq
+              run: |
+                sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+                sudo chmod +x /usr/local/bin/yq
 
             - name: 🔍 Detect changed add-on
               id: detect
               run: |
                 # Find which add-on's Dockerfile changed
                 if [ "${{ github.event_name }}" = "pull_request" ]; then
-                  # For pull requests, compare against base branch
-                  changed_file=$(git diff --name-only origin/${{ github.base_ref }}..HEAD | grep 'Dockerfile' | head -n1)
+                    changed_file=$(git diff --name-only origin/${{ github.base_ref }}..HEAD | grep 'Dockerfile' | head -n1)
                 else
-                  # For workflow_dispatch, compare against previous commit
-                  changed_file=$(git diff --name-only HEAD~1..HEAD | grep 'Dockerfile' | head -n1)
+                    changed_file=$(git diff --name-only HEAD~1..HEAD | grep 'Dockerfile' | head -n1)
                 fi
+
                 if [ -z "$changed_file" ]; then
-                  echo "No Dockerfile changes detected"
-                  exit 0
+                    echo "No Dockerfile changes detected"
+                    echo "addon_dir=" >> $GITHUB_OUTPUT
+                    exit 0
                 fi
+
                 addon_dir=$(dirname "$changed_file")
                 echo "addon_dir=${addon_dir}" >> $GITHUB_OUTPUT
+                echo "Detected addon: ${addon_dir}"
 
-            - name: 📝 Bump add-on version
+            - name: 📝 Update add-on version
               if: steps.detect.outputs.addon_dir != ''
+              id: version
               run: |
                 addon_dir="${{ steps.detect.outputs.addon_dir }}"
+                dockerfile="${addon_dir}/Dockerfile"
                 config_file="${addon_dir}/config.yaml"
 
                 if [ ! -f "$config_file" ]; then
-                  echo "Config file not found: $config_file"
-                  exit 0
+                    echo "Config file not found: $config_file"
+                    exit 0
                 fi
 
-                # Get current version
-                current=$(yq eval '.version' "$config_file")
+                # Get current config version
+                current_config=$(yq eval '.version' "$config_file")
+                echo "Current config version: $current_config"
 
-                # Increment patch version
-                IFS='.' read -ra VERSION_PARTS <<< "$current"
-                new_patch=$((${VERSION_PARTS[2]} + 1))
-                new_version="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.${new_patch}"
+                # Extract main package version from Dockerfile
+                # Find the first renovate repology comment and get the package version on the next line
+                main_pkg_version=""
 
-                # Update version in config.yaml
+                # Use grep to find renovate comment, then extract version from next line
+                # Format: # renovate: datasource=repology depName=...
+                #         package=version
+                main_pkg_version=$(grep -A1 "# renovate:.*datasource=repology" "$dockerfile" | \
+                    grep -oE '[a-z0-9_-]+==[0-9][^ \\]*|[a-z0-9_-]+=[0-9][^ \\]*' | \
+                    head -n1 | \
+                    sed 's/.*=//')
+
+                if [ -n "$main_pkg_version" ]; then
+                    echo "Found main package version (repology): $main_pkg_version"
+                fi
+
+                # If no repology package found, try github-releases pattern
+                if [ -z "$main_pkg_version" ]; then
+                    main_pkg_version=$(grep -A1 "# renovate:.*datasource=github-releases" "$dockerfile" | \
+                        grep -oE 'VERSION=[^ ]+' | \
+                        head -n1 | \
+                        sed 's/VERSION=//' | \
+                        sed 's/^v//')
+
+                    if [ -n "$main_pkg_version" ]; then
+                        echo "Found main package version (github): $main_pkg_version"
+                    fi
+                fi
+
+                if [ -z "$main_pkg_version" ]; then
+                    echo "Could not detect main package version, incrementing suffix only"
+                    # Fallback: just increment suffix
+                    if [[ "$current_config" =~ ^(.+)-([0-9]+)$ ]]; then
+                        new_version="${BASH_REMATCH[1]}-$((BASH_REMATCH[2] + 1))"
+                    else
+                        new_version="${current_config}-1"
+                    fi
+                else
+                    # Check if main package version changed
+                    if [[ "$current_config" =~ ^(.+)-([0-9]+)$ ]]; then
+                        current_base="${BASH_REMATCH[1]}"
+                        current_suffix="${BASH_REMATCH[2]}"
+                    else
+                        current_base="$current_config"
+                        current_suffix="0"
+                    fi
+
+                    if [ "$current_base" = "$main_pkg_version" ]; then
+                        # Same package version, increment suffix
+                        new_version="${main_pkg_version}-$((current_suffix + 1))"
+                    else
+                        # New package version, reset to -1
+                        new_version="${main_pkg_version}-1"
+                    fi
+                fi
+
+                echo "New version: $new_version"
+
+                # Update config.yaml
                 yq eval -i ".version = \"${new_version}\"" "$config_file"
 
-                echo "Updated ${addon_dir} version from ${current} to ${new_version}"
+                echo "updated=true" >> $GITHUB_OUTPUT
+                echo "old_version=${current_config}" >> $GITHUB_OUTPUT
+                echo "new_version=${new_version}" >> $GITHUB_OUTPUT
 
             - name: 🚀 Commit changes
-              if: steps.detect.outputs.addon_dir != ''
-              uses: stefanzweifel/git-auto-commit-action@v5.0.1
+              if: steps.version.outputs.updated == 'true'
+              uses: stefanzweifel/git-auto-commit-action@v5
               with:
-                commit_message: "⬆️ Bump add-on version after dependency update"
-                commit_user_name: "renovate[bot]"
-                commit_user_email: "29139614+renovate[bot]@users.noreply.github.com"
+                commit_message: "⬆️ Bump ${{ steps.detect.outputs.addon_dir }} version to ${{ steps.version.outputs.new_version }}"
+                commit_user_name: "github-actions[bot]"
+                commit_user_email: "41898282+github-actions[bot]@users.noreply.github.com"
