@@ -1,28 +1,53 @@
-{{/*
-    Options saved in the addon UI are available in .options
-    Some variables are available in .variables, these are added in nginx/run
-*/}}
+{{/* Options saved in the addon UI are available in .options */}}
 
 {
+	storage file_system /data
 	log {
 		output stdout
 		format console
 		level info
 	}
-	auto_https off
+	acme_dns cloudflare {{ .options.cloudflare_api_token }}
 }
 
-https://{{ .options.domain }}:443 {
-    tls /ssl/{{ .options.certfile }} /ssl/{{ .options.keyfile }}
+*.{{ .options.domain }}, {{ .options.domain }} {
+	tls {
+		dns cloudflare {{ .options.cloudflare_api_token }}
+	}
 
-    header Cache-Control "no-cache, no-store, must-revalidate"
+	{{ range .options.proxies }}
+	{{ if .subdomain }}
+	@{{ .subdomain }} host {{ .subdomain }}.{{ $.options.domain }}
+	handle @{{ .subdomain }} {
+		reverse_proxy {{ .target_protocol }}://{{ .target_host }}:{{ .target_port }} {
+			{{ if $.options.trusted_proxies }}
+			trusted_proxies {{ $.options.trusted_proxies }}
+			{{ end }}
+			{{ if and (eq .target_protocol "https") .insecure }}
+			transport http {
+				tls_insecure_skip_verify
+			}
+			{{ end }}
+		}
+	}
+	{{ else }}
+	@root host {{ $.options.domain }}
+	handle @root {
+		reverse_proxy {{ .target_protocol }}://{{ .target_host }}:{{ .target_port }} {
+			{{ if $.options.trusted_proxies }}
+			trusted_proxies {{ $.options.trusted_proxies }}
+			{{ end }}
+			{{ if and (eq .target_protocol "https") .insecure }}
+			transport http {
+				tls_insecure_skip_verify
+			}
+			{{ end }}
+		}
+	}
+	{{ end }}
+	{{ end }}
 
-    reverse_proxy http://homeassistant.local.hass.io:{{ .variables.port }} {
-        header_up Host {host}
-        header_up X-Real-IP {remote_host}
-        header_up X-Forwarded-Proto {scheme}
-        {{ if .options.trusted_proxies }}
-        trusted_proxies {{ .options.trusted_proxies }}
-        {{ end }}
-    }
+	handle {
+		respond "Not found" 404
+	}
 }
