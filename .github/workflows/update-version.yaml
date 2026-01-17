@@ -45,6 +45,6 @@ jobs:
               if: steps.version.outputs.updated == 'true'
               uses: stefanzweifel/git-auto-commit-action@v7
               with:
-                commit_message: "⬆️ Bump ${{ steps.version.outputs.addon_dir }} version to ${{ steps.version.outputs.new_version }}"
+                commit_message: "⬆️ Update addon versions (${{ steps.version.outputs.addon_count }} changed)"
                 commit_user_name: "github-actions[bot]"
                 commit_user_email: "41898282+github-actions[bot]@users.noreply.github.com"
