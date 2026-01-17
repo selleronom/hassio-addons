@@ -1,4 +1,5 @@
 #!/command/with-contenv bashio
+# shellcheck shell=bash
 # ==============================================================================
 # Home Assistant Add-on: Cloudflared
 # Runs Cloudflare Tunnel client
@@ -54,6 +55,14 @@ else
         tunnel_name="homeassistant"
     fi
     bashio::log.info "Starting tunnel '${tunnel_name}'..."
+
+    # Validate credentials file exists
+    if [[ ! -f /data/tunnel-credentials.json ]]; then
+        bashio::log.fatal "Credentials file not found at /data/tunnel-credentials.json"
+        bashio::log.fatal "Please provide a tunnel_token or place credentials file in /data/"
+        exit 1
+    fi
+
     options+=(--credentials-file /data/tunnel-credentials.json run "${tunnel_name}")
 fi
 

@@ -1,6 +1,6 @@
 name: Cloudflared
 description: Cloudflare Tunnel client for secure remote access
-version: 2024.12.2-r0-1
+version: 2024.12.1-r11-1
 slug: cloudflared
 url: https://github.com/selleronom/hassio-addons
 arch:

@@ -1,4 +1,5 @@
 #!/command/with-contenv bashio
+# shellcheck shell=bash
 # ==============================================================================
 # Home Assistant Add-on: Sonarr
 # Runs Sonarr PVR for TV shows
@@ -9,11 +10,18 @@ bashio::log.info "Starting Sonarr..."
 # Ensure data directory exists
 if ! bashio::fs.directory_exists /data/sonarr; then
     bashio::log.info "Creating Sonarr data directory..."
-    mkdir -p /data/sonarr
+    if ! mkdir -p /data/sonarr; then
+        bashio::log.fatal "Failed to create Sonarr data directory at /data/sonarr"
+        exit 1
+    fi
 fi
 
 # Start Sonarr
-cd /data/sonarr || exit 1
+if ! cd /data/sonarr; then
+    bashio::log.fatal "Failed to change to Sonarr data directory at /data/sonarr"
+    exit 1
+fi
+
 exec sonarr \
     -nobrowser \
     -data=/data/sonarr

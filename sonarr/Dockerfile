@@ -5,7 +5,7 @@ FROM $BUILD_FROM
 # Install sonarr from Alpine edge testing repository
 RUN apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing \
     # main_package
-    sonarr
+    sonarr=4.0.16.2944-r0
 
 # Copy rootfs
 COPY rootfs /
