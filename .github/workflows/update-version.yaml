@@ -27,97 +27,24 @@ jobs:
                 sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
                 sudo chmod +x /usr/local/bin/yq
 
-            - name: 🔍 Detect changed add-on
-              id: detect
-              run: |
-                # Find which add-on's Dockerfile changed
-                if [ "${{ github.event_name }}" = "pull_request_target" ]; then
-                    git fetch origin ${{ github.base_ref }}
-                    changed_file=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep 'Dockerfile' | head -n1)
-                else
-                    changed_file=$(git diff --name-only HEAD~1..HEAD | grep 'Dockerfile' | head -n1)
-                fi
-
-                if [ -z "$changed_file" ]; then
-                    echo "No Dockerfile changes detected"
-                    echo "addon_dir=" >> $GITHUB_OUTPUT
-                    exit 0
-                fi
-
-                addon_dir=$(dirname "$changed_file")
-                echo "addon_dir=${addon_dir}" >> $GITHUB_OUTPUT
-                echo "Detected addon: ${addon_dir}"
-
             - name: 📝 Update add-on version
-              if: steps.detect.outputs.addon_dir != ''
               id: version
               run: |
-                addon_dir="${{ steps.detect.outputs.addon_dir }}"
-                dockerfile="${addon_dir}/Dockerfile"
-                config_file="${addon_dir}/config.yaml"
-
-                if [ ! -f "$config_file" ]; then
-                    echo "Config file not found: $config_file"
-                    exit 0
-                fi
-
-                # Get current config version
-                current_config=$(yq eval '.version' "$config_file")
-                echo "Current config version: $current_config"
-
-                # Extract main package version from Dockerfile
-                main_pkg_version=$(awk '/# *main_package/{getline; print; exit}' "$dockerfile" | \
-                    sed 's/^[[:space:]]*//; s/[[:space:]]*$//' | \
-                    grep -oE '[^=[:space:]]+=[^ \\]+' | \
-                    head -n1 | \
-                    sed 's/.*=//')
-
-                if [ -z "$main_pkg_version" ]; then
-                    echo "ERROR: Could not detect main package version (expected '# main_package' marker). Aborting."
-                    exit 1
-                fi
-
-                echo "Found main package version: $main_pkg_version"
-
-                # Parse current config version to extract base and suffix
-                # Format expected: "version" or "version-suffix" where suffix is our build number
-                # We need to distinguish between Alpine's -rX and our -suffix
-                if [[ "$current_config" =~ ^(.+-r[0-9]+)-([0-9]+)$ ]]; then
-                    # Has our build suffix: e.g., "2.10.2-r2-5"
-                    current_base="${BASH_REMATCH[1]}"
-                    current_suffix="${BASH_REMATCH[2]}"
+                # Determine base ref for comparison
+                if [ "${{ github.event_name }}" = "pull_request_target" ]; then
+                  BASE_REF="origin/${{ github.base_ref }}"
                 else
-                    # No build suffix yet: e.g., "2.10.2-r2"
-                    current_base="$current_config"
-                    current_suffix="0"
+                  BASE_REF="HEAD~1"
                 fi
 
-                echo "Parsed config - base: $current_base, suffix: $current_suffix"
-
-                # Compare main package version to determine new version
-                if [ "$current_base" = "$main_pkg_version" ]; then
-                    # Same package version, increment suffix
-                    new_version="${main_pkg_version}-$((current_suffix + 1))"
-                    echo "Main package unchanged, incrementing build suffix"
-                else
-                    # New package version, reset to -1
-                    new_version="${main_pkg_version}-1"
-                    echo "Main package changed from $current_base to $main_pkg_version, resetting suffix"
-                fi
-
-                echo "New version: $new_version"
-
-                # Update config.yaml
-                yq eval -i ".version = \"${new_version}\"" "$config_file"
-
-                echo "updated=true" >> $GITHUB_OUTPUT
-                echo "old_version=${current_config}" >> $GITHUB_OUTPUT
-                echo "new_version=${new_version}" >> $GITHUB_OUTPUT
+                # Run the version update script
+                chmod +x .github/scripts/update-addon-version.sh
+                .github/scripts/update-addon-version.sh "$BASE_REF"
 
             - name: 🚀 Commit changes
               if: steps.version.outputs.updated == 'true'
               uses: stefanzweifel/git-auto-commit-action@v7
               with:
-                commit_message: "⬆️ Bump ${{ steps.detect.outputs.addon_dir }} version to ${{ steps.version.outputs.new_version }}"
+                commit_message: "⬆️ Bump ${{ steps.version.outputs.addon_dir }} version to ${{ steps.version.outputs.new_version }}"
                 commit_user_name: "github-actions[bot]"
                 commit_user_email: "41898282+github-actions[bot]@users.noreply.github.com"
