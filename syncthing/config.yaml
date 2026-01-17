@@ -1,11 +1,11 @@
 name: Syncthing
 description: Syncthing is a continuous file synchronization program in a decentralized way
-version: 2.0.12-r0-2
+version: 2.0.13-r1-1
 slug: syncthing
 url: https://github.com/selleronom/hassio-addons
 arch:
-    - aarch64
-    - amd64
+  - aarch64
+  - amd64
 init: false
 ingress: true
 ingress_port: 8384
@@ -13,13 +13,11 @@ ingress_stream: true
 host_network: true
 panel_title: Syncthing
 panel_icon: mdi:sync
-
 # Use add-on private storage only; no host directories mapped by default
 map: []
-
 options:
-    gui_user: "admin"
-    gui_password: "changeme"
+  gui_user: "admin"
+  gui_password: "changeme"
 schema:
-    gui_user: str
-    gui_password: password
+  gui_user: str
+  gui_password: password
