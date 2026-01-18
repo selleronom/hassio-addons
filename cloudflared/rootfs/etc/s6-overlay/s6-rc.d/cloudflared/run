@@ -1,0 +1,70 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Home Assistant Add-on: Cloudflared
+# Runs Cloudflare Tunnel client
+# ==============================================================================
+
+declare tunnel_token
+declare tunnel_name
+declare metrics_port
+declare log_level
+declare protocol
+declare no_tls_verify
+declare -a options
+
+bashio::log.info "Starting Cloudflared..."
+
+# Get configuration options
+tunnel_token=$(bashio::config 'tunnel_token')
+tunnel_name=$(bashio::config 'tunnel_name')
+metrics_port=$(bashio::config 'metrics_port')
+log_level=$(bashio::config 'log_level')
+protocol=$(bashio::config 'protocol')
+no_tls_verify=$(bashio::config 'no_tls_verify')
+
+# Build command options
+options+=(tunnel)
+
+# Add log level
+if bashio::var.has_value "${log_level}"; then
+    options+=(--loglevel "${log_level}")
+fi
+
+# Add protocol
+if bashio::var.has_value "${protocol}"; then
+    options+=(--protocol "${protocol}")
+fi
+
+# Add metrics
+if bashio::var.has_value "${metrics_port}"; then
+    options+=(--metrics "0.0.0.0:${metrics_port}")
+fi
+
+# Add no-tls-verify if enabled
+if bashio::var.true "${no_tls_verify}"; then
+    options+=(--no-tls-verify)
+fi
+
+# Run with token or named tunnel
+if bashio::var.has_value "${tunnel_token}"; then
+    bashio::log.info "Starting tunnel with token..."
+    options+=(run --token "${tunnel_token}")
+else
+    if ! bashio::var.has_value "${tunnel_name}"; then
+        tunnel_name="homeassistant"
+    fi
+    bashio::log.info "Starting tunnel '${tunnel_name}'..."
+
+    # Validate credentials file exists
+    if [[ ! -f /data/tunnel-credentials.json ]]; then
+        bashio::log.fatal "Credentials file not found at /data/tunnel-credentials.json"
+        bashio::log.fatal "Please provide a tunnel_token or place credentials file in /data/"
+        exit 1
+    fi
+
+    options+=(--credentials-file /data/tunnel-credentials.json run "${tunnel_name}")
+fi
+
+# Start cloudflared
+exec cloudflared "${options[@]}"

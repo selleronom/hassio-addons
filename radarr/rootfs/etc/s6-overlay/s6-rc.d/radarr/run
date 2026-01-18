@@ -1,0 +1,27 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Home Assistant Add-on: Radarr
+# Runs Radarr PVR for movies
+# ==============================================================================
+
+bashio::log.info "Starting Radarr..."
+
+# Ensure data directory exists
+if ! bashio::fs.directory_exists /data/radarr; then
+    bashio::log.info "Creating Radarr data directory..."
+    if ! mkdir -p /data/radarr; then
+        bashio::log.fatal "Failed to create Radarr data directory at /data/radarr"
+        exit 1
+    fi
+fi
+
+# Start Radarr
+if ! cd /data/radarr; then
+    bashio::log.fatal "Failed to change to Radarr data directory at /data/radarr"
+    exit 1
+fi
+
+exec radarr \
+    -nobrowser \
+    -data=/data/radarr
