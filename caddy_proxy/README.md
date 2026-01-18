@@ -1,4 +1,4 @@
-# Caddy Proxy
+# Caddy Proxy Manager
 
 SSL reverse proxy with automatic wildcard certificates via Cloudflare DNS challenge.
 

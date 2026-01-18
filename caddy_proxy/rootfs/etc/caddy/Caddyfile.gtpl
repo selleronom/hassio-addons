@@ -2,10 +2,11 @@
 
 {
 	storage file_system /data
+	auto_https disable_redirects
 	log {
 		output stdout
 		format console
-		level info
+		level {{ .options.log_level }}
 	}
 	acme_dns cloudflare {{ .options.cloudflare_api_token }}
 }

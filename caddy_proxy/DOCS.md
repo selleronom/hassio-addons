@@ -1,4 +1,4 @@
-# Caddy Proxy
+# Caddy Proxy Manager
 
 ## Setup
 
@@ -33,19 +33,19 @@ proxies:
 
 ## Options
 
-| Option | Required | Description |
-|--------|----------|-------------|
-| `domain` | Yes | Domain for wildcard certificate (`*.domain` and `domain`) |
-| `cloudflare_api_token` | Yes | Cloudflare API token with DNS edit permissions |
-| `trusted_proxies` | No | CIDR notation for trusted proxies |
-| `proxies` | Yes | Array of reverse proxy targets |
+| Option                 | Required | Description                                               |
+| ---------------------- | -------- | --------------------------------------------------------- |
+| `domain`               | Yes      | Domain for wildcard certificate (`*.domain` and `domain`) |
+| `cloudflare_api_token` | Yes      | Cloudflare API token with DNS edit permissions            |
+| `trusted_proxies`      | No       | CIDR notation for trusted proxies                         |
+| `proxies`              | Yes      | Array of reverse proxy targets                            |
 
 ### Proxy entry
 
-| Option | Description |
-|--------|-------------|
-| `subdomain` | Subdomain to match (empty for root domain) |
-| `target_host` | Backend host |
-| `target_port` | Backend port |
-| `target_protocol` | `http` or `https` |
-| `insecure` | Skip TLS verification for HTTPS backends |
+| Option            | Description                                |
+| ----------------- | ------------------------------------------ |
+| `subdomain`       | Subdomain to match (empty for root domain) |
+| `target_host`     | Backend host                               |
+| `target_port`     | Backend port                               |
+| `target_protocol` | `http` or `https`                          |
+| `insecure`        | Skip TLS verification for HTTPS backends   |
