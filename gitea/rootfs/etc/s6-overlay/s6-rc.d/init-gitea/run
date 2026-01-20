@@ -13,7 +13,6 @@ CONFIG_FILE="/data/gitea/custom/conf/app.ini"
 if [ -f "$CONFIG_FILE" ]; then
     bashio::log.info "Updating configuration from add-on options..."
 
-    # Update service settings
     if grep -q "^\[service\]" "$CONFIG_FILE"; then
         sed -i "/^\[service\]/,/^\[/ s|^DISABLE_REGISTRATION = .*|DISABLE_REGISTRATION = ${DISABLE_REGISTRATION}|" "$CONFIG_FILE"
         sed -i "/^\[service\]/,/^\[/ s|^REQUIRE_SIGNIN_VIEW = .*|REQUIRE_SIGNIN_VIEW = ${REQUIRE_SIGNIN_VIEW}|" "$CONFIG_FILE"
@@ -25,10 +24,12 @@ if [ -f "$CONFIG_FILE" ]; then
         echo "REQUIRE_SIGNIN_VIEW = ${REQUIRE_SIGNIN_VIEW}" >> "$CONFIG_FILE"
     fi
 
-    # Ensure SSH is configured
     if grep -q "^\[server\]" "$CONFIG_FILE"; then
         if ! grep -q "^START_SSH_SERVER" "$CONFIG_FILE"; then
             sed -i "/^\[server\]/a START_SSH_SERVER = true\nSSH_PORT = 2222\nSSH_LISTEN_PORT = 2222" "$CONFIG_FILE"
+        fi
+        if ! grep -q "^REVERSE_PROXY_LIMIT" "$CONFIG_FILE"; then
+            sed -i "/^\[server\]/a REVERSE_PROXY_LIMIT = 1\nREVERSE_PROXY_TRUSTED_PROXIES = *" "$CONFIG_FILE"
         fi
     fi
 fi
