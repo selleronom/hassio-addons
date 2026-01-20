@@ -8,4 +8,11 @@ export HOME=/data/gitea
 
 cd /data/gitea
 chown -R git:git /data/gitea
+
+DISABLE_REGISTRATION=$(bashio::config 'disable_registration')
+REQUIRE_SIGNIN_VIEW=$(bashio::config 'require_signin_view')
+
+export DISABLE_REGISTRATION
+export REQUIRE_SIGNIN_VIEW
+
 exec s6-setuidgid git gitea web --config /data/gitea/custom/conf/app.ini
