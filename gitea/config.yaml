@@ -1,0 +1,12 @@
+name: Gitea
+version: "1.25.3-r1"
+slug: gitea
+description: Self-hosted Git service
+url: https://github.com/selleronom/hassio-addons
+arch:
+    - aarch64
+    - amd64
+init: false
+ports:
+    3000/tcp: null
+    2222/tcp: 2222

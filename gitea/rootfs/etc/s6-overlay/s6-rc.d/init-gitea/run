@@ -1,0 +1,9 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+
+bashio::log.info "Initializing Gitea..."
+
+mkdir -p /data/gitea/{custom/conf,data,log,repositories}
+chown -R git:git /data/gitea
+
+bashio::log.info "Initialization complete"

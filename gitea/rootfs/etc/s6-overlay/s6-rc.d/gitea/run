@@ -1,0 +1,11 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+
+bashio::log.info "Starting Gitea..."
+
+export GITEA_WORK_DIR=/data/gitea
+export HOME=/data/gitea
+
+cd /data/gitea
+chown -R git:git /data/gitea
+exec s6-setuidgid git gitea web --config /data/gitea/custom/conf/app.ini
