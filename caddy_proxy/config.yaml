@@ -1,6 +1,6 @@
 name: Caddy Proxy Manager
 slug: caddy_proxy
-version: 2.10.2-r3-2
+version: 2.10.2-r3-3
 hassio_api: true
 description: A reverse proxy using Caddy with Cloudflare DNS support
 arch:
