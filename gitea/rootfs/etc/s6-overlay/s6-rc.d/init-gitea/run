@@ -3,7 +3,28 @@
 
 bashio::log.info "Initializing Gitea..."
 
+DISABLE_REGISTRATION=$(bashio::config 'disable_registration')
+REQUIRE_SIGNIN_VIEW=$(bashio::config 'require_signin_view')
+
 mkdir -p /data/gitea/{custom/conf,data,log,repositories}
+
+CONFIG_FILE="/data/gitea/custom/conf/app.ini"
+
+if [ -f "$CONFIG_FILE" ]; then
+    bashio::log.info "Updating configuration from add-on options..."
+
+    if grep -q "^\[service\]" "$CONFIG_FILE"; then
+        sed -i "/^\[service\]/,/^\[/ s|^DISABLE_REGISTRATION = .*|DISABLE_REGISTRATION = ${DISABLE_REGISTRATION}|" "$CONFIG_FILE"
+        sed -i "/^\[service\]/,/^\[/ s|^REQUIRE_SIGNIN_VIEW = .*|REQUIRE_SIGNIN_VIEW = ${REQUIRE_SIGNIN_VIEW}|" "$CONFIG_FILE"
+    else
+        bashio::log.info "Adding [service] section..."
+        echo "" >> "$CONFIG_FILE"
+        echo "[service]" >> "$CONFIG_FILE"
+        echo "DISABLE_REGISTRATION = ${DISABLE_REGISTRATION}" >> "$CONFIG_FILE"
+        echo "REQUIRE_SIGNIN_VIEW = ${REQUIRE_SIGNIN_VIEW}" >> "$CONFIG_FILE"
+    fi
+fi
+
 chown -R git:git /data/gitea
 
 bashio::log.info "Initialization complete"

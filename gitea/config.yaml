@@ -1,5 +1,5 @@
 name: Gitea
-version: "1.25.3-r1-2"
+version: "1.25.3-r1-3"
 slug: gitea
 description: Self-hosted Git service
 url: https://github.com/selleronom/hassio-addons
