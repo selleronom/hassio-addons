@@ -7,18 +7,51 @@
 readonly CONFIG_PATH="/data/garage.toml"
 readonly METADATA_DIR="/data/meta"
 readonly DATA_DIR="/data/data"
+readonly SECRETS_FILE="/data/.garage_secrets"
 
 bashio::log.info "Initializing Garage S3..."
 
 # Create directories
 mkdir -p "${METADATA_DIR}" "${DATA_DIR}"
 
-# Generate rpc_secret if not provided
-RPC_SECRET=$(bashio::config 'rpc_secret')
-if [ -z "${RPC_SECRET}" ]; then
-    RPC_SECRET=$(openssl rand -hex 32)
-    bashio::log.warning "No rpc_secret configured, generated: ${RPC_SECRET}"
-fi
+# Load or generate persistent secrets
+load_or_generate_secret() {
+    local key="$1"
+    local value
+
+    # Check if secrets file exists and contains this key
+    if [ -f "${SECRETS_FILE}" ]; then
+        value=$(grep "^${key}=" "${SECRETS_FILE}" 2>/dev/null | cut -d'=' -f2-)
+    fi
+
+    # If no stored value, generate new
+    if [ -z "${value}" ]; then
+        if [ "${key}" = "rpc_secret" ]; then
+            value=$(openssl rand -hex 32)
+        else
+            value=$(openssl rand -base64 32)
+        fi
+        bashio::log.info "Generated new ${key}"
+
+        # Persist to secrets file
+        if [ -f "${SECRETS_FILE}" ]; then
+            # Remove old entry if exists, then append
+            grep -v "^${key}=" "${SECRETS_FILE}" > "${SECRETS_FILE}.tmp" 2>/dev/null || true
+            mv "${SECRETS_FILE}.tmp" "${SECRETS_FILE}"
+        fi
+        echo "${key}=${value}" >> "${SECRETS_FILE}"
+        chmod 600 "${SECRETS_FILE}"
+    fi
+
+    echo "${value}"
+}
+
+# Load or generate secrets (persistent across restarts)
+RPC_SECRET=$(load_or_generate_secret "rpc_secret")
+ADMIN_TOKEN=$(load_or_generate_secret "admin_token")
+METRICS_TOKEN=$(load_or_generate_secret "metrics_token")
+
+bashio::log.info "Using persistent secrets from ${SECRETS_FILE}"
 
 # Get S3 region
 S3_REGION=$(bashio::config 's3_region')
@@ -42,8 +75,8 @@ root_domain = ".s3.garage"
 
 [admin]
 api_bind_addr = "[::]:3903"
-admin_token = "$(openssl rand -base64 32)"
-metrics_token = "$(openssl rand -base64 32)"
+admin_token = "${ADMIN_TOKEN}"
+metrics_token = "${METRICS_TOKEN}"
 EOF
 
 # Start Garage server in background to initialize
@@ -54,49 +87,140 @@ GARAGE_PID=$!
 # Wait for Garage to be ready
 sleep 5
 
-# Check if this is first run
-if [ ! -f /data/.initialized ]; then
-    bashio::log.info "First run - initializing cluster..."
+# File to store API keys persistently
+readonly KEYS_FILE="/data/.garage_keys"
 
-    # Get node ID
-    NODE_ID=$(garage -c "${CONFIG_PATH}" status 2>/dev/null | grep "127.0.0.1:3901" | awk '{print $1}')
+# Function to save key credentials
+save_key_credentials() {
+    local key_name="$1"
+    local key_info
 
-    if [ -n "${NODE_ID}" ]; then
-        # Assign layout
-        bashio::log.info "Assigning layout to node ${NODE_ID}..."
-        garage -c "${CONFIG_PATH}" layout assign -z dc1 -c 1G "${NODE_ID}" || true
-        garage -c "${CONFIG_PATH}" layout apply --version 1 || true
+    key_info=$(garage -c "${CONFIG_PATH}" key info "${key_name}" 2>/dev/null)
+    if [ -n "${key_info}" ]; then
+        local key_id secret_key
+        key_id=$(echo "${key_info}" | grep "Key ID:" | awk '{print $3}')
+        secret_key=$(echo "${key_info}" | grep "Secret key:" | awk '{print $3}')
 
-        # Create keys and buckets
-        bashio::log.info "Creating keys and buckets..."
-        KEYS_LEN=$(bashio::config 'keys|length')
-
-        for i in $(seq 0 $((KEYS_LEN-1))); do
-            NAME=$(bashio::config "keys[${i}].name")
-
-            bashio::log.info "Ensuring key exists: ${NAME}"
-            if ! garage -c "${CONFIG_PATH}" key info "${NAME}" >/dev/null 2>&1; then
-                garage -c "${CONFIG_PATH}" key create "${NAME}"
+        if [ -n "${key_id}" ] && [ -n "${secret_key}" ]; then
+            # Remove old entry for this key name if exists
+            if [ -f "${KEYS_FILE}" ]; then
+                grep -v "^${key_name}|" "${KEYS_FILE}" > "${KEYS_FILE}.tmp" 2>/dev/null || true
+                mv "${KEYS_FILE}.tmp" "${KEYS_FILE}"
             fi
-
-            BUCKETS_LEN=$(bashio::config "keys[${i}].buckets|length")
-            for j in $(seq 0 $((BUCKETS_LEN-1))); do
-                BUCKET=$(bashio::config "keys[${i}].buckets[${j}]")
-                bashio::log.info "Ensuring bucket + allow: ${BUCKET} -> ${NAME}"
-
-                garage -c "${CONFIG_PATH}" bucket create "${BUCKET}" >/dev/null 2>&1 || true
-                garage -c "${CONFIG_PATH}" bucket allow \
-                --read --write --owner \
-                "${BUCKET}" \
-                --key "${NAME}"
-            done
-        done
-
-        touch /data/.initialized
-        bashio::log.info "Initialization complete!"
-    else
-        bashio::log.warning "Could not get node ID, will retry on next start"
+            # Save in format: name|key_id|secret_key
+            echo "${key_name}|${key_id}|${secret_key}" >> "${KEYS_FILE}"
+            chmod 600 "${KEYS_FILE}"
+            bashio::log.info "Saved credentials for key: ${key_name}"
+        fi
     fi
+}
+
+# Function to log all saved keys for user reference
+log_saved_keys() {
+    if [ -f "${KEYS_FILE}" ]; then
+        bashio::log.info "=== Saved API Keys (from ${KEYS_FILE}) ==="
+        while IFS='|' read -r name key_id secret_key; do
+            bashio::log.info "Key: ${name}"
+            bashio::log.info "  Key ID: ${key_id}"
+            bashio::log.info "  Secret: ${secret_key}"
+        done < "${KEYS_FILE}"
+        bashio::log.info "==========================================="
+    fi
+}
+
+# Initialize cluster layout if needed
+initialize_layout() {
+    local node_id
+    node_id=$(garage -c "${CONFIG_PATH}" status 2>/dev/null | grep "127.0.0.1:3901" | awk '{print $1}')
+
+    if [ -z "${node_id}" ]; then
+        bashio::log.warning "Could not get node ID, will retry on next start"
+        return 1
+    fi
+
+    # Check if layout is already applied
+    local layout_status
+    layout_status=$(garage -c "${CONFIG_PATH}" layout show 2>/dev/null)
+
+    if echo "${layout_status}" | grep -q "No layout"; then
+        bashio::log.info "Assigning layout to node ${node_id}..."
+        garage -c "${CONFIG_PATH}" layout assign -z dc1 -c 1G "${node_id}" || true
+        garage -c "${CONFIG_PATH}" layout apply --version 1 || true
+    fi
+
+    return 0
+}
+
+# Ensure keys and buckets exist (runs every startup to handle config changes)
+ensure_keys_and_buckets() {
+    bashio::log.info "Ensuring keys and buckets from configuration..."
+    local keys_len
+    keys_len=$(bashio::config 'keys|length')
+
+    for i in $(seq 0 $((keys_len-1))); do
+        local name
+        name=$(bashio::config "keys[${i}].name")
+
+        bashio::log.info "Ensuring key exists: ${name}"
+
+        # Check if key exists in Garage
+        if ! garage -c "${CONFIG_PATH}" key info "${name}" >/dev/null 2>&1; then
+            # Key doesn't exist - check if we have saved credentials
+            if [ -f "${KEYS_FILE}" ]; then
+                local saved_line
+                saved_line=$(grep "^${name}|" "${KEYS_FILE}" 2>/dev/null || true)
+                if [ -n "${saved_line}" ]; then
+                    local saved_id saved_secret
+                    saved_id=$(echo "${saved_line}" | cut -d'|' -f2)
+                    saved_secret=$(echo "${saved_line}" | cut -d'|' -f3)
+                    bashio::log.info "Recreating key ${name} with saved credentials..."
+                    # Import the key with saved ID and secret
+                    garage -c "${CONFIG_PATH}" key import --yes "${saved_id}" "${saved_secret}" --name "${name}" 2>/dev/null || \
+                        garage -c "${CONFIG_PATH}" key create "${name}"
+                else
+                    bashio::log.info "Creating new key: ${name}"
+                    garage -c "${CONFIG_PATH}" key create "${name}"
+                fi
+            else
+                bashio::log.info "Creating new key: ${name}"
+                garage -c "${CONFIG_PATH}" key create "${name}"
+            fi
+            # Save credentials after creation
+            save_key_credentials "${name}"
+        else
+            # Key exists - ensure we have it saved
+            if [ ! -f "${KEYS_FILE}" ] || ! grep -q "^${name}|" "${KEYS_FILE}" 2>/dev/null; then
+                save_key_credentials "${name}"
+            fi
+        fi
+
+        # Ensure buckets and permissions
+        local buckets_len
+        buckets_len=$(bashio::config "keys[${i}].buckets|length")
+        for j in $(seq 0 $((buckets_len-1))); do
+            local bucket
+            bucket=$(bashio::config "keys[${i}].buckets[${j}]")
+            bashio::log.info "Ensuring bucket + allow: ${bucket} -> ${name}"
+
+            garage -c "${CONFIG_PATH}" bucket create "${bucket}" >/dev/null 2>&1 || true
+            garage -c "${CONFIG_PATH}" bucket allow \
+                --read --write --owner \
+                "${bucket}" \
+                --key "${name}" 2>/dev/null || true
+        done
+    done
+}
+
+# Main initialization logic
+bashio::log.info "Checking cluster state..."
+
+if initialize_layout; then
+    ensure_keys_and_buckets
+    log_saved_keys
+    touch /data/.initialized
+    bashio::log.info "Initialization complete!"
+else
+    bashio::log.warning "Layout initialization failed, will retry on next start"
 fi
 
 # Stop the background server

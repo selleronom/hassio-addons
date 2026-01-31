@@ -1,6 +1,6 @@
 name: Garage S3
 description: Lightweight S3-compatible storage server
-version: 2.1.0-r0-1
+version: 2.1.0-r0-2
 slug: garage
 url: https://github.com/selleronom/hassio-addons/tree/main/garage
 arch:
@@ -16,12 +16,10 @@ ports_description:
 panel_icon: mdi:database
 
 options:
-    rpc_secret: ""
     s3_region: "garage"
     keys: []
 
 schema:
-    rpc_secret: str
     s3_region: str
     keys:
         - name: str
