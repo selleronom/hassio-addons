@@ -17,11 +17,11 @@ mkdir -p "${METADATA_DIR}" "${DATA_DIR}"
 # Load or generate persistent secrets
 load_or_generate_secret() {
     local key="$1"
-    local value
+    local value=""
 
     # Check if secrets file exists and contains this key
     if [ -f "${SECRETS_FILE}" ]; then
-        value=$(grep "^${key}=" "${SECRETS_FILE}" 2>/dev/null | cut -d'=' -f2-)
+        value=$(grep "^${key}=" "${SECRETS_FILE}" 2>/dev/null | cut -d'=' -f2-) || value=""
     fi
 
     # If no stored value, generate new
