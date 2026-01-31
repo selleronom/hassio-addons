@@ -161,15 +161,24 @@ initialize_layout() {
         return 1
     fi
 
-    # Check if layout is already applied
-    local layout_status
-    layout_status=$(garage -c "${CONFIG_PATH}" layout show 2>/dev/null)
+    bashio::log.info "Node ID: ${node_id}"
 
-    if echo "${layout_status}" | grep -q "No layout"; then
-        bashio::log.info "Assigning layout to node ${node_id}..."
-        garage -c "${CONFIG_PATH}" layout assign -z dc1 -c 1G "${node_id}" || true
-        garage -c "${CONFIG_PATH}" layout apply --version 1 || true
+    # Check if layout is already applied
+    if garage -c "${CONFIG_PATH}" layout show 2>/dev/null | grep -q "${node_id}"; then
+        bashio::log.info "Layout already configured"
+        return 0
     fi
+
+    # Assign and apply layout
+    bashio::log.info "Assigning layout to node ${node_id}..."
+    garage -c "${CONFIG_PATH}" layout assign -z dc1 -c 1G "${node_id}" || true
+
+    bashio::log.info "Applying layout..."
+    garage -c "${CONFIG_PATH}" layout apply --version 1 || true
+
+    # Wait for layout to propagate
+    bashio::log.info "Waiting for layout to propagate..."
+    sleep 5
 
     return 0
 }
@@ -198,15 +207,23 @@ ensure_keys_and_buckets() {
                     saved_secret=$(echo "${saved_line}" | cut -d'|' -f3)
                     bashio::log.info "Recreating key ${name} with saved credentials..."
                     # Import the key with saved ID and secret
-                    garage -c "${CONFIG_PATH}" key import --yes "${saved_id}" "${saved_secret}" --name "${name}" 2>/dev/null || \
-                        garage -c "${CONFIG_PATH}" key create "${name}"
+                    if ! garage -c "${CONFIG_PATH}" key import --yes "${saved_id}" "${saved_secret}" --name "${name}" 2>/dev/null; then
+                        bashio::log.warning "Failed to import key, creating new: ${name}"
+                        if ! garage -c "${CONFIG_PATH}" key create "${name}"; then
+                            bashio::log.error "Failed to create key: ${name}"
+                            continue
+                        fi
+                    fi
                 else
                     bashio::log.info "Creating new key: ${name}"
                     garage -c "${CONFIG_PATH}" key create "${name}"
                 fi
             else
                 bashio::log.info "Creating new key: ${name}"
-                garage -c "${CONFIG_PATH}" key create "${name}"
+                if ! garage -c "${CONFIG_PATH}" key create "${name}"; then
+                    bashio::log.error "Failed to create key: ${name}"
+                    continue
+                fi
             fi
             # Save credentials after creation
             save_key_credentials "${name}"
