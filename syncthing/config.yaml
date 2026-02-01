@@ -1,6 +1,6 @@
 name: Syncthing
 description: Syncthing is a continuous file synchronization program in a decentralized way
-version: 2.0.13-r1-1
+version: 2.0.13-r2-1
 slug: syncthing
 url: https://github.com/selleronom/hassio-addons
 arch:
