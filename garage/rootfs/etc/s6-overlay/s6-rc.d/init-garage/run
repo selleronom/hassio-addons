@@ -93,15 +93,13 @@ create_key() {
     local create_output
 
     bashio::log.info "Creating new key: ${key_name}"
-    create_output=$(garage -c "${CONFIG_PATH}" key create "${key_name}" 2>&1)
-    if [ $? -eq 0 ]; then
+    if create_output=$(garage -c "${CONFIG_PATH}" key create "${key_name}" 2>&1); then
         bashio::log.info "Key created successfully:"
-        echo "${create_output}" | while read -r line; do
-            bashio::log.info "  ${line}"
-        done
+        bashio::log.info "${create_output}"
         return 0
     else
         bashio::log.error "Failed to create key: ${key_name}"
+        bashio::log.error "${create_output}"
         return 1
     fi
 }
