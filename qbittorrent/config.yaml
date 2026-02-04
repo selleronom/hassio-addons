@@ -1,22 +1,22 @@
 name: qBittorrent
 description: qBittorrent - A free and reliable P2P BitTorrent client
-version: 5.1.4-r1-10
+version: 5.1.4-r2-1
 slug: qbittorrent
 url: https://github.com/selleronom/hassio-addons/tree/main/qbittorrent
 arch:
-    - aarch64
-    - amd64
+  - aarch64
+  - amd64
 init: false
 ports:
-    8080/tcp: null
-    6881/tcp: null
-    6881/udp: null
+  8080/tcp: null
+  6881/tcp: null
+  6881/udp: null
 ports_description:
-    8080/tcp: Web Interface (HTTP)
-    6881/tcp: BitTorrent TCP
-    6881/udp: BitTorrent UDP
+  8080/tcp: Web Interface (HTTP)
+  6881/tcp: BitTorrent TCP
+  6881/udp: BitTorrent UDP
 webui: http://[HOST]:[PORT:8080]
 panel_icon: mdi:cloud-download
 map:
-    - share:rw
-    - media:rw
+  - share:rw
+  - media:rw
