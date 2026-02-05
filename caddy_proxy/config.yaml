@@ -1,34 +1,34 @@
 name: Caddy Proxy Manager
 slug: caddy_proxy
-version: 2.10.2-r3-4
+version: 2.10.2-r4-1
 hassio_api: true
 description: A reverse proxy using Caddy with Cloudflare DNS support
 arch:
-    - aarch64
-    - amd64
+  - aarch64
+  - amd64
 init: false
 ports:
-    443/tcp: 443
-    443/udp: 443
+  443/tcp: 443
+  443/udp: 443
 options:
-    domain: null
-    cloudflare_api_token: null
-    trusted_proxies: null
-    log_level: info
-    proxies:
-        - subdomain: ""
-          target_host: homeassistant.local.hass.io
-          target_port: 8123
-          target_protocol: http
-          insecure: false
+  domain: null
+  cloudflare_api_token: null
+  trusted_proxies: null
+  log_level: info
+  proxies:
+    - subdomain: ""
+      target_host: homeassistant.local.hass.io
+      target_port: 8123
+      target_protocol: http
+      insecure: false
 schema:
-    domain: str
-    cloudflare_api_token: str
-    trusted_proxies: str?
-    log_level: list(debug|info|warn|error)
-    proxies:
-        - subdomain: str
-          target_host: str
-          target_port: port
-          target_protocol: list(http|https)
-          insecure: bool
+  domain: str
+  cloudflare_api_token: str
+  trusted_proxies: str?
+  log_level: list(debug|info|warn|error)
+  proxies:
+    - subdomain: str
+      target_host: str
+      target_port: port
+      target_protocol: list(http|https)
+      insecure: bool

@@ -1,19 +1,18 @@
 name: Gitea
-version: "1.25.3-r1-5"
+version: "1.25.3-r2-1"
 slug: gitea
 description: Self-hosted Git service
 url: https://github.com/selleronom/hassio-addons
 arch:
-    - aarch64
-    - amd64
+  - aarch64
+  - amd64
 init: false
 ports:
-    3000/tcp: null
-    2222/tcp: 2222
-
+  3000/tcp: null
+  2222/tcp: 2222
 options:
-    disable_registration: true
-    require_signin_view: true
+  disable_registration: true
+  require_signin_view: true
 schema:
-    disable_registration: bool
-    require_signin_view: bool
+  disable_registration: bool
+  require_signin_view: bool
