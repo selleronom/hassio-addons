@@ -48,4 +48,4 @@ exec jellyfin \
   --cachedir "${CACHE_DIR}" \
   --logdir "${LOG_DIR}" \
   --webdir /usr/share/webapps/jellyfin-web \
-  --ffmpeg /usr/bin/ffmpeg
+  --ffmpeg /usr/lib/jellyfin-ffmpeg/ffmpeg

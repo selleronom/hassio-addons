@@ -1,39 +1,39 @@
 name: Jellyfin
 description: Jellyfin media server
-version: 10.11.6-r0-1
+version: 10.11.6-r0-3
 slug: jellyfin
 url: https://github.com/selleronom/hassio-addons/tree/main/jellyfin
 arch:
-  - aarch64
-  - amd64
+    - aarch64
+    - amd64
 init: false
 ports:
-  8096/tcp: null
-  8920/tcp: null
+    8096/tcp: null
+    8920/tcp: null
 ports_description:
-  8096/tcp: "HTTP web interface"
-  8920/tcp: "HTTPS web interface"
+    8096/tcp: "HTTP web interface"
+    8920/tcp: "HTTPS web interface"
 panel_icon: mdi:jellyfin
 devices:
-  - /dev/video10
-  - /dev/video11
-  - /dev/video12
-  - /dev/video13
-  - /dev/video14
-  - /dev/video15
-  - /dev/video16
-  - /dev/video18
-  - /dev/video19
-  - /dev/media0
-  - /dev/media1
-  - /dev/media2
+    - /dev/video10
+    - /dev/video11
+    - /dev/video12
+    - /dev/video13
+    - /dev/video14
+    - /dev/video15
+    - /dev/video16
+    - /dev/video18
+    - /dev/video19
+    - /dev/media0
+    - /dev/media1
+    - /dev/media2
 map:
-  - media:rw
+    - media:rw
 options:
-  log_level: info
-  cache_size: "1G"
-  enable_hwaccel: true
+    log_level: info
+    cache_size: "1G"
+    enable_hwaccel: true
 schema:
-  log_level: list(trace|debug|info|warning|error|fatal)
-  cache_size: str
-  enable_hwaccel: bool
+    log_level: list(trace|debug|info|warning|error|fatal)
+    cache_size: str
+    enable_hwaccel: bool
