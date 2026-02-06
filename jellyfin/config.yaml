@@ -1,6 +1,6 @@
 name: Jellyfin
 description: Jellyfin media server
-version: 10.11.6-r0-3
+version: 10.11.6-r0-4
 slug: jellyfin
 url: https://github.com/selleronom/hassio-addons/tree/main/jellyfin
 arch:
@@ -8,9 +8,11 @@ arch:
     - amd64
 init: false
 ports:
+    7359/udp: 7359
     8096/tcp: null
     8920/tcp: null
 ports_description:
+    7359/udp: "Jellyfin Auto Discovery"
     8096/tcp: "HTTP web interface"
     8920/tcp: "HTTPS web interface"
 panel_icon: mdi:jellyfin
