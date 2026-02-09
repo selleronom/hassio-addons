@@ -5,7 +5,7 @@ FROM $BUILD_FROM
 # Install Syncthing from Alpine edge community
 RUN apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community \
 # main_package
-    syncthing=2.0.13-r3 \
+    syncthing=2.0.14-r0 \
     tzdata=2025c-r0 \
     ca-certificates=20251003-r0
 
