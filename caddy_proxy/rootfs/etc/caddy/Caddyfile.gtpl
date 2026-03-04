@@ -27,6 +27,9 @@
 	@{{ .subdomain }} host {{ .subdomain }}.{{ $.options.domain }}
 	handle @{{ .subdomain }} {
 		reverse_proxy {{ .target_protocol }}://{{ .target_host }}:{{ .target_port }} {
+			{{ if eq .target_protocol "https" }}
+			header_up Host {host}
+			{{ end }}
 			{{ if and (eq .target_protocol "https") .insecure }}
 			transport http {
 				tls_insecure_skip_verify
@@ -38,6 +41,9 @@
 	@root host {{ $.options.domain }}
 	handle @root {
 		reverse_proxy {{ .target_protocol }}://{{ .target_host }}:{{ .target_port }} {
+			{{ if eq .target_protocol "https" }}
+			header_up Host {host}
+			{{ end }}
 			{{ if and (eq .target_protocol "https") .insecure }}
 			transport http {
 				tls_insecure_skip_verify
