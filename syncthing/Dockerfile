@@ -6,7 +6,7 @@ FROM $BUILD_FROM
 RUN apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community \
 # main_package
     syncthing=2.0.15-r0 \
-    tzdata=2025c-r0 \
+    tzdata=2026a-r0 \
     ca-certificates=20251003-r0
 
 COPY root /
