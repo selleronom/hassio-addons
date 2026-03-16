@@ -5,7 +5,7 @@ FROM $BUILD_FROM
 # Install packages
 RUN apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community \
     # main_package
-    caddy=2.11.1-r0 \
+    caddy=2.11.2-r0 \
     xcaddy=0.4.5-r0
 
 WORKDIR /src
