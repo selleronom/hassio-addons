@@ -11,7 +11,7 @@ RUN apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/edge/c
 WORKDIR /src
 RUN xcaddy build \
     --with github.com/caddy-dns/cloudflare \
-    --replace github.com/libdns/cloudflare=github.com/ogerman/cloudflare@1bc23c9 \
+    --replace github.com/caddy-dns/cloudflare=github.com/ogerman/cloudflare@1bc23c9 \
     --output /usr/sbin/caddy
 RUN apk del --no-cache xcaddy || true \
     && rm -rf /root/*
