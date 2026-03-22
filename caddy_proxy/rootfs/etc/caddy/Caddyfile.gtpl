@@ -19,9 +19,7 @@
 
 *.{{ .options.domain }}, {{ .options.domain }} {
 	tls {
-		dns cloudflare {{ .options.cloudflare_api_token }} {
-			zone_id {{ .options.cloudflare_zone_id }}
-		}
+		dns cloudflare {{ .options.cloudflare_api_token }}
 	}
 
 	{{ range .options.proxies }}
