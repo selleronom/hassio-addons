@@ -8,8 +8,6 @@
 		format console
 		level {{ .options.log_level }}
 	}
-	acme_dns cloudflare {{ .options.cloudflare_api_token }}
-
 	{{ if .options.trusted_proxies }}
 	servers {
 		trusted_proxies static {{ .options.trusted_proxies }}
@@ -20,6 +18,7 @@
 *.{{ .options.domain }}, {{ .options.domain }} {
 	tls {
 		dns cloudflare {{ .options.cloudflare_api_token }}
+		resolvers 1.1.1.1
 	}
 
 	{{ range .options.proxies }}
