@@ -20,6 +20,7 @@
 *.{{ .options.domain }}, {{ .options.domain }} {
 	tls {
 		dns cloudflare {{ .options.cloudflare_api_token }}
+		resolvers 1.1.1.1
 	}
 
 	{{ range .options.proxies }}
