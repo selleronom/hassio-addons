@@ -1,0 +1,6 @@
+#!/usr/bin/with-contenv bash
+set -euo pipefail
+
+source /usr/local/bin/load-env.sh
+
+exec gosu "${PUID}:${PGID}" /usr/local/bin/immich-server-wrapper.sh

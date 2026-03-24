@@ -1,0 +1,14 @@
+#!/usr/bin/with-contenv bash
+set -euo pipefail
+
+source /usr/local/bin/load-env.sh
+mkdir -p /data/redis /var/run/redis
+chown -R valkey:valkey /data/redis /var/run/redis
+chmod 755 /var/run/redis
+
+if [[ "${CLEAN_REDIS}" == "true" ]]; then
+  rm -f /data/redis/dump.rdb
+fi
+
+# Run valkey with the addon runtime GID so Immich can use the unix socket.
+exec gosu "valkey:${PGID}" valkey-server --bind 127.0.0.1 --port 6379 --unixsocket /var/run/redis/redis.sock --unixsocketperm 770 --dir /data/redis

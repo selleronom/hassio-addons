@@ -1,0 +1,49 @@
+#!/usr/bin/with-contenv bash
+set -euo pipefail
+
+source /usr/local/bin/load-env.sh
+
+PSQL_BIN="/usr/lib/postgresql/${PG_MAJOR}/bin/psql"
+
+ensure_postgres_role() {
+  gosu postgres "${PSQL_BIN}" -v ON_ERROR_STOP=1 --username "${POSTGRES_USER}" --dbname postgres <<'SQL'
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'postgres') THEN
+    CREATE ROLE postgres WITH LOGIN SUPERUSER CREATEDB CREATEROLE REPLICATION BYPASSRLS;
+  END IF;
+END
+$$;
+SQL
+}
+
+mkdir -p /var/run/postgresql "${PGDATA}"
+chown -R postgres:postgres /var/run/postgresql "${PGDATA}"
+chmod 1777 /var/run/postgresql
+
+if [[ ! -f "${PGDATA}/PG_VERSION" ]]; then
+  pwfile="$(mktemp)"
+  printf '%s' "${POSTGRES_PASSWORD}" > "${pwfile}"
+  chown postgres:postgres "${pwfile}"
+  chmod 600 "${pwfile}"
+  gosu postgres initdb -D "${PGDATA}" --username="${POSTGRES_USER}" --pwfile="${pwfile}"
+  rm -f "${pwfile}"
+  {
+    echo "listen_addresses = '127.0.0.1'"
+    echo "unix_socket_directories = '/var/run/postgresql'"
+    echo "shared_preload_libraries = '${POSTGRES_SHARED_PRELOAD_LIBRARIES}'"
+  } >> "${PGDATA}/postgresql.conf"
+
+  gosu postgres pg_ctl -D "${PGDATA}" -w start
+  ensure_postgres_role
+  if ! gosu postgres "${PSQL_BIN}" -tAc "SELECT 1 FROM pg_database WHERE datname='${POSTGRES_DB}'" | grep -q 1; then
+    gosu postgres createdb --username "${POSTGRES_USER}" "${POSTGRES_DB}"
+  fi
+  gosu postgres "${PSQL_BIN}" -v ON_ERROR_STOP=1 --username "${POSTGRES_USER}" --dbname "${POSTGRES_DB}" -c "CREATE EXTENSION IF NOT EXISTS vector;" || true
+  gosu postgres "${PSQL_BIN}" -v ON_ERROR_STOP=1 --username "${POSTGRES_USER}" --dbname "${POSTGRES_DB}" -c "CREATE EXTENSION IF NOT EXISTS vchord;" || true
+  gosu postgres pg_ctl -D "${PGDATA}" -m fast -w stop
+else
+  gosu postgres pg_ctl -D "${PGDATA}" -w start
+  ensure_postgres_role
+  gosu postgres pg_ctl -D "${PGDATA}" -m fast -w stop
+fi

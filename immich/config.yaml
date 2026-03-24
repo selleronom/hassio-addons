@@ -1,0 +1,52 @@
+name: Immich
+version: 2.6.2-v3
+slug: immich
+description: High performance self-hosted photo and video management solution
+url: https://immich.app
+webui: "http://[HOST]:[PORT:2283]"
+arch:
+  - aarch64
+init: false
+startup: services
+map:
+  - type: addon_config
+    read_only: false
+  - type: media
+    read_only: false
+backup: cold
+backup_exclude:
+  - "**/cache"
+  - "**/logs"
+tmpfs: true
+schema:
+  TZ: str?
+  IMMICH_LOG_LEVEL: list(verbose|debug|log|warn|error)
+  IMMICH_MACHINE_LEARNING_ENABLED: bool
+  IMMICH_MACHINE_LEARNING_URL: str?
+  IMMICH_PROCESS_INVALID_IMAGES: bool?
+  IMMICH_MEDIA_LOCATION: match(^/config/library$|^/media(/.*)?$)
+  PUID: int(0,)
+  PGID: int(0,)
+  clean_redis: bool?
+  APPLY_PERMISSIONS: bool
+  env_vars:
+    - key: match(^[A-Za-z0-9_-]+$)
+      value: str
+options:
+  TZ: Etc/UTC
+  IMMICH_LOG_LEVEL: log
+  IMMICH_MACHINE_LEARNING_ENABLED: false
+  IMMICH_MACHINE_LEARNING_URL: http://immich-machine-learning:3003
+  IMMICH_MEDIA_LOCATION: /media/immich
+  PUID: 911
+  PGID: 911
+  APPLY_PERMISSIONS: false
+  env_vars: []
+ports:
+  2283/tcp: null
+  5432/tcp: null
+  6379/tcp: null
+ports_description:
+  2283/tcp: Immich Server
+  5432/tcp: PostgreSQL
+  6379/tcp: Valkey

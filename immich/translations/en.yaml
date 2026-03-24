@@ -1,0 +1,49 @@
+configuration:
+  PUID:
+    name: PUID
+    description: >-
+      User ID used to run Immich. (Default: `911`)
+
+      If you're not sure, leave it as default.
+  PGID:
+    name: PGID
+    description: >-
+      Group ID used to run Immich. (Default: `911`)
+
+      If you're not sure, leave it as default.
+  TZ:
+    name: Timezone
+    description: >-
+      Timezone used for displaying dates and times. (Default: `Etc/UTC`)
+
+      You can find your timezone identifier here: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  IMMICH_LOG_LEVEL:
+    name: Log Level
+  IMMICH_MACHINE_LEARNING_ENABLED:
+    name: Machine Learning Enabled
+    description: >-
+      Enable or disable machine-learning features in Immich.
+  IMMICH_MACHINE_LEARNING_URL:
+    name: Machine Learning Endpoint
+    description: >-
+      URL for an external Immich machine-learning service (for example http://ml-host:3003).
+  IMMICH_MEDIA_LOCATION:
+    name: Media Location
+    description: >-
+      Location of the Immich Media folder must be a path under '/media/' (default `/media/immich`). READ THE DOCUMENTATION before messing with your media library
+  IMMICH_PROCESS_INVALID_IMAGES:
+    name: Thumbnail processes invalid images
+    description: >-
+      When true, generate thumbnails for invalid images
+  clean_redis:
+    name: Clean Redis cache
+    description: >-
+      This will always start Redis with a clean new db.Use only if you are facing problems that needs cleaning Redis
+  APPLY_PERMISSIONS:
+    name: Apply permissions
+    description: >-
+      Apply permissions to all files inside the Immich Media location during boot, it can increase boot times
+network:
+  2283/tcp: Immich
+  5432/tcp: PostgreSQL DB
+  6379/tcp: Valkey DB

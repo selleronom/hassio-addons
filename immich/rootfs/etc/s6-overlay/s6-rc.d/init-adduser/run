@@ -1,0 +1,12 @@
+#!/usr/bin/with-contenv bash
+set -euo pipefail
+
+source /usr/local/bin/load-env.sh
+
+if id immich >/dev/null 2>&1; then
+  groupmod -o -g "${PGID}" immich || true
+  usermod -o -u "${PUID}" -g "${PGID}" immich || true
+fi
+
+# Keep /data ownership intact for Postgres and Valkey runtime users.
+chown -R "${PUID}:${PGID}" /config /defaults || true

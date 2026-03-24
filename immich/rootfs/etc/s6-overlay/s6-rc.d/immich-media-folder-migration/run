@@ -1,0 +1,25 @@
+#!/usr/bin/with-contenv bash
+set -euo pipefail
+
+source /usr/local/bin/load-env.sh
+
+CONFIG_FILE=/config/immich.json
+mkdir -p /config
+[[ -f "${CONFIG_FILE}" ]] || echo '{}' > "${CONFIG_FILE}"
+
+current_media_dir="$(jq -r '.media_location // empty' "${CONFIG_FILE}")"
+if [[ -z "${current_media_dir}" ]]; then
+  jq --arg path "${IMMICH_MEDIA_LOCATION}" '.media_location = $path' "${CONFIG_FILE}" > "${CONFIG_FILE}.tmp"
+  mv "${CONFIG_FILE}.tmp" "${CONFIG_FILE}"
+  mkdir -p "${IMMICH_MEDIA_LOCATION}"
+  chown -R "${PUID}:${PGID}" "${IMMICH_MEDIA_LOCATION}" || true
+  exit 0
+fi
+
+if [[ "${current_media_dir}" != "${IMMICH_MEDIA_LOCATION}" ]]; then
+  /usr/local/bin/storage-folder-migration.sh "${current_media_dir}" "${IMMICH_MEDIA_LOCATION}"
+fi
+
+jq --arg path "${IMMICH_MEDIA_LOCATION}" '.media_location = $path' "${CONFIG_FILE}" > "${CONFIG_FILE}.tmp"
+mv "${CONFIG_FILE}.tmp" "${CONFIG_FILE}"
+chown -R "${PUID}:${PGID}" "${IMMICH_MEDIA_LOCATION}" || true

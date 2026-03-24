@@ -1,0 +1,5 @@
+#!/usr/bin/with-contenv bash
+set -euo pipefail
+
+source /usr/local/bin/load-env.sh
+exec gosu postgres postgres -D "${PGDATA}" -c "listen_addresses=127.0.0.1" -c "unix_socket_directories=/var/run/postgresql"

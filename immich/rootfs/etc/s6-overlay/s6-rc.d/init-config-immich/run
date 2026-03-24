@@ -1,0 +1,14 @@
+#!/usr/bin/with-contenv bash
+set -euo pipefail
+
+source /usr/local/bin/load-env.sh
+
+mkdir -p \
+  "${IMMICH_MEDIA_LOCATION}/library" \
+  /data/cache
+
+chown -R "${PUID}:${PGID}" "${IMMICH_MEDIA_LOCATION}" /data/cache || true
+
+if [[ "${APPLY_PERMISSIONS}" == "true" ]]; then
+  chown -R "${PUID}:${PGID}" "${IMMICH_MEDIA_LOCATION}" || true
+fi

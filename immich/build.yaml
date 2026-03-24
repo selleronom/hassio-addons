@@ -1,0 +1,6 @@
+build_from:
+  aarch64: ghcr.io/home-assistant/aarch64-base-debian:trixie
+args:
+  IMMICH_IMAGE: ghcr.io/immich-app/immich-server:v2.6.2
+  POSTGRES_IMAGE: ghcr.io/tensorchord/vchord-postgres:pg18-v1.1.1
+  VALKEY_IMAGE: valkey/valkey:9.1-trixie
