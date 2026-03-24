@@ -24,10 +24,11 @@ mkdir -p "${RESTIC_CACHE_DIR}"
 
 bashio::log.info "Checking restic repository at ${REPO_URL}..."
 
-if restic snapshots "${EXTRA_ARGS[@]}" &>/dev/null; then
+if timeout 30 restic snapshots "${EXTRA_ARGS[@]}" 2>&1; then
     bashio::log.info "Repository already initialized."
 else
-    bashio::log.info "Initializing restic repository..."
+    RC=$?
+    bashio::log.info "Repository check returned ${RC}, attempting init..."
     if restic init "${EXTRA_ARGS[@]}"; then
         bashio::log.info "Repository initialized successfully."
     else

@@ -13,7 +13,7 @@ map:
   - backup:ro
 panel_icon: mdi:cloud-upload
 options:
-  repo_url: ""
+  repo_url: "nas.example.com:8000/haos"
   repo_password: ""
   rest_username: ""
   rest_password: ""
