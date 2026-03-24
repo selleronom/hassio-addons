@@ -1,0 +1,39 @@
+name: Restic Backup
+description: Scheduled restic backup of media, share and HA backups
+version: 0.18.1-r5-1
+slug: restic_backup
+url: https://github.com/selleronom/hassio-addons/tree/main/restic_backup
+arch:
+  - aarch64
+  - amd64
+init: false
+map:
+  - media:ro
+  - share:ro
+  - backup:ro
+panel_icon: mdi:cloud-upload
+options:
+  repo_url: ""
+  repo_password: ""
+  rest_username: ""
+  rest_password: ""
+  insecure_tls: true
+  backup_hour: 3
+  keep_daily: 7
+  keep_weekly: 4
+  keep_monthly: 3
+  exclude_patterns:
+    - /media/nas*
+    - /backup/nas*
+schema:
+  repo_url: str
+  repo_password: password
+  rest_username: str
+  rest_password: password
+  insecure_tls: bool
+  backup_hour: "int(0,23)"
+  keep_daily: "int(1,)"
+  keep_weekly: "int(1,)"
+  keep_monthly: "int(1,)"
+  exclude_patterns:
+    - str

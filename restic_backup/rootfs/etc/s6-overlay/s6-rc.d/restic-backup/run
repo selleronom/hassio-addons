@@ -1,0 +1,87 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Home Assistant Add-on: Restic Backup
+# Runs scheduled restic backups
+# ==============================================================================
+
+readonly REPO_URL="$(bashio::config 'repo_url')"
+readonly REST_USER="$(bashio::config 'rest_username')"
+readonly REST_PASS="$(bashio::config 'rest_password')"
+readonly INSECURE="$(bashio::config 'insecure_tls')"
+readonly BACKUP_HOUR="$(bashio::config 'backup_hour')"
+readonly KEEP_DAILY="$(bashio::config 'keep_daily')"
+readonly KEEP_WEEKLY="$(bashio::config 'keep_weekly')"
+readonly KEEP_MONTHLY="$(bashio::config 'keep_monthly')"
+
+export RESTIC_REPOSITORY="rest:https://${REST_USER}:${REST_PASS}@${REPO_URL}"
+export RESTIC_PASSWORD="$(bashio::config 'repo_password')"
+export RESTIC_CACHE_DIR="/data/cache"
+
+# Build extra args
+EXTRA_ARGS=()
+if bashio::var.true "${INSECURE}"; then
+    EXTRA_ARGS+=("--insecure-tls")
+fi
+
+# Build exclude args
+EXCLUDE_ARGS=()
+EXCLUDES_LEN=$(bashio::config 'exclude_patterns|length')
+for i in $(seq 0 $((EXCLUDES_LEN - 1))); do
+    pattern=$(bashio::config "exclude_patterns[${i}]")
+    EXCLUDE_ARGS+=("--exclude" "${pattern}")
+    bashio::log.info "Excluding: ${pattern}"
+done
+
+run_backup() {
+    bashio::log.info "Starting restic backup..."
+
+    if restic backup /media /share /backup \
+        --tag haos-bulk \
+        "${EXCLUDE_ARGS[@]}" \
+        "${EXTRA_ARGS[@]}"; then
+        bashio::log.info "Backup completed successfully."
+    else
+        bashio::log.error "Backup failed!"
+        return 1
+    fi
+
+    bashio::log.info "Pruning old snapshots..."
+
+    if restic forget \
+        --keep-daily  "${KEEP_DAILY}" \
+        --keep-weekly "${KEEP_WEEKLY}" \
+        --keep-monthly "${KEEP_MONTHLY}" \
+        --prune \
+        "${EXTRA_ARGS[@]}"; then
+        bashio::log.info "Pruning completed successfully."
+    else
+        bashio::log.warning "Pruning failed!"
+    fi
+}
+
+bashio::log.info "Restic backup scheduler started (backup_hour=${BACKUP_HOUR})"
+
+while true; do
+    # Calculate seconds until next backup hour
+    CURRENT_HOUR=$(date +%H | sed 's/^0//')
+    CURRENT_MIN=$(date +%M | sed 's/^0//')
+    CURRENT_SEC=$(date +%S | sed 's/^0//')
+
+    SECONDS_INTO_DAY=$(( CURRENT_HOUR * 3600 + CURRENT_MIN * 60 + CURRENT_SEC ))
+    TARGET_SECONDS=$(( BACKUP_HOUR * 3600 ))
+
+    if [ "${TARGET_SECONDS}" -gt "${SECONDS_INTO_DAY}" ]; then
+        SLEEP_SECONDS=$(( TARGET_SECONDS - SECONDS_INTO_DAY ))
+    else
+        SLEEP_SECONDS=$(( 86400 - SECONDS_INTO_DAY + TARGET_SECONDS ))
+    fi
+
+    SLEEP_HOURS=$(( SLEEP_SECONDS / 3600 ))
+    SLEEP_MINS=$(( (SLEEP_SECONDS % 3600) / 60 ))
+    bashio::log.info "Next backup in ${SLEEP_HOURS}h ${SLEEP_MINS}m"
+
+    sleep "${SLEEP_SECONDS}"
+
+    run_backup
+done

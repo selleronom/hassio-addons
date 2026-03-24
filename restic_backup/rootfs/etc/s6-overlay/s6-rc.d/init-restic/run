@@ -1,0 +1,37 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Home Assistant Add-on: Restic Backup
+# Initialize restic repository if needed
+# ==============================================================================
+
+readonly REPO_URL="$(bashio::config 'repo_url')"
+readonly REST_USER="$(bashio::config 'rest_username')"
+readonly REST_PASS="$(bashio::config 'rest_password')"
+readonly INSECURE="$(bashio::config 'insecure_tls')"
+
+export RESTIC_REPOSITORY="rest:https://${REST_USER}:${REST_PASS}@${REPO_URL}"
+export RESTIC_PASSWORD="$(bashio::config 'repo_password')"
+export RESTIC_CACHE_DIR="/data/cache"
+
+# Build extra args
+EXTRA_ARGS=()
+if bashio::var.true "${INSECURE}"; then
+    EXTRA_ARGS+=("--insecure-tls")
+fi
+
+mkdir -p "${RESTIC_CACHE_DIR}"
+
+bashio::log.info "Checking restic repository at ${REPO_URL}..."
+
+if restic snapshots "${EXTRA_ARGS[@]}" &>/dev/null; then
+    bashio::log.info "Repository already initialized."
+else
+    bashio::log.info "Initializing restic repository..."
+    if restic init "${EXTRA_ARGS[@]}"; then
+        bashio::log.info "Repository initialized successfully."
+    else
+        bashio::log.error "Failed to initialize repository!"
+        bashio::exit.nok
+    fi
+fi
