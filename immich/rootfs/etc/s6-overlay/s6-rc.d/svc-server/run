@@ -3,12 +3,4 @@ set -euo pipefail
 
 source /usr/local/bin/load-env.sh
 
-# Pre-cleanup: kill any existing process on the server port before startup
-port="${SERVER_PORT:-2283}"
-if lsof -i :${port} 2>/dev/null | grep -q LISTEN; then
-    echo "svc-server/run: port ${port} is in use, cleaning up..." >&2
-    lsof -ti :${port} 2>/dev/null | xargs kill -9 2>/dev/null || true
-    sleep 2
-fi
-
 exec gosu "${PUID}:${PGID}" /usr/local/bin/immich-server-wrapper.sh
