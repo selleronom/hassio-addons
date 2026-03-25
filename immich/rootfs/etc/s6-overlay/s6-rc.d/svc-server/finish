@@ -1,0 +1,10 @@
+#!/usr/bin/with-contenv bash
+# Kill orphaned Immich worker processes still holding the port before s6 restarts the service
+port="${SERVER_PORT:-2283}"
+
+pids="$(ss -Htlnp | grep ":${port} " | grep -oP 'pid=\K[0-9]+' | sort -u)"
+if [[ -n "${pids}" ]]; then
+    echo "svc-server/finish: killing stale processes on port ${port}: ${pids}" >&2
+    echo "${pids}" | xargs kill -9 2>/dev/null || true
+    sleep 1
+fi

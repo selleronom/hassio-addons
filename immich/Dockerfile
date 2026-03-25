@@ -139,6 +139,7 @@ RUN chmod +x \
     /etc/s6-overlay/s6-rc.d/immich-media-folder-migration/run \
     /etc/s6-overlay/s6-rc.d/svc-postgres/run \
     /etc/s6-overlay/s6-rc.d/svc-redis/run \
+    /etc/s6-overlay/s6-rc.d/svc-server/finish \
     /etc/s6-overlay/s6-rc.d/svc-server/run
 
 RUN ldconfig
