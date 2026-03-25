@@ -52,6 +52,8 @@ RUN apt-get update \
 # Runtime from upstream images (no source build in this Dockerfile)
 COPY --from=immich /usr/src/app /usr/src/app
 COPY --from=immich /build /build
+COPY --from=immich /usr/bin/ffmpeg /usr/bin/ffmpeg
+COPY --from=immich /usr/bin/ffprobe /usr/bin/ffprobe
 COPY --from=immich /usr/local/bin /usr/local/bin
 COPY --from=immich /usr/local/lib /usr/local/lib
 COPY --from=immich /usr/lib /usr/lib
