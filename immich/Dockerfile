@@ -47,6 +47,8 @@ RUN apt-get update \
     rsync \
     tzdata \
     gosu \
+    procps \
+    lsof \
     && rm -rf /var/lib/apt/lists/*
 
 # Runtime from upstream images (no source build in this Dockerfile)
