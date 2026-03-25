@@ -1,5 +1,5 @@
 name: Immich
-version: 2.6.2-7
+version: 2.6.2-8
 slug: immich
 description: High performance self-hosted photo and video management solution
 url: https://immich.app
@@ -21,8 +21,6 @@ tmpfs: true
 schema:
   TZ: str?
   IMMICH_LOG_LEVEL: list(verbose|debug|log|warn|error)
-  IMMICH_MACHINE_LEARNING_ENABLED: bool
-  IMMICH_MACHINE_LEARNING_URL: str?
   IMMICH_PROCESS_INVALID_IMAGES: bool?
   IMMICH_MEDIA_LOCATION: match(^/config/library$|^/media(/.*)?$)
   PUID: int(0,)
@@ -35,8 +33,6 @@ schema:
 options:
   TZ: Etc/UTC
   IMMICH_LOG_LEVEL: log
-  IMMICH_MACHINE_LEARNING_ENABLED: false
-  IMMICH_MACHINE_LEARNING_URL: http://immich-machine-learning:3003
   IMMICH_MEDIA_LOCATION: /media/immich
   PUID: 911
   PGID: 911

@@ -21,8 +21,6 @@ read_option() {
 export TZ="$(read_option '.TZ' '"Etc/UTC"')"
 export IMMICH_LOG_LEVEL="$(read_option '.IMMICH_LOG_LEVEL' '"log"')"
 export IMMICH_MEDIA_LOCATION="$(read_option '.IMMICH_MEDIA_LOCATION' '"/media/immich"')"
-export IMMICH_MACHINE_LEARNING_ENABLED="$(read_option '.IMMICH_MACHINE_LEARNING_ENABLED' 'false')"
-export IMMICH_MACHINE_LEARNING_URL="$(read_option '.IMMICH_MACHINE_LEARNING_URL' '"http://immich-machine-learning:3003"')"
 export IMMICH_PROCESS_INVALID_IMAGES="$(read_option '.IMMICH_PROCESS_INVALID_IMAGES' 'empty')"
 export PUID="$(read_option '.PUID' '911')"
 export PGID="$(read_option '.PGID' '911')"
