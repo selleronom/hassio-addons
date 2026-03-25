@@ -1,0 +1,5 @@
+#!/usr/bin/with-contenv bash
+exit_code="${1:-0}"
+signal="${2:-0}"
+echo "svc-server/finish: process exited with code ${exit_code} (signal ${signal})" >&2
+exit 0

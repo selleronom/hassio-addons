@@ -3,4 +3,8 @@ set -euo pipefail
 
 source /usr/local/bin/load-env.sh
 
+echo "svc-server/run: starting Immich server" >&2
+
 exec gosu "${PUID}:${PGID}" /usr/local/bin/immich-server-wrapper.sh
+
+echo "svc-server/run: exiting (this should never print unless gosu failed)" >&2

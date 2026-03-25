@@ -22,6 +22,7 @@ ENV \
     S6_CMD_WAIT_FOR_SERVICES_MAXTIME=0 \
     S6_CMD_WAIT_FOR_SERVICES=1 \
     S6_SERVICES_GRACETIME=0 \
+    S6_SERVICES_READYTIME=50 \
     TERM="xterm-256color" \
     SERVER_PORT=2283 \
     PG_MAJOR=18 \
@@ -137,6 +138,7 @@ RUN chmod +x \
     /etc/s6-overlay/s6-rc.d/immich-media-folder-migration/run \
     /etc/s6-overlay/s6-rc.d/svc-postgres/run \
     /etc/s6-overlay/s6-rc.d/svc-redis/run \
+    /etc/s6-overlay/s6-rc.d/svc-server/finish \
     /etc/s6-overlay/s6-rc.d/svc-server/run
 
 RUN ldconfig
