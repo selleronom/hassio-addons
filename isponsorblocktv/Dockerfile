@@ -5,10 +5,10 @@ FROM $BUILD_FROM AS builder
 ARG ISPONSORBLOCKTV_VERSION=v2.6.1
 
 RUN apk add --no-cache \
-    uv=0.10.12-r0 \
-    git=2.53.0-r0 \
-    gcc=15.2.0-r2 \
-    musl-dev=1.2.6-r0
+    uv \
+    git \
+    gcc \
+    musl-dev
 
 WORKDIR /app
 # TODO: remove sed once upstream merges Python 3.14 fix
