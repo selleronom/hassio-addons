@@ -6,7 +6,6 @@ url: https://immich.app
 webui: "http://[HOST]:[PORT:2283]"
 arch:
   - aarch64
-  - amd64
 init: false
 startup: services
 map:
