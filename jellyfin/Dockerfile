@@ -1,5 +1,4 @@
-ARG BUILD_FROM
-# hadolint ignore=DL3006
+ARG BUILD_FROM=ghcr.io/home-assistant/base:3.23
 FROM $BUILD_FROM
 
 # Install Jellyfin
@@ -10,3 +9,10 @@ RUN apk add --no-cache \
     jellyfin-web=10.11.6-r0
 
 COPY rootfs /
+
+LABEL \
+    io.hass.type="addon" \
+    org.opencontainers.image.title="Home Assistant App: Jellyfin" \
+    org.opencontainers.image.description="Jellyfin media server" \
+    org.opencontainers.image.source="https://github.com/selleronom/hassio-addons" \
+    org.opencontainers.image.licenses="Apache License 2.0"

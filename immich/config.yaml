@@ -6,6 +6,7 @@ url: https://immich.app
 webui: "http://[HOST]:[PORT:2283]"
 arch:
   - aarch64
+  - amd64
 init: false
 startup: services
 map:
@@ -46,3 +47,4 @@ ports_description:
   2283/tcp: Immich Server
   5432/tcp: PostgreSQL
   6379/tcp: Valkey
+image: "ghcr.io/selleronom/immich"

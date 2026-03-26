@@ -1,5 +1,4 @@
-ARG BUILD_FROM
-# hadolint ignore=DL3006
+ARG BUILD_FROM=ghcr.io/home-assistant/base:3.23
 FROM $BUILD_FROM
 
 # Install packages
@@ -24,3 +23,10 @@ RUN chmod +x /usr/sbin/caddy || true
 COPY rootfs /
 
 WORKDIR /
+
+LABEL \
+    io.hass.type="addon" \
+    org.opencontainers.image.title="Home Assistant App: Caddy Proxy Manager" \
+    org.opencontainers.image.description="A reverse proxy using Caddy with Cloudflare DNS support" \
+    org.opencontainers.image.source="https://github.com/selleronom/hassio-addons" \
+    org.opencontainers.image.licenses="Apache License 2.0"

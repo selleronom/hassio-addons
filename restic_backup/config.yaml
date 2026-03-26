@@ -37,3 +37,4 @@ schema:
   keep_monthly: "int(1,)"
   exclude_patterns:
     - str
+image: "ghcr.io/selleronom/restic-backup"

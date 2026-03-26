@@ -16,3 +16,4 @@ options:
 schema:
   disable_registration: bool
   require_signin_view: bool
+image: "ghcr.io/selleronom/gitea"

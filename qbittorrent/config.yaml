@@ -20,3 +20,4 @@ panel_icon: mdi:cloud-download
 map:
   - share:rw
   - media:rw
+image: "ghcr.io/selleronom/qbittorrent"

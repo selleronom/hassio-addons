@@ -32,3 +32,4 @@ schema:
       target_port: port
       target_protocol: list(http|https)
       insecure: bool
+image: "ghcr.io/selleronom/caddy-proxy"

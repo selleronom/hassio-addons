@@ -21,3 +21,4 @@ options:
 schema:
   gui_user: str
   gui_password: password
+image: "ghcr.io/selleronom/syncthing"

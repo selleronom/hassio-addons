@@ -1,5 +1,4 @@
-ARG BUILD_FROM
-# hadolint ignore=DL3006
+ARG BUILD_FROM=ghcr.io/home-assistant/base:3.23
 FROM $BUILD_FROM
 
 # Install Syncthing from Alpine edge community
@@ -24,3 +23,10 @@ ENV HOME=/data \
 
 ENTRYPOINT [ "/init" ]
 CMD []
+
+LABEL \
+    io.hass.type="addon" \
+    org.opencontainers.image.title="Home Assistant App: Syncthing" \
+    org.opencontainers.image.description="Continuous file synchronization program" \
+    org.opencontainers.image.source="https://github.com/selleronom/hassio-addons" \
+    org.opencontainers.image.licenses="Apache License 2.0"
