@@ -13,8 +13,6 @@ ingress_stream: true
 host_network: true
 panel_title: Syncthing
 panel_icon: mdi:sync
-# Use add-on private storage only; no host directories mapped by default
-map: []
 options:
   gui_user: "admin"
   gui_password: "changeme"
