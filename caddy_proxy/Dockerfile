@@ -3,9 +3,9 @@ FROM $BUILD_FROM
 
 # Install packages
 RUN apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community \
-    # main_package
+    # renovate: datasource=repology depName=alpine_edge/caddy versioning=loose
     caddy=2.11.2-r0 \
-    xcaddy=0.4.5-r0
+    xcaddy
 
 WORKDIR /src
 RUN xcaddy build \

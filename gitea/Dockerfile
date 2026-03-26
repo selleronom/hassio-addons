@@ -2,7 +2,7 @@ ARG BUILD_FROM=ghcr.io/home-assistant/base:3.23
 FROM ${BUILD_FROM}
 
 RUN apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community \
-    # main_package
+    # renovate: datasource=repology depName=alpine_edge/gitea versioning=loose
     gitea=1.25.4-r1 \
     && \
     adduser -D -u 1000 git

@@ -2,7 +2,7 @@ ARG BUILD_FROM=ghcr.io/home-assistant/base:3.23
 FROM $BUILD_FROM
 
 RUN apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community \
-# main_package
+    # renovate: datasource=repology depName=alpine_edge/restic versioning=loose
     restic=0.18.1-r5
 
 COPY rootfs /

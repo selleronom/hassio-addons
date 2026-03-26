@@ -2,9 +2,9 @@ ARG BUILD_FROM=ghcr.io/home-assistant/base:3.23
 FROM $BUILD_FROM
 
 RUN apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community \
-# main_package
+    # renovate: datasource=repology depName=alpine_edge/garage versioning=loose
     garage=2.2.0-r0 \
-    wget=1.25.0-r2
+    wget
 
 COPY rootfs /
 

@@ -1,0 +1,39 @@
+name: Update Add-on Version
+
+on:
+  pull_request_target:
+    paths:
+      - "**/Dockerfile"
+  workflow_dispatch: {}
+
+jobs:
+  update-version:
+    name: Update config.yaml version
+    runs-on: ubuntu-latest
+    if: github.actor == 'renovate[bot]' || github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v6.0.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Update add-on version
+        id: version
+        env:
+          BASE_REF: ${{ github.event_name == 'pull_request_target' && format('origin/{0}', github.base_ref) || 'HEAD~1' }}
+        run: |
+          chmod +x .github/scripts/update-addon-version.sh
+          .github/scripts/update-addon-version.sh "$BASE_REF"
+
+      - name: Commit changes
+        if: steps.version.outputs.updated == 'true'
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          commit_message: "Update addon versions"
+          commit_user_name: "github-actions[bot]"
+          commit_user_email: "41898282+github-actions[bot]@users.noreply.github.com"

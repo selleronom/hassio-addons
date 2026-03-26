@@ -3,7 +3,7 @@ FROM $BUILD_FROM
 
 # Setup base system
 RUN apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community \
-# main_package
+    # renovate: datasource=repology depName=alpine_edge/qbittorrent-nox versioning=loose
     qbittorrent-nox=5.1.4-r2
 
 # Copy root filesystem

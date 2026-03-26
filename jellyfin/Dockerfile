@@ -5,7 +5,7 @@ FROM $BUILD_FROM
 RUN apk add --no-cache \
     --repository=https://dl-cdn.alpinelinux.org/alpine/edge/main \
     --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community \
-    # main_package
+    # renovate: datasource=repology depName=alpine_edge/jellyfin versioning=loose
     jellyfin-web=10.11.6-r0
 
 COPY rootfs /

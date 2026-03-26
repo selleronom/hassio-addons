@@ -1,12 +1,12 @@
 # check=skip=SecretsUsedInArgOrEnv
 ARG BUILD_FROM=ghcr.io/home-assistant/base-debian:trixie
-ARG IMMICH_IMAGE=ghcr.io/immich-app/immich-server:v2.6.3
-ARG POSTGRES_IMAGE=ghcr.io/tensorchord/vchord-postgres:pg18-v1.1.1
-ARG VALKEY_IMAGE=valkey/valkey:9.1-trixie
+ARG IMMICH_VERSION=v2.6.3
+ARG POSTGRES_VERSION=pg18-v1.1.1
+ARG VALKEY_VERSION=9.1-trixie
 
-FROM ${IMMICH_IMAGE} AS immich
-FROM ${POSTGRES_IMAGE} AS postgres
-FROM ${VALKEY_IMAGE} AS valkey
+FROM ghcr.io/immich-app/immich-server:${IMMICH_VERSION} AS immich
+FROM ghcr.io/tensorchord/vchord-postgres:${POSTGRES_VERSION} AS postgres
+FROM valkey/valkey:${VALKEY_VERSION} AS valkey
 
 FROM ${BUILD_FROM}
 
