@@ -13,8 +13,6 @@ This project variant is:
 ## Configuration
 
 - `IMMICH_MEDIA_LOCATION`: media path inside `/media` or `/config/library`
-- `IMMICH_MACHINE_LEARNING_ENABLED`: enable external ML integration (default: false)
-- `IMMICH_MACHINE_LEARNING_URL`: URL for external ML host (default: `http://immich-machine-learning:3003`)
 - `clean_redis`: removes persisted Valkey dump before startup
 
 ## Ports

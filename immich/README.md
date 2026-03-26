@@ -21,7 +21,7 @@ This add-on is intentionally runtime-only:
 
 ## Upstream Runtime Images
 
-- `ghcr.io/immich-app/immich-server:v2.6.2`
-- `ghcr.io/tensorchord/vchord-postgres:pg18-v1.1.1`
-- `valkey/valkey:9.1-trixie`
-- `ghcr.io/home-assistant/aarch64-base-debian:trixie`
+- `ghcr.io/immich-app/immich-server`
+- `ghcr.io/tensorchord/vchord-postgres`
+- `valkey/valkey`
+- `ghcr.io/home-assistant/aarch64-base-debian`

@@ -1,6 +1,6 @@
 # check=skip=SecretsUsedInArgOrEnv
 ARG BUILD_FROM=ghcr.io/home-assistant/aarch64-base-debian:trixie
-ARG IMMICH_IMAGE=ghcr.io/immich-app/immich-server:v2.6.2
+ARG IMMICH_IMAGE=ghcr.io/immich-app/immich-server:v2.6.3
 ARG POSTGRES_IMAGE=ghcr.io/tensorchord/vchord-postgres:pg18-v1.1.1
 ARG VALKEY_IMAGE=valkey/valkey:9.1-trixie
 
