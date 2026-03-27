@@ -1,0 +1,40 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+set -euo pipefail
+
+# Disable MPRIS — no DBus available in the container
+mkdir -p /root/.config/sendspin
+cat > /root/.config/sendspin/settings-daemon.json << 'EOF'
+{
+  "use_mpris": false
+}
+EOF
+
+ARGS=()
+
+# Use HA system hostname as default name and ID if not configured
+ha_hostname="$(bashio::info.hostname 2>/dev/null || hostname)"
+ha_id="sendspin-$(echo "${ha_hostname}" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')"
+
+if bashio::config.has_value 'name'; then
+    ARGS+=(--name "$(bashio::config 'name')")
+else
+    ARGS+=(--name "${ha_hostname}")
+fi
+
+ARGS+=(--id "${ha_id}")
+
+if bashio::config.has_value 'url'; then
+    ARGS+=(--url "$(bashio::config 'url')")
+fi
+
+if bashio::config.has_value 'listen_port'; then
+    ARGS+=(--port "$(bashio::config 'listen_port')")
+fi
+
+if bashio::config.has_value 'log_level'; then
+    ARGS+=(--log-level "$(bashio::config 'log_level')")
+fi
+
+bashio::log.info "Starting Sendspin daemon"
+exec sendspin daemon "${ARGS[@]}"

@@ -1,0 +1,24 @@
+name: Sendspin
+description: Multi-room audio client — connect to any Sendspin server and turn your Home Assistant device into an audio target.
+version: 2.0.15-r0-2
+slug: sendspin
+url: https://github.com/selleronom/hassio-addons
+arch:
+  - aarch64
+  - amd64
+init: false
+audio: true
+host_network: true
+panel_title: Sendspin
+panel_icon: mdi:music-note
+options:
+  name: ""
+  url: ""
+  listen_port: 8927
+  log_level: "INFO"
+schema:
+  name: str?
+  url: str?
+  listen_port: int?
+  log_level: list(DEBUG|INFO|WARNING|ERROR|CRITICAL)?
+image: "ghcr.io/selleronom/sendspin"
