@@ -1,0 +1,15 @@
+name: Cloudflared
+description: Expose Home Assistant to the internet via Cloudflare Tunnel — no open ports required.
+version: 2026.3.0-r0-1
+slug: cloudflared
+url: https://github.com/selleronom/hassio-addons
+arch:
+  - aarch64
+  - amd64
+init: false
+options:
+  token: ""
+  log_level: "info"
+schema:
+  token: str
+  log_level: list(debug|info|warn|error)?

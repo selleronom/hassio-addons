@@ -1,0 +1,9 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+set -euo pipefail
+
+TOKEN="$(bashio::config 'token')"
+LOG_LEVEL="$(bashio::config 'log_level')"
+
+bashio::log.info "Starting Cloudflared tunnel"
+exec cloudflared tunnel --loglevel "${LOG_LEVEL}" --no-autoupdate run --token "${TOKEN}"
