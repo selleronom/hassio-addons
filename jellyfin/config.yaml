@@ -1,6 +1,6 @@
 name: Jellyfin
 description: Jellyfin media server
-version: 10.11.6-r0-4
+version: 10.11.7-r0-1
 slug: jellyfin
 url: https://github.com/selleronom/hassio-addons/tree/main/jellyfin
 arch:
