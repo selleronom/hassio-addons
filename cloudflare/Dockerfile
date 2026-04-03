@@ -1,10 +1,11 @@
 ARG BUILD_FROM=ghcr.io/home-assistant/base:3.23
 FROM $BUILD_FROM
 
+# renovate: datasource=github-releases depName=cloudflare/cloudflared
+ARG CLOUDFLARED_VERSION=2026.3.0
 RUN apk add --no-cache \
     --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing \
-    # renovate: datasource=repology depName=alpine_edge_testing/cloudflared versioning=loose
-    cloudflared=2026.3.0-r0
+    cloudflared=${CLOUDFLARED_VERSION}-r0
 
 COPY rootfs /
 RUN chmod +x /etc/s6-overlay/s6-rc.d/cloudflared/run
