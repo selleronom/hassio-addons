@@ -36,5 +36,9 @@ if bashio::config.has_value 'log_level'; then
     ARGS+=(--log-level "$(bashio::config 'log_level')")
 fi
 
+if bashio::config.has_value 'static_delay_ms'; then
+    ARGS+=(--static-delay-ms "$(bashio::config 'static_delay_ms')")
+fi
+
 bashio::log.info "Starting Sendspin daemon"
 exec sendspin daemon "${ARGS[@]}"

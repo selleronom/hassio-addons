@@ -8,12 +8,13 @@ By default, Sendspin listens for servers on your local network via mDNS. No conf
 
 ### Configuration
 
-| Option        | Description                                                                                            |
-| ------------- | ------------------------------------------------------------------------------------------------------ |
-| `name`        | Friendly name shown on the Sendspin server (default: HA hostname)                                      |
-| `url`         | Connect to a specific server, e.g. `ws://192.168.1.100:8927/sendspin`. Leave blank for auto-discovery. |
-| `listen_port` | Port the daemon listens on for incoming server connections (default: 8927)                             |
-| `log_level`   | Logging verbosity: `DEBUG`, `INFO`, `WARNING`, `ERROR`, or `CRITICAL` (default: `INFO`)                |
+| Option            | Description                                                                                            |
+| ----------------- | ------------------------------------------------------------------------------------------------------ |
+| `name`            | Friendly name shown on the Sendspin server (default: HA hostname)                                      |
+| `url`             | Connect to a specific server, e.g. `ws://192.168.1.100:8927/sendspin`. Leave blank for auto-discovery. |
+| `listen_port`     | Port the daemon listens on for incoming server connections (default: 8927)                             |
+| `log_level`       | Logging verbosity: `DEBUG`, `INFO`, `WARNING`, `ERROR`, or `CRITICAL` (default: `INFO`)                |
+| `static_delay_ms` | Extra playback delay in milliseconds, e.g. `-100` to play earlier (float, default: `0`)                |
 
 ### Audio
 
