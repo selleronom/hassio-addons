@@ -2,6 +2,7 @@ name: PAGL Stack
 slug: pagl
 description: Prometheus, Alertmanager, Grafana & Loki monitoring stack
 version: 0.2.0
+image: "ghcr.io/selleronom/pagl"
 url: https://github.com/selleronom/hassio-addons/tree/main/pagl
 arch:
   - aarch64
