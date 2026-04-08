@@ -1,0 +1,51 @@
+configuration:
+  log_level:
+    name: Log Level
+    description: >-
+      Log verbosity for all services (Prometheus, Alertmanager, Grafana, Loki).
+  scrape_interval:
+    name: Scrape Interval
+    description: >-
+      How often Prometheus scrapes targets. (Default: `15s`)
+
+      Use Go duration format, e.g. `30s`, `1m`, `5m`.
+  evaluation_interval:
+    name: Evaluation Interval
+    description: >-
+      How often Prometheus evaluates alert rules. (Default: `15s`)
+
+      Use Go duration format, e.g. `30s`, `1m`, `5m`.
+  loki_retention_period:
+    name: Loki Retention Period
+    description: >-
+      How long Loki retains log data. (Default: `720h` = 30 days)
+
+      Use Go duration format, e.g. `168h` (7 days), `720h` (30 days).
+  grafana_admin_user:
+    name: Grafana Admin User
+    description: >-
+      Username for the Grafana admin account.
+  grafana_admin_password:
+    name: Grafana Admin Password
+    description: >-
+      Password for the Grafana admin account. Change this from the default!
+  ha_scrape_target:
+    name: Home Assistant Scrape Target
+    description: >-
+      Automatically scrape Home Assistant's built-in Prometheus integration.
+
+      Requires the Prometheus integration to be enabled in Home Assistant (Configuration > Integrations > Prometheus).
+  scrape_targets:
+    name: Scrape Targets
+    description: >-
+      Additional Prometheus scrape targets. Each entry needs a job name and target (host:port).
+  alertmanager_webhook_urls:
+    name: Alertmanager Webhook URLs
+    description: >-
+      Webhook URLs that Alertmanager will POST alert notifications to.
+
+      Useful for Home Assistant automations via webhook trigger.
+  alert_rules:
+    name: Alert Rules
+    description: >-
+      Prometheus alerting rules. Each rule needs a name and PromQL expression.

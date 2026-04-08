@@ -1,0 +1,12 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Start Alertmanager
+# ==============================================================================
+
+bashio::log.info "Starting Alertmanager..."
+
+exec alertmanager \
+  --config.file=/etc/alertmanager/alertmanager.yml \
+  --storage.path=/data/alertmanager \
+  --web.listen-address=0.0.0.0:9093

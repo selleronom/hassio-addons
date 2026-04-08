@@ -1,0 +1,10 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Start Loki
+# ==============================================================================
+
+bashio::log.info "Starting Loki..."
+
+exec loki \
+  -config.file=/etc/loki/loki.yml

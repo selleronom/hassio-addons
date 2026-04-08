@@ -1,0 +1,74 @@
+#include <tunables/global>
+
+profile pagl flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+
+  file,
+  signal,
+
+  # Capabilities
+  capability dac_override,
+  capability dac_read_search,
+  capability setgid,
+  capability setuid,
+  capability net_bind_service,
+
+  # Networking
+  network inet stream,
+  network inet6 stream,
+  network inet dgram,
+  network inet6 dgram,
+
+  # S6-Overlay & Bashio
+  /init rix,
+  /bin/** ix,
+  /usr/bin/** ix,
+  /etc/s6-overlay/** rix,
+  /etc/s6/** rix,
+  /run/s6/** rwix,
+  /etc/services.d/** rwix,
+  /etc/cont-init.d/** rwix,
+  /etc/cont-finish.d/** rwix,
+  /run/** rwk,
+  /package/** rix,
+  /command/** ix,
+  /dev/tty rw,
+
+  # Bashio
+  /usr/lib/bashio/** ix,
+  /tmp/** rw,
+
+  # Data persistence
+  /data/** rw,
+
+  # Config generation
+  /etc/prometheus/** rw,
+  /etc/alertmanager/** rw,
+  /etc/grafana/** rw,
+  /etc/loki/** rw,
+
+  # Binaries
+  /usr/bin/prometheus ix,
+  /usr/bin/alertmanager ix,
+  /usr/bin/promtool ix,
+  /usr/bin/amtool ix,
+  /usr/bin/loki ix,
+  /usr/sbin/grafana ix,
+  /usr/share/grafana/** r,
+
+  # System files
+  /etc/passwd r,
+  /etc/group r,
+  /etc/nsswitch.conf r,
+  /etc/hosts r,
+  /etc/resolv.conf r,
+  /etc/ssl/openssl.cnf r,
+  /etc/ssl/certs/** r,
+
+  # Proc and sys
+  @{PROC}/sys/kernel/random/uuid r,
+
+  # Deny dangerous capabilities
+  deny capability sys_admin,
+  deny capability sys_module,
+}

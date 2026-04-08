@@ -1,0 +1,284 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Initialize PAGL Stack — generate all config from HA addon options
+# ==============================================================================
+set -e
+
+bashio::log.info "Initializing PAGL Stack..."
+
+# ── directories ──────────────────────────────────────────────────────────────
+mkdir -p /data/prometheus /data/alertmanager /data/grafana \
+         /data/loki/chunks /data/loki/rules /data/loki/compactor \
+         /etc/prometheus/rules /etc/alertmanager /etc/grafana/provisioning/datasources \
+         /etc/loki
+
+# ── read addon options ───────────────────────────────────────────────────────
+SCRAPE_INTERVAL=$(bashio::config 'scrape_interval')
+EVAL_INTERVAL=$(bashio::config 'evaluation_interval')
+LOG_LEVEL=$(bashio::config 'log_level')
+HA_SCRAPE=$(bashio::config 'ha_scrape_target')
+GRAFANA_USER=$(bashio::config 'grafana_admin_user')
+GRAFANA_PASS=$(bashio::config 'grafana_admin_password')
+LOKI_RETENTION=$(bashio::config 'loki_retention_period')
+
+# ── Prometheus config ────────────────────────────────────────────────────────
+{
+  cat <<EOF
+global:
+  scrape_interval: ${SCRAPE_INTERVAL}
+  evaluation_interval: ${EVAL_INTERVAL}
+
+rule_files:
+  - /etc/prometheus/rules/*.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - 127.0.0.1:9093
+
+scrape_configs:
+EOF
+
+  # Home Assistant built-in prometheus integration target
+  if bashio::var.true "${HA_SCRAPE}"; then
+    cat <<EOF
+  - job_name: homeassistant
+    metrics_path: /core/api/prometheus
+    bearer_token: "${SUPERVISOR_TOKEN}"
+    scheme: http
+    static_configs:
+      - targets:
+          - supervisor:80
+        labels:
+          instance: home-assistant
+EOF
+  fi
+
+  # Prometheus self-monitoring
+  cat <<EOF
+  - job_name: prometheus
+    static_configs:
+      - targets:
+          - 127.0.0.1:9090
+EOF
+
+  # User-defined scrape targets
+  for index in $(bashio::config 'scrape_targets|keys'); do
+    JOB_NAME=$(bashio::config "scrape_targets[${index}].job_name")
+    TARGET=$(bashio::config "scrape_targets[${index}].target")
+    METRICS_PATH=$(bashio::config "scrape_targets[${index}].metrics_path")
+    TARGET_INTERVAL=$(bashio::config "scrape_targets[${index}].scrape_interval")
+
+    cat <<EOF
+  - job_name: ${JOB_NAME}
+    static_configs:
+      - targets:
+          - ${TARGET}
+EOF
+
+    # Optional labels
+    LABEL_COUNT=$(bashio::config "scrape_targets[${index}].labels | length")
+    if [[ "${LABEL_COUNT}" -gt 0 ]]; then
+      echo "        labels:"
+      for li in $(bashio::config "scrape_targets[${index}].labels|keys"); do
+        LNAME=$(bashio::config "scrape_targets[${index}].labels[${li}].name")
+        LVALUE=$(bashio::config "scrape_targets[${index}].labels[${li}].value")
+        echo "          ${LNAME}: '${LVALUE}'"
+      done
+    fi
+
+    if bashio::var.has_value "${METRICS_PATH}"; then
+      echo "    metrics_path: ${METRICS_PATH}"
+    fi
+    if bashio::var.has_value "${TARGET_INTERVAL}"; then
+      echo "    scrape_interval: ${TARGET_INTERVAL}"
+    fi
+  done
+
+} > /etc/prometheus/prometheus.yml
+
+bashio::log.info "Generated /etc/prometheus/prometheus.yml"
+
+# ── Prometheus alert rules ───────────────────────────────────────────────────
+RULE_COUNT=$(bashio::config 'alert_rules | length')
+if [[ "${RULE_COUNT}" -gt 0 ]]; then
+  {
+    echo "groups:"
+    echo "  - name: addon_alerts"
+    echo "    rules:"
+
+    for index in $(bashio::config 'alert_rules|keys'); do
+      NAME=$(bashio::config "alert_rules[${index}].name")
+      EXPR=$(bashio::config "alert_rules[${index}].expr")
+      FOR=$(bashio::config "alert_rules[${index}].for")
+      SEVERITY=$(bashio::config "alert_rules[${index}].severity")
+      SUMMARY=$(bashio::config "alert_rules[${index}].summary")
+
+      cat <<EOF
+      - alert: ${NAME}
+        expr: ${EXPR}
+EOF
+      if bashio::var.has_value "${FOR}"; then
+        echo "        for: ${FOR}"
+      fi
+      echo "        labels:"
+      if bashio::var.has_value "${SEVERITY}"; then
+        echo "          severity: ${SEVERITY}"
+      else
+        echo "          severity: warning"
+      fi
+      echo "        annotations:"
+      if bashio::var.has_value "${SUMMARY}"; then
+        echo "          summary: \"${SUMMARY}\""
+      else
+        echo "          summary: \"${NAME} is firing\""
+      fi
+    done
+  } > /etc/prometheus/rules/addon_alerts.yml
+
+  bashio::log.info "Generated /etc/prometheus/rules/addon_alerts.yml (${RULE_COUNT} rules)"
+else
+  rm -f /etc/prometheus/rules/addon_alerts.yml
+fi
+
+# ── Alertmanager config ──────────────────────────────────────────────────────
+{
+  cat <<EOF
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: webhooks
+  group_by:
+    - alertname
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+
+receivers:
+  - name: webhooks
+    webhook_configs:
+EOF
+
+  WEBHOOK_COUNT=$(bashio::config 'alertmanager_webhook_urls | length')
+  if [[ "${WEBHOOK_COUNT}" -gt 0 ]]; then
+    for index in $(bashio::config 'alertmanager_webhook_urls|keys'); do
+      URL=$(bashio::config "alertmanager_webhook_urls[${index}]")
+      cat <<EOF
+      - url: "${URL}"
+        send_resolved: true
+EOF
+    done
+  else
+    # Empty webhook list — alertmanager still needs a valid config
+    echo "      []"
+  fi
+} > /etc/alertmanager/alertmanager.yml
+
+bashio::log.info "Generated /etc/alertmanager/alertmanager.yml"
+
+# ── Loki config ──────────────────────────────────────────────────────────────
+cat > /etc/loki/loki.yml <<EOF
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+  grpc_listen_port: 9095
+  log_level: ${LOG_LEVEL}
+
+common:
+  path_prefix: /data/loki
+  storage:
+    filesystem:
+      chunks_directory: /data/loki/chunks
+      rules_directory: /data/loki/rules
+  replication_factor: 1
+  ring:
+    kvstore:
+      store: inmemory
+
+schema_config:
+  configs:
+    - from: "2024-01-01"
+      store: tsdb
+      object_store: filesystem
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
+
+limits_config:
+  retention_period: ${LOKI_RETENTION:-720h}
+
+compactor:
+  working_directory: /data/loki/compactor
+  delete_request_store: filesystem
+  compaction_interval: 10m
+  retention_enabled: true
+  retention_delete_delay: 2h
+  retention_delete_worker_count: 150
+
+analytics:
+  reporting_enabled: false
+EOF
+
+bashio::log.info "Generated /etc/loki/loki.yml"
+
+# ── Grafana config ───────────────────────────────────────────────────────────
+cat > /etc/grafana/grafana.ini <<EOF
+[paths]
+data = /data/grafana
+logs = /data/grafana/logs
+plugins = /data/grafana/plugins
+provisioning = /etc/grafana/provisioning
+
+[server]
+http_addr = 0.0.0.0
+http_port = 3000
+
+[security]
+admin_user = ${GRAFANA_USER}
+admin_password = ${GRAFANA_PASS}
+
+[log]
+level = ${LOG_LEVEL}
+
+[analytics]
+reporting_enabled = false
+check_for_updates = false
+check_for_plugin_updates = false
+
+[panels]
+disable_sanitize_html = true
+EOF
+
+bashio::log.info "Generated /etc/grafana/grafana.ini"
+
+# ── Grafana datasource provisioning ─────────────────────────────────────────
+cat > /etc/grafana/provisioning/datasources/datasources.yml <<EOF
+apiVersion: 1
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://127.0.0.1:9090
+    isDefault: true
+    editable: true
+  - name: Alertmanager
+    type: alertmanager
+    access: proxy
+    url: http://127.0.0.1:9093
+    editable: true
+    jsonData:
+      implementation: prometheus
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://127.0.0.1:3100
+    editable: true
+EOF
+
+bashio::log.info "Provisioned Grafana datasources (Prometheus, Alertmanager, Loki)"
+bashio::log.info "Initialization complete"

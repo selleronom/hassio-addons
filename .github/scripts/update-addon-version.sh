@@ -31,6 +31,12 @@ while IFS= read -r changed_file; do
 
 	echo "Processing: $addon_dir"
 
+	# Skip addons that manage their own version
+	if [ -f "${addon_dir}/.manual-version" ]; then
+		echo "Manual version marker found in $addon_dir, skipping"
+		continue
+	fi
+
 	# Try renovate-annotated Alpine package (line after # renovate: datasource=repology)
 	version=$(awk '/# renovate: datasource=repology/{getline; match($0, /[a-z][a-z0-9_-]+=([0-9][^ \\]*)/, arr); if (arr[1]) print arr[1]}' "$changed_file" | head -1)
 

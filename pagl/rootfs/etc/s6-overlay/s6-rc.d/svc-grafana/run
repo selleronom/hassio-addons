@@ -1,0 +1,11 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Start Grafana
+# ==============================================================================
+
+bashio::log.info "Starting Grafana..."
+
+exec grafana server \
+  --config=/etc/grafana/grafana.ini \
+  --homepath=/usr/share/grafana

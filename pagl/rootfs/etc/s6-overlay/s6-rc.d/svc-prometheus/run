@@ -1,0 +1,14 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Start Prometheus
+# ==============================================================================
+
+bashio::log.info "Starting Prometheus..."
+
+exec prometheus \
+  --config.file=/etc/prometheus/prometheus.yml \
+  --storage.tsdb.path=/data/prometheus \
+  --storage.tsdb.retention.time=30d \
+  --web.listen-address=0.0.0.0:9090 \
+  --web.enable-lifecycle

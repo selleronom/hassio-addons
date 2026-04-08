@@ -1,0 +1,60 @@
+name: PAGL Stack
+slug: pagl
+description: Prometheus, Alertmanager, Grafana & Loki monitoring stack
+version: 0.2.0
+url: https://github.com/selleronom/hassio-addons/tree/main/pagl
+arch:
+  - aarch64
+  - amd64
+init: false
+homeassistant_api: true
+startup: services
+ports:
+  9090/tcp: null
+  9093/tcp: null
+  3000/tcp: null
+  3100/tcp: null
+ports_description:
+  9090/tcp: Prometheus
+  9093/tcp: Alertmanager
+  3000/tcp: Grafana
+  3100/tcp: Loki
+panel_icon: mdi:chart-line
+backup: cold
+backup_exclude:
+  - "**/wal"
+schema:
+  log_level: list(debug|info|warn|error)
+  scrape_interval: str
+  evaluation_interval: str
+  loki_retention_period: str?
+  grafana_admin_user: str
+  grafana_admin_password: password
+  ha_scrape_target: bool
+  scrape_targets:
+    - job_name: str
+      target: str
+      metrics_path: str?
+      scrape_interval: str?
+      labels:
+        - name: str
+          value: str?
+  alert_rules:
+    - name: str
+      expr: str
+      for: str?
+      severity: str?
+      summary: str?
+  alertmanager_webhook_urls:
+    - str
+options:
+  log_level: info
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  loki_retention_period: 720h
+  grafana_admin_user: admin
+  grafana_admin_password: changeme
+  ha_scrape_target: true
+  scrape_targets: []
+  alert_rules: []
+  alertmanager_webhook_urls: []
