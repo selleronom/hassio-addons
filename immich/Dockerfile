@@ -1,6 +1,6 @@
 # check=skip=SecretsUsedInArgOrEnv
 ARG BUILD_FROM=ghcr.io/home-assistant/base-debian:trixie
-ARG IMMICH_VERSION=v2.7.2
+ARG IMMICH_VERSION=v2.7.3
 ARG POSTGRES_VERSION=pg18-v1.1.1
 ARG VALKEY_VERSION=9.1-trixie
 
