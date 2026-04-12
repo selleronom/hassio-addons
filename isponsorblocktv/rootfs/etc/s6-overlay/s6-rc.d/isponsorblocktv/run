@@ -23,4 +23,4 @@ bashio::log.debug "Data directory: /data"
 bashio::log.debug "Config file: /data/config.json"
 
 # Run the application
-exec python3 -u /app/main.pyc --data /data
+exec iSponsorBlockTV --data /data
