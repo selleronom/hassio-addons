@@ -12,6 +12,7 @@ RUN apt-get update \
     libportaudio2 \
     libpulse0 \
     libasound2-plugins \
+    alsa-utils \
     && rm -rf /var/lib/apt/lists/* \
     && curl -LsSf https://astral.sh/uv/install.sh | sh \
     && uv tool install sendspin==${SENDSPIN_VERSION}
