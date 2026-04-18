@@ -1,0 +1,9 @@
+#!/usr/bin/with-contenv bash
+set -euo pipefail
+
+source /usr/local/bin/load-env.sh
+
+exec meilisearch \
+  --db-path /data/meilisearch \
+  --no-analytics \
+  --http-addr 127.0.0.1:7700

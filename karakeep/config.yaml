@@ -1,0 +1,59 @@
+name: Karakeep
+version: "0.31.0-1"
+slug: karakeep
+description: Bookmark manager for the data hoarder — save links, notes, and images with automatic tagging
+url: https://karakeep.app
+webui: "http://[HOST]:[PORT:3000]"
+arch:
+  - aarch64
+  - amd64
+init: false
+startup: services
+map:
+  - type: addon_config
+    read_only: false
+backup: cold
+backup_exclude:
+  - "**/cache"
+  - "**/logs"
+tmpfs: true
+schema:
+  NEXTAUTH_SECRET: str
+  MEILI_MASTER_KEY: str
+  NEXTAUTH_URL: str?
+  TZ: str?
+  LOG_LEVEL: list(debug|notice|warning|error)?
+  DISABLE_SIGNUPS: bool?
+  DB_WAL_MODE: bool?
+  MAX_ASSET_SIZE_MB: int(1,)?
+  OPENAI_API_KEY: str?
+  OPENAI_BASE_URL: str?
+  OLLAMA_BASE_URL: str?
+  INFERENCE_TEXT_MODEL: str?
+  INFERENCE_IMAGE_MODEL: str?
+  INFERENCE_LANG: str?
+  CRAWLER_VIDEO_DOWNLOAD: bool?
+  OCR_LANGS: str?
+  PROMETHEUS_AUTH_TOKEN: str?
+  env_vars:
+    - key: match(^[A-Za-z0-9_-]+$)
+      value: str
+options:
+  NEXTAUTH_SECRET: ""
+  MEILI_MASTER_KEY: ""
+  TZ: Etc/UTC
+  LOG_LEVEL: debug
+  DISABLE_SIGNUPS: false
+  DB_WAL_MODE: true
+  MAX_ASSET_SIZE_MB: 50
+  INFERENCE_TEXT_MODEL: gpt-5.4-mini
+  INFERENCE_IMAGE_MODEL: gpt-image-1-mini
+  INFERENCE_LANG: english
+  CRAWLER_VIDEO_DOWNLOAD: false
+  OCR_LANGS: eng
+  env_vars: []
+ports:
+  3000/tcp: null
+ports_description:
+  3000/tcp: Karakeep Web UI
+image: "ghcr.io/selleronom/karakeep"

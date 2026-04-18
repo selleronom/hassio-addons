@@ -1,0 +1,71 @@
+configuration:
+  NEXTAUTH_SECRET:
+    name: NextAuth Secret
+    description: >-
+      Random string used to sign JWT tokens. Generate one with: `openssl rand -base64 36`
+  MEILI_MASTER_KEY:
+    name: Meilisearch Master Key
+    description: >-
+      Master key for authenticating with the built-in Meilisearch instance. Generate one with: `openssl rand -base64 36 | tr -dc 'A-Za-z0-9'`
+  NEXTAUTH_URL:
+    name: External URL
+    description: >-
+      The external URL of your Karakeep instance (e.g. `https://karakeep.example.com`). Required when behind a reverse proxy for correct redirects and OAuth callbacks. Leave empty if accessing directly via Home Assistant.
+  TZ:
+    name: Timezone
+    description: >-
+      Timezone for displaying dates and times. (Default: `Etc/UTC`) Find your timezone: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  LOG_LEVEL:
+    name: Log Level
+    description: >-
+      Application log level. Use `notice` or `warning` in production.
+  DISABLE_SIGNUPS:
+    name: Disable Signups
+    description: >-
+      Disable new user registrations. Enable after creating your account.
+  DB_WAL_MODE:
+    name: SQLite WAL Mode
+    description: >-
+      Enable WAL mode for the SQLite database. Improves performance on local storage. Only disable if the database is on a network-attached drive.
+  MAX_ASSET_SIZE_MB:
+    name: Max Asset Size (MB)
+    description: >-
+      Maximum allowed asset upload size in megabytes.
+  OPENAI_API_KEY:
+    name: OpenAI API Key
+    description: >-
+      API key for OpenAI. Enables automatic AI tagging and summarization of bookmarks.
+  OPENAI_BASE_URL:
+    name: OpenAI Base URL
+    description: >-
+      Custom base URL for an OpenAI-compatible API (e.g. Azure OpenAI, LiteLLM). Leave empty to use the default OpenAI endpoint.
+  OLLAMA_BASE_URL:
+    name: Ollama Base URL
+    description: >-
+      Address of your Ollama instance for local AI inference (e.g. `http://192.168.1.100:11434`).
+  INFERENCE_TEXT_MODEL:
+    name: Text Inference Model
+    description: >-
+      Model used for text-based AI tagging. Change when using Ollama (e.g. `llama3`).
+  INFERENCE_IMAGE_MODEL:
+    name: Image Inference Model
+    description: >-
+      Model used for image-based AI tagging. Must support vision APIs when using Ollama (e.g. `llava`).
+  INFERENCE_LANG:
+    name: Inference Language
+    description: >-
+      Language in which AI-generated tags will be created.
+  CRAWLER_VIDEO_DOWNLOAD:
+    name: Video Download
+    description: >-
+      Enable downloading videos from bookmarked pages using yt-dlp. Resource-intensive — increases storage and CPU usage.
+  OCR_LANGS:
+    name: OCR Languages
+    description: >-
+      Comma-separated list of Tesseract language codes for image text extraction. Codes: https://tesseract-ocr.github.io/tessdoc/Data-Files-in-different-versions.html
+  PROMETHEUS_AUTH_TOKEN:
+    name: Prometheus Auth Token
+    description: >-
+      Bearer token for the `/api/metrics` Prometheus endpoint. If empty, a random token is generated on each startup.
+network:
+  3000/tcp: Karakeep Web UI

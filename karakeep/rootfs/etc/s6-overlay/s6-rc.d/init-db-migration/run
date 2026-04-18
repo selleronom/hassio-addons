@@ -1,0 +1,8 @@
+#!/usr/bin/with-contenv bash
+set -euo pipefail
+
+source /usr/local/bin/load-env.sh
+
+echo "Running Karakeep database migration" >&2
+cd /db_migrations
+exec node index.js

@@ -1,0 +1,8 @@
+#!/usr/bin/with-contenv bash
+set -euo pipefail
+
+source /usr/local/bin/load-env.sh
+
+echo "Starting Karakeep workers" >&2
+cd /app/apps/workers
+exec node dist/index.js

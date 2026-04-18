@@ -1,0 +1,10 @@
+#!/usr/bin/with-contenv bash
+set -euo pipefail
+
+source /usr/local/bin/load-env.sh
+
+mkdir -p \
+  /data \
+  /data/meilisearch \
+  /data/assets \
+  /config

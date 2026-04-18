@@ -1,0 +1,8 @@
+#!/usr/bin/with-contenv bash
+set -euo pipefail
+
+source /usr/local/bin/load-env.sh
+
+echo "Starting Karakeep web server" >&2
+cd /app/apps/web
+exec node server.js
