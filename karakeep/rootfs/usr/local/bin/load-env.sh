@@ -66,11 +66,11 @@ export MEILI_NO_ANALYTICS="true"
 export BROWSER_WEB_URL="http://127.0.0.1:9222"
 export NEXTAUTH_URL_INTERNAL="http://localhost:3000"
 
-# Memory-tuned defaults for constrained environments
-export CRAWLER_NUM_WORKERS="${CRAWLER_NUM_WORKERS:-1}"
-export INFERENCE_NUM_WORKERS="${INFERENCE_NUM_WORKERS:-1}"
-export SEARCH_NUM_WORKERS="${SEARCH_NUM_WORKERS:-1}"
-export CRAWLER_PARSER_MEM_LIMIT_MB="${CRAWLER_PARSER_MEM_LIMIT_MB:-256}"
+# Worker concurrency
+export CRAWLER_NUM_WORKERS="$(read_option '.CRAWLER_NUM_WORKERS' '2')"
+export INFERENCE_NUM_WORKERS="$(read_option '.INFERENCE_NUM_WORKERS' '2')"
+export SEARCH_NUM_WORKERS="$(read_option '.SEARCH_NUM_WORKERS' '2')"
+export CRAWLER_PARSER_MEM_LIMIT_MB="$(read_option '.CRAWLER_PARSER_MEM_LIMIT_MB' '256')"
 
 # Process custom env_vars from options (catch-all for any Karakeep env var)
 if [[ -r "${OPTIONS_FILE}" ]]; then

@@ -55,6 +55,22 @@ configuration:
     name: Inference Language
     description: >-
       Language in which AI-generated tags will be created.
+  CRAWLER_NUM_WORKERS:
+    name: Crawler Workers
+    description: >-
+      Number of concurrent crawler workers for fetching bookmarked pages. Increase for faster processing, decrease to save resources.
+  INFERENCE_NUM_WORKERS:
+    name: Inference Workers
+    description: >-
+      Number of concurrent AI inference workers for tagging and summarization. Increase if you have a fast API provider or local GPU.
+  SEARCH_NUM_WORKERS:
+    name: Search Indexing Workers
+    description: >-
+      Number of concurrent workers for indexing content into Meilisearch.
+  CRAWLER_PARSER_MEM_LIMIT_MB:
+    name: Crawler Parser Memory Limit (MB)
+    description: >-
+      Maximum memory in MB that the page parser (Monolith) can use per page. Increase if large pages fail to save.
   CRAWLER_VIDEO_DOWNLOAD:
     name: Video Download
     description: >-

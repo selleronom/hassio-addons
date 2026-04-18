@@ -1,5 +1,5 @@
 name: Karakeep
-version: "0.31.0-1"
+version: "0.31.0-2"
 slug: karakeep
 description: Bookmark manager for the data hoarder — save links, notes, and images with automatic tagging
 url: https://karakeep.app
@@ -32,6 +32,10 @@ schema:
   INFERENCE_TEXT_MODEL: str?
   INFERENCE_IMAGE_MODEL: str?
   INFERENCE_LANG: str?
+  CRAWLER_NUM_WORKERS: int(1,)?
+  INFERENCE_NUM_WORKERS: int(1,)?
+  SEARCH_NUM_WORKERS: int(1,)?
+  CRAWLER_PARSER_MEM_LIMIT_MB: int(64,)?
   CRAWLER_VIDEO_DOWNLOAD: bool?
   OCR_LANGS: str?
   PROMETHEUS_AUTH_TOKEN: str?
@@ -49,6 +53,10 @@ options:
   INFERENCE_TEXT_MODEL: gpt-5.4-mini
   INFERENCE_IMAGE_MODEL: gpt-image-1-mini
   INFERENCE_LANG: english
+  CRAWLER_NUM_WORKERS: 2
+  INFERENCE_NUM_WORKERS: 2
+  SEARCH_NUM_WORKERS: 2
+  CRAWLER_PARSER_MEM_LIMIT_MB: 256
   CRAWLER_VIDEO_DOWNLOAD: false
   OCR_LANGS: eng
   env_vars: []
