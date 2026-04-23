@@ -14,7 +14,7 @@ RUN apt-get update \
     libasound2-plugins \
     && rm -rf /var/lib/apt/lists/* \
     && curl -LsSf https://astral.sh/uv/install.sh | sh \
-    && uv tool install --with pulsectl-asyncio sendspin==${SENDSPIN_VERSION}
+    && uv tool install sendspin==${SENDSPIN_VERSION}
 
 COPY rootfs /
 RUN chmod +x /etc/s6-overlay/s6-rc.d/sendspin/run
