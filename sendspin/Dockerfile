@@ -4,7 +4,7 @@ FROM $BUILD_FROM
 ENV PATH="/root/.local/bin:${PATH}"
 
 # renovate: datasource=pypi depName=sendspin
-ARG SENDSPIN_VERSION=7.0.0
+ARG SENDSPIN_VERSION=7.1.0
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
