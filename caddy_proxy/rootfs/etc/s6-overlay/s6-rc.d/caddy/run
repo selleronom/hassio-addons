@@ -18,5 +18,11 @@ echo "$JSON_CONF" | tempio \
   -template /etc/caddy/Caddyfile.gtpl \
   -out /etc/caddy/Caddyfile
 
+bashio::log.info "Formatting Caddyfile"
+caddy fmt --overwrite /etc/caddy/Caddyfile
+
+bashio::log.info "Validating Caddyfile"
+caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+
 bashio::log.info "Starting Caddy..."
 exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile

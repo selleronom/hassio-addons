@@ -49,3 +49,35 @@ proxies:
 | `target_port`     | Backend port                               |
 | `target_protocol` | `http` or `https`                          |
 | `insecure`        | Skip TLS verification for HTTPS backends   |
+| `webhook`         | Optional wake-on-request hook (see below)  |
+
+### Webhook (optional)
+
+Fires a request to a webhook on every incoming request before proxying, then waits for the backend to come up. Useful for waking a sleeping host via a Home Assistant webhook automation that triggers Wake-on-LAN.
+
+| Option          | Required | Description                                               |
+| --------------- | -------- | --------------------------------------------------------- |
+| `host`          | Yes      | Webhook host (e.g. `homeassistant.local`)                 |
+| `path`          | Yes      | Webhook path (e.g. `/api/webhook/<id>`)                   |
+| `port`          | No       | Webhook port (defaults to 80)                             |
+| `health_uri`    | No       | Path on backend to poll while waiting (default `/health`) |
+| `ready_timeout` | No       | How long to wait for backend (default `120s`)             |
+
+Note: the webhook returns a 2xx for the proxied request to proceed; non-2xx responses are sent back to the client.
+
+Example:
+
+```yaml
+proxies:
+  - subdomain: inference
+    target_host: edesktop.home.arpa
+    target_port: 8080
+    target_protocol: http
+    insecure: false
+    webhook:
+      host: homeassistant.local
+      port: 8123
+      path: /api/webhook/-_fqIY48GNwAcMVuK22_jcWan
+      health_uri: /health
+      ready_timeout: 120s
+```
