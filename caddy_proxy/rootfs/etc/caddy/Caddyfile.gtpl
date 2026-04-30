@@ -25,6 +25,11 @@
 	{{ if .subdomain }}
 	@{{ .subdomain }} host {{ .subdomain }}.{{ $.options.domain }}
 	handle @{{ .subdomain }} {
+		{{ if and .webhook .webhook.uri }}
+		forward_auth {{ .webhook.uri }} {
+			copy_headers {}
+		}
+		{{ end }}
 		reverse_proxy {{ .target_protocol }}://{{ .target_host }}:{{ .target_port }} {
 			flush_interval -1
 			{{ if eq .target_protocol "https" }}
@@ -34,6 +39,12 @@
 			transport http {
 				tls_insecure_skip_verify
 			}
+			{{ end }}
+			{{ if and .webhook .webhook.uri }}
+			lb_try_duration {{ if .webhook.ready_timeout }}{{ .webhook.ready_timeout }}{{ else }}120s{{ end }}
+			lb_try_interval 5s
+			health_uri {{ if .webhook.health_uri }}{{ .webhook.health_uri }}{{ else }}/health{{ end }}
+			health_interval 10s
 			{{ end }}
 		}
 	}
