@@ -2,7 +2,7 @@ ARG BUILD_FROM=ghcr.io/home-assistant/base:3.23
 FROM $BUILD_FROM
 
 # renovate: datasource=pypi depName=isponsorblocktv
-ARG ISPONSORBLOCKTV_VERSION=2.7.0
+ARG ISPONSORBLOCKTV_VERSION=2.8.1
 
 RUN apk add --no-cache uv \
     && uv tool install --python 3.13 --index-strategy unsafe-best-match \
