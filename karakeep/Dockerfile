@@ -1,6 +1,6 @@
 # check=skip=SecretsUsedInArgOrEnv
 ARG BUILD_FROM=ghcr.io/home-assistant/base-debian:trixie
-ARG KARAKEEP_VERSION=0.31.0
+ARG KARAKEEP_VERSION=0.32.0
 ARG MEILISEARCH_VERSION=v1.41.0
 
 FROM ghcr.io/karakeep-app/karakeep:${KARAKEEP_VERSION} AS karakeep
