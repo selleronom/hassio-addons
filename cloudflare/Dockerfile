@@ -5,7 +5,7 @@ FROM $BUILD_FROM
 ARG CLOUDFLARED_VERSION=2026.3.0
 RUN apk add --no-cache \
     --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing \
-    cloudflared=${CLOUDFLARED_VERSION}-r0
+    cloudflared=${CLOUDFLARED_VERSION}-r2
 
 COPY rootfs /
 RUN chmod +x /etc/s6-overlay/s6-rc.d/cloudflared/run
